@@ -1,0 +1,9 @@
+<PAMDataset>
+  <PAMRasterBand band="1">
+    <CategoryNames>
+      <Category>Rd10A</Category>
+      <Category>Rd90C/VII</Category>
+      <Category>Bkd26/VII</Category>
+    </CategoryNames>
+  </PAMRasterBand>
+</PAMDataset>

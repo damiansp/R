@@ -1,0 +1,1 @@
+1 vsnow4 cat $GISDBASE/$LOCATION_NAME/$MAPSET/dbf/ dbf

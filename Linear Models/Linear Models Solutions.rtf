@@ -1,0 +1,629 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww13180\viewh15060\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 Solutions to 
+\i Linear Models with R
+\i0  problems.\
+\
+
+\b Chapter 3 Inference\
+
+\b0 \
+1)\
+	> g <- lm(lpsa~lcavol+lweight+age+lbph+svi+lcp+gleason+pgg45, data=prostate)\
+	> summary(g)\
+	\
+	a)\
+		> confint(g)\
+		> confint(g, level=0.9)\
+	b)\
+		> library(ellipse)\
+		> plot(ellipse(g, c(4, 5)), type="l") 		#c(4,5) refers to rows 4 (age) and 5 (lbph) of g\
+		> points(0,0) 					#plots origin = location of null hypothesis\
+	c)\
+		> x0 <- data.frame(lcavol=1.44692, lweight=3.62301, age=65, lbph=0.3001, svi=0, lcp=-0.79851, gleason=7, pgg45=15)\
+		> str(predict(g, x0, se=T))			#str displays structure of r object\
+		> predict(g, x0, interval="confidence")\
+		> predict(g, x0, interval="prediction")\
+	d)\
+		> x0 <- data.frame(lcavol=1.44692, lweight=3.62301, age=20, lbph=0.3001, svi=0, lcp=-0.79851, gleason=7, pgg45=15)\
+		> str(predict(g, x0, se=T))\
+		> predict(g, x0, interval="confidence")\
+		> predict(g, x0, interval="prediction")\
+\
+2)\
+	> g3 <- lm(lpsa~lcavol+lweight+svi, data=prostate)\
+	> summary(g3)\
+\
+	a) (1c):\
+		> str(predict(g3, x0, se=T))\
+		> predict(g3, x0, interval="confidence")\
+		> predict(g3, x0, interval="prediction")\
+	b)\
+		> anova(g, g3)\
+\
+3)\
+	> g <- lm(gamble~., data=teengamb)\
+\
+	a) summary(g)\
+	c) \
+		> attach(teengamb)\
+		> summary(teengamb)	#to extract mean & max values\
+		> x0 <- data.frame(sex=0, status=45.23, income=4.642, verbal=6.66)\
+		> str(predict(g, x0, se=T))\
+		> predict(g, x0, interval="confidence")\
+\
+		> x0 <- data.frame(sex=0, status=75, income=15, verbal=10)\
+		> str(predict(g, x0, se=T))\
+		> predict(g, x0, interval="confidence")\
+4)\
+	a)\
+		> g <- lm(total~expend+ratio+salary, data=sat)\
+		> summary(g)\
+		> gsal <- lm(total~expend+ratio+offset(0*salary), data=sat)\
+		> summary(gsal)\
+		> anova(g, gsal)\
+		> gr <- lm(total~I(expend+ratio+salary), data=sat)\
+		> summary(gr)\
+		> anova(g, gr)\
+	b)\
+		> g <- lm(total~expend+ratio+salary+takers, data=sat)\
+		> gtak <- lm(total~expend+ratio+salary+offset(0*takers), data=sat)\
+		> anova(g, gtak)\
+\
+\
+
+\b Chapter 4: Diagnostics
+\b0 \
+\
+1)\
+	a)\
+		> g <- lm(total~expend+ratio+salary+takers)\
+		> plot(fitted(g), residuals(g), xlab="Fitted", ylab="Residuals")\
+		> abline(h=0)\
+		> plot(fitted(g), abs(residuals(g)), xlab="Fitted", ylab="|Residuals|")\
+		> summary(lm(abs(residuals(g))~fitted(g)))\
+
+\b 		
+\b0 > plot(expend, residuals(g)); abline(h=0)\
+		> plot(ratio, residuals(g)); abline(h=0)\
+		> plot(salary, residuals(g)); abline(h=0)\
+		> plot(takers, residuals(g)); abline(h=0)\
+		> var.test(residuals(g)[takers < 40], residuals(g)[takers >= 40])\
+	b)\
+		> qqnorm(residuals(g), ylab="residuals")\
+		> qqline(residuals(g))\
+		> hist(residuals(g))\
+		> shapiro.test(residuals(g))  #sig. p values mean the distribution is not normal\
+	c)\
+		> ginf <- influence(g)\
+		> ginf$hat\
+		> sum(ginf$hat) # = no. of parameters\
+		> states <- row.names(sat)\
+		> halfnorm(lm.influence(g)$hat, labs=states, ylab="leverages") #requires library(faraway)\
+		> stud <- residuals(g) / (summary(g)$sig * sqrt(1 - ginf$hat))\
+		> qqnorm(stud); qqline(stud)\
+	d)	\
+		> jack <- rstudent(g)\
+		> jack[which.max(abs(jack))]\
+		> qt(0.05/(50 * 2), 45) #tests if max value is significant;\
+			#0.05 = alpha; 50 = n (no. of states here); 45 = df = n - p - 1 (here: 50 states - 4 parameters - 1)\
+			# qt = -3.52; our value is less extreme (-3.12), so not an outlier\
+	e)\
+		> cook <- cooks.distance(g)\
+		> halfnorm(cook, 3, labs=states, ylab="Cook's Distances")\
+		> gu <- lm(total~expend+ratio+salary+takers, subset=(cook < max(cook))); summary(g); summary(gu)\
+		> plot(ginf$coef[,2], ylab = "change in expend coefficient")\
+		> identify(1:50, ginf$coef[,2], states)\
+		> plot(ginf$coef[,3], ylab = "change in ratio coefficient")\
+		> identify(1:50, ginf$coef[,3], states)\
+		> plot(ginf$coef[,4], ylab = "change in salary coefficient")\
+		> identify(1:50, ginf$coef[,4], states)\
+	f)\
+		should, in principal, be done with all parameters.  here I just test expend with one method, and salary with another\
+		> d <- residuals(lm(total~ratio+salary+takers)) #leave expend out of the model\
+		> m <- residuals(lm(expend~ratio+salary+takers)) #and test its response from the other parameters\
+		> plot(m, d, xlab="expend residuals", ylab="sat.total residuals")\
+		> coef(lm(d~m))\
+		> abline(0, coef(g)["expend"])\
+		> plot(sat$salary, residuals(g) + coef(g)["salary"] * salary, xlab="salary", ylab = "SAT total (adjusted)")\
+		> abline(0, coef(g)["salary"])\
+		\
+		same as:\
+		> prplot(g, 3)  #3 = index of predictor (salary); requires library(faraway)\
+\
+
+\b \
+Chapter 5: Problems with the Predictors\
+\
+
+\b0 1)\
+	> library(faraway); data(faithful)\
+	> g <- lm(eruptions~waiting); abline(g)\
+	> vv <- rep(1:5/10, each = 2720)	#creates a vector of variances 0.1~0.5 each 2720 (= 10X length of orig. vector)\
+	> slopes <- numeric(13600) # 5X length(vv)\
+	> for(i in 1:13600) slopes[i] <- lm(eruptions~I(waiting + sqrt(vv[i]) * rnorm(length(waiting))))$coef[2]\
+	> betas <- c(coef(g)[2], colMeans(matrix(slopes, nrow=2720)))\
+	> variances <- c(0, 1:5/10) + 0.5\
+	> plot(variances, betas, xlim=c(0, 1), ylim=c(0.0754, 0.0759))\
+	> coef(gv)\
+	> abline(gv)\
+	> points(0, gv$coef[1], pch=3)\
+	> plot(eruptions~waiting)\
+	> abline(g)\
+	> abline(g$coef[1], gv$coef[1], lty=2)\
+
+\b \
+
+\b0 3)\
+	a)\
+		> g <- lm(divorce~unemployed + femlab + marriage + birth + military)\
+		> round(cor(divusa), 3)\
+		> x <- model.matrix(g)[,-1]	#[,-1] removes the intercept column\
+		> e <- eigen(t(x) %*% x)\
+		> e$val\
+		> sqrt(e$val[1] / e$val)	#this gives the condition numbers; large (\uc0\u8805 30 values indicate mult. linear combinations)\
+	b)\
+		> summary(lm(x[,1]~x[,-1]))$r.squared	#measures predictor 1 (unemployed) agst all others\
+		> 1/(1-0.5561)	#this is the variance inflation factor; 0.5561 is the r sq. value from previous line; VIF = 1 if orthogonal\
+		> vif(x)	#computes all VIFs at once (so prev. 2 steps do not have to be repeated for each predictor); requires library(faraway)\
+\
+
+\b 	
+\b0 b)\
+		repeat above with reduced model\
+\
+4)\
+	a) \
+		> data(longley); attach(longley)\
+		> g <- lm(Employed~., data=longley); summary(g)\
+		> x <- model.matrix(g)[,-1]	#[,-1] removes the intercept column\
+		> e <- eigen(t(x) %*% x)\
+		> sqrt(e$val[1] / e$val)	#this gives the condition numbers; large (\uc0\u8805 30 values indicate mult. linear combinations)\
+	b)\
+
+\b 		
+\b0 > vif(x)\
+	c)\
+		> gsig <- lm(Employed~Unemployed+Armed.Forces+Year); summary(gsig)\
+		> x <- model.matrix(gsig)[,-1]	#[,-1] removes the intercept column\
+		> e <- eigen(t(x) %*% x)\
+		> sqrt(e$val[1] / e$val)	#this gives the condition numbers; large (\uc0\u8805 30 values indicate mult. linear combinations)
+\b \
+
+\b0 		> vif(x)\
+5)\
+	a) 	\
+		> g <- lm(lpsa~., data=prostate); summary(g)\
+		> x <- model.matrix(g)[,-1]	#[,-1] removes the intercept column\
+		> e <- eigen(t(x) %*% x)\
+		> sqrt(e$val[1] / e$val)	#this gives the condition numbers; large (\uc0\u8805 30 values indicate mult. linear combinations)\
+	b)\
+		> round(cor(prostate), 3)\
+	c)\
+		> vif(x)\
+\
+\
+
+\b Chapter 6: Problems with the Error
+\b0 \
+\
+1)\
+	a)\
+		> plot(Lab~Field)\
+		> pipeline.lm <- lm(Lab~Field); summary(pipeline.lm)\
+		> plot(pipeline.lm)\
+	b)\
+		> i <- order(pipeline$Field)\
+		> npipe <- pipeline[i,]\
+		> ff <- gl(12, 9)[-108]\
+		> meanfield <- unlist(lapply(split(npipe$Field, ff), mean))\
+		> varlab <- unlist(lapply(split(npipe$Lab, ff), var))\
+		> meanfield <- meanfield[-12]; varlab <- varlab[-12]	#the last datum is removed b/c it is wonky\
+		> plot(meanfield, varlab)\
+		> fieldlab.nls <- nls(varlab~a*(meanfield^b), start=list(a=2.25, b=1)) #list= initial parameter estimates\
+		> summary(fieldlab.nls)	#estimates: a = 0.02248, b = 2.23131\
+		> plot(Field, Lab)\
+		> fieldlab.lm.wt <- lm(Lab~Field, weights=Field^(1/2.231)\
+		> summary(fieldlab.lm.wt)\
+2)\
+	a)\
+		> g <- lm(divorce~unemployed+femlab+marriage+birth+military, data=divusa)\
+		> summary(g, cor=T)\
+\
+		#The following method comes from time series analysis, and is not mentioned in the text:\
+		> g.resid.ts <- ts(g$resid, strart=1920, fr=1)\
+		> plot(g.resid.ts, type="l"); abline(h=mean(g$resid), lty=2)\
+		> acf(g.resid.ts)	#The residuals are clearly correlated\
+\
+		#Using methods from the text:\
+		> length(g$res)	# = 77\
+		> cor(g$res[-1], g$res[-77])	#does a one year lag correlation	# = 0.85 = acf w/ k = 1\
+	b)	\
+		> library(nlme)\
+		> g.gls <- gls(divorce~unemployed+femlab+marriage+birth+military, correlation=corAR1(form=~year), method="ML", data=divusa)\
+		> summary(g.gls)	#Phi (parameter est.) = 0.97	#significant?\
+		> intervals(g.gls)	# Correlation struct: lower = 0.65, upper = 0.998; YES significant\
+	c)\
+		#Correlation is clearly due (at least in part) to temporal correlation\
+3)\
+	> g <- lm(colonies~log(dose+1))\
+	> plot(g)	#everything looks good here\
+	> summary(g)	#note: res. st. error = 10.84; see below\
+	> ga <- lm(colonies~factor(log(dose+1)))	#treats each unique group in x collectively\
+	> points(log(dose+1), fitted(ga), pch=16)	#plots x as mean for each x\
+	> anova(g, ga)	#p = 0.132, good fit\
+4)\
+	> data(cars); attach(cars)\
+	> plot(dist~speed)\
+	> g <- lm(dist~speed); summary(g); plot(g)	#possible non-constant variance; #res. s.e. = 15.38\
+	> ga <- lm(dist~factor(speed))	#aggregates groups with same x\
+	> points(speed, fitted(ga), pch=16)	#plots mean y for ea. x group\
+	> anova(g, ga)	#p = 0.294, indicating good fit.\
+\
+	Alternately:\
+	> g2 <- lm(dist~speed+I(speed^2))\
+	> summary(g2)	#quadratic term is not significant\
+5)\
+	a)\
+		> gls <- lm(stack.loss~Air.Flow + Water.Temp + Acid.Conc.); summary(gls) #least squares method\
+	b)	\
+		> library(quantreg)\
+		> g.lad <- rq(stack.loss~Air.Flow + Water.Temp + Acid.Conc.); summary(g.lad) #least absolute deviations method\
+	c)\
+		> library(MASS)\
+		> gr <- rlm(stack.loss~Air.Flow + Water.Temp + Acid.Conc.); summary(gr) #Huber method\
+	d)\
+		> g.lts <- ltsreg(stack.loss~Air.Flow + Water.Temp + Acid.Conc.); summary(g.lts) #least trimmed squares method\
+		> coef(g.lts)\
+		> g.lts <- ltsreg(stack.loss~Air.Flow + Water.Temp + Acid.Conc.); \
+		> coef(g.lts) \
+		> g.lts <- ltsreg(stack.loss~Air.Flow + Water.Temp + Acid.Conc., nsamp="exact"); #may be prohibit. slow w large datasets\
+		> coef(g.lts)\
+	> plot(gls)	#outlier: 21\
+	> plot(gr)	#same\
+	> gls.21 <- lm(stack.loss[-21]~Air.Flow[-21] + Water.Temp[-21] + Acid.Conc.[-21]); summary(gls) #pt. 21 removed \
+\
+\
+
+\b Chapter 7: Transformation\
+\
+
+\b0 1)\
+	a) \
+		> plot(temp~year, type="l")\
+		> g <- lm(temp~year)\
+		> abline(g)\
+		> summary(g)	#yes there appears to be a linear trend\
+	b)\
+		> acf(temp)	#yes temporally correlated \
+	c)	\
+		> g10 <- lm(temp~year+I(year^2)+I(year^3)+I(year^4)+I(year^5)+I(year^6)+I(year^7)+I(year^8)+I(year^9)+I(year^10))\
+		> g10 <- update(g10, ~. -I(year^10))\
+		> g10 <- update(g10, ~. -I(year^9))\
+		> g10 <- update(g10, ~. -I(year^7))\
+		> g10 <- update(g10, ~. -I(year^6))\
+		> g10 <- update(g10, ~. -I(year^5))	#minimum model\
+		> plot(temp~year, type="l")\
+		> ##??? How to fit predicted data?\
+	d)\
+		> plot(temp~year, type="l")\
+		> g1 <- lm(temp~year, subset=(year < 1931))\
+		> g2 <- lm(temp~year, subset=(year > 1930))\
+		> plot(temp~year, xlab="Year", ylab="Temp")\
+		> abline(v = 1930, lty=5)\
+		> segments(1850, g1$coef[1] + g1$coef[2] * 1850, 1931, g1$coef[1] + g1$coef[2] * 1930)\
+		> segments(2000, g2$coef[1] + g2$coef[2] * 2000, 1930, g2$coef[1] + g2$coef[2] * 1930)\
+		> ##if not loaded rewrite functions: lhs(x, cutoff), rhs(x, cutoff); [left/right hand side]\
+		> lhs <- function(x, cutoff) ifelse(x < cutoff, cutoff-x, 0)\
+		> rhs <- function(x, cutoff) ifelse(x < cutoff, 0, cutoff-x)\
+		> gb <- lm(temp~lhs(year, 1930) + rhs(year, 1930))\
+		> x <- seq(1850, 2000, 1)\
+		> py <- gb$coef[1] + gb$coef[2] * lhs(x, 1930) + gb$coef[3] * rhs(x, 1930)\
+		> lines(x, py, col="red")\
+		> summary(gb)	#lhs appears to have sig. slope\
+2)\
+	> library(MASS)\
+	> g <- lm(yield~nitrogen, cornnit)\
+	> boxcox(g)\
+	> boxcox(g, lambda=seq(1.5, 4.5, 0.5))	#lambda peaks near 2.75\
+	> plot(g)	#untransformed fit is already quite good\
+	> hist(yield)	#noticeable left-skew\
+	> shapiro.test(yield)	#sig non-normal--apply transformation g(y) = ((y^lambda) - 1) / lambda\
+	> yield.Tr <- ((yield^2.75) - 1) / 2.75\
+	> g.Tr <- lm(yield.Tr~nitrogen)\
+	> plot(yield.Tr~nitrogen)\
+	> abline(g.Tr)\
+	> summary(g)\
+	> summary(g.Tr)	#much better job of explaining the variance\
+	> plot(g)\
+	> plot(g.Tr)	#note leverages greatly reduced\
+	> shapiro.test(yield.Tr) #no longer non-normal\
+3)\
+	> library(MASS)\
+	> data(ozone)\
+	> g <- lm(O3 ~ temp + humidity + ibh, ozone)\
+	> boxcox(g)\
+	> boxcox(g, lambda = seq(0, 1, 0.05))\
+	> boxcox(g, lambda = seq(0.2, 0.4, 0.01))	#lambda peaks around 0.255\
+	> O3.tr <- (O3^0.255 -1) / 0.255\
+	> g.tr <- lm(O3.tr ~ temp + humidity + ibh, ozone)\
+4)\
+	> data(pressure)\
+	> attach(pressure)\
+	> g <- lm(temperature~pressure)\
+	> hist(temperature)\
+	> g1 <- lm(temperature+1~pressure, pressure)	#values must be >0 for boxcar\
+	> boxcox(g1)\
+	> boxcox(g1, lambda = seq(0.5, 1.5, 0.1))	#lambda peaks near 1.1\
+	> temp.tr <- ((temperature+1)^1.1 - 1) / 1.1\
+	> g.tr <- lm(temp.tr ~ pressure, pressure) \
+	> g.tr <- lm(temp.tr ~ pressure + I(pressure^2), pressure)\
+	> g.tr <- lm(temp.tr ~ pressure + I(pressure^2) + I(pressure^3), pressure)	#optimal model using these methods, but still not \
+												#a very good fit\
+\
+
+\b \
+Chapter 8: Variable Selection\
+
+\b0 \
+1)\
+	a)\
+
+\b 		
+\b0 > g <- lm(lpsa~ ., prostate)\
+		> summary(g)\
+		> g <- update(g, ~. -gleason)\
+		> summary(g)\
+		> g <- update(g, ~. -lcp)\
+		> summary(g)\
+		> g <- update(g, ~. -pgg45)\
+		> summary(g)\
+		> g <- update(g, ~. -age)\
+		> summary(g)\
+		> g <- update(g, ~. -lbph)\
+		> summary(g)	#min adequate model: lcavol, weight, svi
+\b \
+	
+\b0 b)\
+		> g <- lm(lpsa~ ., prostate)\
+		> step(g)	#min adequate model: age, lbph, weight, svi, lcavol\
+		> g <- lm(lpsa~age + lbph + lweight + svi + lcavol, prostate)\
+		> summary(g)	#note neither age or lbph are sig; i.e. same as (a)\
+	c)\
+		> library(leaps)\
+		> b <- regsubsets(lpsa~., data=prostate)\
+		> (rs <- summary(b))\
+		> plot(2:9, rs$cp, xlab="No. of parameters", ylab="Cp Statistic")\
+		> abline(0, 1)	#6 parameters is lowest below line: (int + lcavol + weight + svi + lbph + age)\
+	d)\
+		> plot(2:9, rs$adjr2, xlab="No. of parameters", ylab="Adj. R-sq.")	#peaks at 8 parameters (everything but glean)\
+\
+2)\
+	a)\
+		> g <- lm(gamble~., teengamb); summary(g)\
+		> g <- update(g, ~. -status); summary(g)\
+		> g <- update(g, ~. -verbal); summary(g)		#min adeq. (sex + income)\
+	b) \
+		> g <- lm(gamble~., teengamb)\
+		> step(g)\
+		> g <- lm(gamble~verbal+sex+income, teengamb)	#(sex and income sig.)\
+	c)\
+		> b <- regsubsets(gamble~., teengamb)\
+		> (rs <- summary(b))\
+		> plot(2:5, rs$cp); abline(0,1)	#4 param. best (all but status, same as (b))\
+	d)\
+		> plot(2:5, rs$adjr2)	#again 4 param best\
+\
+3)\
+	a)\
+		> g <- lm(divorce ~ ., divusa); summary(g)\
+		> g <- update(g, ~. -unemployed); summary(g)	#min adeq. all but unemployed\
+	b)\
+		> g <- lm(divorce ~ ., divusa); summary(g)\
+		> step(g)	#as (a)\
+	c)\
+		> b <- regsubsets(divorce ~., divusa)\
+		> (rs <- summary(b))\
+		> plot(2:7, rs$cp); abline(0,1)	#6 param model best (same as (a))\
+	d) \
+		> plot(2:7, rs$adjr2)	#6 param still best\
+\
+4)\
+	> g <- lm(log(Volume)~Girth*Height, trees); summary(g)\
+	> step(g)	#no improvement\
+	> b <- regsubsets(log(Volume)~Girth*Height, data=trees)\
+	> (rs <- summary(b))	#note interaction term is most sig.\
+	> plot(2:4, rs$cp); abline(0,1)	#Cp indicates 4 param model best\
+	> plot(2:4, rs$adjr2)	#same\
+	#just out of curiosity:\
+	> g <- lm(log(Volume) ~ Girth:Height, trees); summary(g)\
+	> step(g)	#AIC = -128.9; cf full model: AIC = -149.57; full model is best\
+\
+5) \
+	> g <- lm(stack.loss ~ ., stackloss); summary(g)\
+	> step(g)	#rm Acid.Conc.\
+	> b <- regsubsets(stack.loss ~., data=stackloss)\
+	> (rs <- summary(b))\
+	> plot(2:4, rs$cp); abline(0,1); #3p best; remove Acid.Conc.\
+	> plot(2:4, rs$adjr2)	#same thing\
+	> g <- lm(stack.loss ~., stackloss); summary(g)\
+	> plot(g)	#21 is outlier\
+	> g <- lm(stack.loss~., data=stackloss[1:20,])\
+	> plot(g)	#better\
+	> step(g)	#rm Acid.Conc.\
+	> b <- regsubsets(stack.loss ~., data=stackloss)\
+	> (rs <- summary(b))\
+	> plot(2:4, rs$cp); abline(0,1); #3p best; remove Acid.Conc.\
+	> plot(2:4, rs$adjr2)	#same thing; removal of outlier here doesn't change sig of predictors, but does improve model fit\
+\
+\
+
+\b Chapter 9: Shrinkage Methods\
+\
+
+\b0 1)\
+	> rmse <- function(x, y) sqrt(mean( (x-y)^2))	#measures root mean square error, \
+								# a measure of goodness of fit\
+	> data(seatpos); attach(seatpos)\
+x	> g <- lm(hipcenter~HtShoes + Ht + Seated + Arm + Thigh + Leg, seatpos)\
+x	> summary(g)\
+x	> rmse(g$fit, hipcenter)	#34.0804 (awful!)\
+x	> g.step <- step(g)	#keeps only Ht & Leg as predictors, neither sig\
+x	> rmse(g.step$fit, hipcenter)	#34.34910\
+x	> seat.pca <- prcomp(seatpos[,-c(1, 2, 9)])	# [,c(1,2)] = age and weight, not yet\
+								#in the model[,9] is the response var,								# "hipcenter"\
+x	> barplot(seat.pca$sdev, ylab="SD", xlab="PC", names.arg=1:6)	#1st PC only looks best\
+x	> matplot(1:6, seat.pca$rot[,1:3], type="l", xlab="Predictors", ylab="")	#indicates\
+								#relative contribution of each predictor to 								#PCs 1-3\
+x	> g.shrink <- lm(hipcenter~seat.pca$x[,1])	#only 1st PC as predictor, addition of 2nd \
+								#PC is insignificant\
+							\
+x	> summary(g.shrink)\
+x	> rmse(g.shrink$fit, hipcenter)	#35.41--still awful but with fewer predictors\
+x	> plot(g$coef[-1], ylab="Coefficients")	#coefs of orig model range: 2~-7\
+x	> plot(seat.pca$sdev, type="l", ylab="SD of PC", xlab="PC number")	#basically same\
+							#as barplot, but easier to visualize\
+	> mm <- apply(seatpos[,-c(1,2,9)], 2, mean)\
+	> tx <- as.matrix(sweep(seatpos[,-c(1,2,9)], 2, mm))\
+	> nx <- tx %*% seat.pca$rot[,1]\
+	> pv <- cbind(1, nx) %*% g.shrink$coef\
+	> rmse(pv, hipcenter)	#35.41 (as above, but could also be applied to subsets of data)\
+	> library(pls)\
+x	> pcrmod <- pcr(hipcenter~HtShoes + Ht + Seated + Arm + Thigh + Leg, data=seatpos, validation="CV", ncomp=6)\
+x	> validationplot(pcrmod)	#yep 1 PC is optimal\
+	#Now add in Age + Weight:\
+	> g <- lm(hipcenter~HtShoes + Ht + Seated + Arm + Thigh + Leg + Age + Weight, seatpos)\
+	> summary(g)\
+	> rmse(g$fit, hipcenter)	#32.95203 (awful, but a slight improvement)\
+	> g.step <- step(g)	#keeps only HtShoes, Leg & Age as predictors, none sig	> rmse(g.step$fit, hipcenter)	#33.22879--only slightly worse\
+	> seat.pca <- prcomp(seatpos[,-9])	#in the model[,9] is the response var, "hipcenter"\
+	> barplot(seat.pca$sdev, ylab="SD", xlab="PC", names.arg=1:8)	#1st 3 PCs look good\
+	> plot(seat.pca$sdev, type="l", ylab="SD of PC", xlab="PC number")\
+	> pcrmod <- pcr(hipcenter~HtShoes + Ht + Seated + Arm + Thigh + Leg + Age + Weight, data=seatpos, validation="CV", ncomp=8) 	\
+	> validationplot(pcrmod)	#yep 3 PCs is optimal\
+	> matplot(1:8, seat.pca$rot[,1:3], type="l", xlab="Predictors", ylab="")		> g.shrink <- lm(hipcenter~seat.pca$x[,1:3])	#addition of 4th PC insig\
+	> rmse(g.shrink$fit, hipcenter)	#34.32451--still awful but with fewer predictors 	> plot(g$coef[-1], ylab="Coefficients")	#coefs of orig model range: 1~-7	\
+2)\
+	> g.pls <- plsr(hipcenter ~., data=seatpos, ncomp=7, validation="CV")\
+	> coefplot(g.pls, ncomp=4, xlab="Predictors")\
+	> summary(g.pls)\
+	> validationplot(g.pls)	#indicates that 3 is optimal no. of components\
+	> ypred <- predict(g.pls, ncomp=3)\
+	> rmse(ypred, seatpos$hipcenter)	#34.177 Better than above, with only 3 components\
+	> g.pls <- plsr(hipcenter ~., data=seatpos, ncomp=3)\
+	> summary(g.pls)\
+	\
+
+\b \
+Chapter 13 Analysis of Covariance\
+
+\b0 1)\
+	> g <- lm(gamble ~ (sex + status + income + verbal)^2, teengamb)\
+	> summary(g)\
+	> g <- step(g)\
+2)\
+	> attach(infmort)\
+	> hist(income)\
+	> shapiro.test(income)	#8e-14\'85 try transformations\
+	> shapiro.test(log.income) #4e-5--best attainable by usual transformations\
+	> hist(mortality); shapiro.test(mortality)	#3e-12\
+	> shapiro.test(log(mortality))	#0.017\
+	#To keep it simple, let's leave out interaction terms:\
+	> g <- lm(log(mortality)~region + log(income) + oil, infmort)\
+	> g <- step(g); summary(g)	#regionEurope/Asia/Americas, log(income), oilNoExp = sig\
+	> plot(log(mortality)~log(income), type="n")\
+	> points(log(mortality[oil=="no oil exports"])~log(income[oil=="no oil exports"]), col=1)
+\b \
+
+\b0 	> points(log(mortality[oil=="oil exports"])~log(income[oil=="oil exports"]), col=2)\
+	> plot(log(mortality)~log(income), type="n")\
+
+\b 	
+\b0 >
+\b  
+\b0 points(log(mortality[region=="Africa"])~log(income[region=="Africa"]), col=1, pch="F")
+\b \
+	
+\b0 > points(log(mortality[region=="Asia"])~log(income[region=="Asia"]), col=2, pch="S")\
+	> points(log(mortality[region=="Americas"])~log(income[region=="Americas"]), col=3, pch="M")\
+	> points(log(mortality[region=="Europe"])~log(income[region=="Europe"]), col=4, pch="E")\
+	> abline(7.19231,-0.33985, col=1)	#Africa\
+	> abline(7.19231-0.71292,-0.33985, col=2)	#Asia\
+	> abline(7.19231-0.54984,-0.33985, col=3)	#Americas\
+	> abline(7.19231-1.03383,-0.33985, col=4)	#Europe\
+\
+
+\b Chapter 14 One-Way Analysis of Variance\
+
+\b0 1)\
+	> library(faraway); data(pulp); pulp\
+	> with(pulp, stripchart(bright~operator, vert=T, method="stack")) #variance in a a little hard to tell.. others ok\
+	> with(pulp, plot(bright~operator))\
+	> g <- aov(bright~operator, pulp)\
+	> plot(g)\
+	> summary(g)	#operator sig. p = 0.023\
+	> TukeyHSD(g)	#d-b is only sig. diff (p = .038)\
+	> g <- lm(bright~operator, pulp)\
+	> plot(g)	#same as above\
+	> summary(g)	#op d sig. diff from a p= 0.49; overall p = 0.023 (as above)\
+2)\
+	> data(chickwts)\
+	> with(chickwts, stripchart(weight~feed, vert=T, method="stack")) #looks ok\
+	> with(chickwts, plot(weight~feed))\
+	> g <- aov(weight~feed, chickwts)\
+	> plot(g)	#looks good\
+	> summary(g)	#p = 5.9e-10\
+	> TukeyHSD(aov(weight~feed, chickwts))	#several pairwise sig\
+3)\
+	> data(PlantGrowth)\
+	> with(PlantGrowth, stripchart(weight~group, vert=T, method="stack"))\
+	> with(PlantGrowth, plot(weight~group))\
+	> g <- aov(weight~group, PlantGrowth)\
+	> plot(g)\
+	> TukeyHSD(aov(weight~group, PlantGrowth))	#treatments are sig. diff from ea. other, but not from control\
+	> attach(PlantGrowth)\
+	> group2 <- c(rep("ctrl", 10), rep("trt", 20))\
+	> cbind(PlantGrowth, group2)\
+	> with(PlantGrowth, plot(weight~group2))\
+	> g <- aov(weight~group2)\
+	> summary(g)	#p = 0.82\
+4)\
+	> data(infmort)\
+	> with(infmort, plot(income~region))\
+	> g <- aov(income~region, infmort); summary(g)\
+	> TukeyHSD(g)	#Eur sig diff from all others\
+	> plot(g)	#data very non-normal & non-const. variance\
+	> with(infmort, hist(income))\
+	> with(infmort, shapiro.test(log(income)))	#better\
+	> g <- aov(log(income)~region, infmort)\
+	> with(infmort, plot(log(income)~region))\
+	> plot(g)	#still not great\
+	> TukeyHSD(g) #Eur still sig diff from all others, and Africa-Americas sig.\
+	> library(MASS)\
+	> boxcox(g)\
+	> boxcox(g, lambda=seq(0, 0.5, 0.01))	#lambda peaks near 0.06\
+	> attach(infmort)\
+	> income.tr <- (income^0.06 -1)/0.06\
+	> g <- aov(income.tr~region)\
+	> plot(g)\
+	> TukeyHSD(g) #results as before\
+\
+
+\b Chapter15 Factorial Designs\
+\
+
+\b0 1)\
+	> data(warpbreaks)\
+	> g <- lm(breaks~wool*tension, warpbreaks)\
+	> summary(g); plot(g)\
+	> shapiro.test(log(warpbreaks$breaks))	# p = 0.799\
+	> g <- lm(log(breaks)~wool*tension, warpbreaks)\
+	> TukeyHSD(aov(log(breaks)~wool*tension, warpbreaks))\
+	> wt <- paste(warpbreaks$wool, warpbreaks$tension, sep="")\
+	> warpbreaks <- cbind(warpbreaks, wt)\
+	> TukeyHSD(aov(log(breaks)~wt), warpbreaks)\
+}

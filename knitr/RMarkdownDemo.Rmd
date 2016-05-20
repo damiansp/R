@@ -1,0 +1,34 @@
+R Markdown Demo File
+====================
+
+This is a demo R Markdown (.Rmd) file.
+
+First, load some data:
+
+```{r}
+library(datasets)
+data(airquality)
+summary(airquality)
+```
+
+Look at paired scatterplots:
+```{r}
+print(pairs(airquality))
+```
+
+Look at relation between Ozone and Temp:
+```{r}
+print(plot(airquality$Ozone ~ airquality$Temp))
+```
+
+To present summary output 
+```{r fitmodel}
+fit <- lm(Ozone ~ Wind + Temp + Solar.R, data= airquality)
+library(xtable)
+xt <- xtable(summary(fit))
+print(xt, type='html')
+```
+
+
+To convert to html, run:  
+knit2html('path/to/this/file.rmd', 'path/to/outfile.html')

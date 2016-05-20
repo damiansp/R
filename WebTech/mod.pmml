@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_2 http://www.dmg.org/v4-2/pmml-4-2.xsd">
+ <Header copyright="Copyright (c) 2015 damiansp" description="Linear Regression Model">
+  <Extension name="user" value="damiansp" extender="Rattle/PMML"/>
+  <Application name="Rattle/PMML" version="1.4"/>
+  <Timestamp>2015-07-06 16:49:36</Timestamp>
+ </Header>
+ <DataDictionary numberOfFields="4">
+  <DataField name="y" optype="continuous" dataType="double"/>
+  <DataField name="x" optype="continuous" dataType="double"/>
+  <DataField name="I(x^2)" optype="continuous" dataType="double"/>
+  <DataField name="z" optype="continuous" dataType="double"/>
+ </DataDictionary>
+ <RegressionModel modelName="Linear_Regression_Model" functionName="regression" algorithmName="least squares">
+  <MiningSchema>
+   <MiningField name="y" usageType="predicted"/>
+   <MiningField name="x" usageType="active"/>
+   <MiningField name="I(x^2)" usageType="active"/>
+   <MiningField name="z" usageType="active"/>
+  </MiningSchema>
+  <Output>
+   <OutputField name="Predicted_y" feature="predictedValue"/>
+  </Output>
+  <RegressionTable intercept="0.0182327749292796">
+   <NumericPredictor name="x" exponent="1" coefficient="3.01234462353745"/>
+   <NumericPredictor name="I(x^2)" exponent="1" coefficient="-0.00691366623130744"/>
+   <NumericPredictor name="z" exponent="1" coefficient="1.01729415262924"/>
+  </RegressionTable>
+ </RegressionModel>
+</PMML>

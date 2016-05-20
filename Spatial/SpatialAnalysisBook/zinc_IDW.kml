@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns='http://earth.google.com/kml/2.0'>
+<GroundOverlay>
+<name>R image</name>
+<Icon><href>~/Desktop/R/Spatial/SpatialAnalysisBook/zinc_IDW.png</href><viewBoundScale>0.75</viewBoundScale></Icon>
+<LatLonBox><north>50.9928974373297</north><south>50.9555893554505</south><east>5.76545823826186</east><west>5.72082305507215</west></LatLonBox>
+</GroundOverlay></kml>

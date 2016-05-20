@@ -1,0 +1,3 @@
+COMMAND: r.flow elevin="snowcost_b" skip=10 bound=1857 flout="vflow_b" dsout="rdsnow_b"
+GISDBASE: /home/rsb/topics/grassdata
+LOCATION: snow2 MAPSET: rsb USER: rsb DATE: Wed Oct 26 11:00:57 2005

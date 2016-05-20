@@ -1,0 +1,13 @@
+useDynLib(Rsafd)
+
+import("stats", "mvtnorm", "robustbase", "rgl")
+
+export(abscor, axcor, begday, block.max, bns, bscall, 
+contour.pcopula, contour.dcopula, der, dgev, dgpd, dmvnorm, eda.shape, empirical.copula, estimate.mix.gev,
+fit.copula, fns, gev.lmom, gev.ml,
+gpd.1p, gpd.1q, gpd.2p, gpd.2q, gpdjoint.1p, gpdjoint.2p, gpd.lmom, gpd.ml,
+gpd.tail, kalman, kdest, Kendalls.tau, kreg, l1fit, lm.diag, localmean, localvar,
+makedate, noon, pcopula, pgev, pgpd, plot.gpd, 
+ploting.position.estimator.LMOM, p2Dnorm, pred.ar, qgev, qgpd, 
+qqexp, qqnorm, rcopula, readindex, rgev, rgpd, rmvnorm, sample.LMOM, shape.plot,
+Spearmans.rho, squarecor, sstl, tail.index, tailplot, VaR.exp.sim, yns)

@@ -1,0 +1,4 @@
+---------------------------------------------------------------------------------
+COMMAND: v.digit -n map="pumps2" bgcmd="d.rast map=snow ; d.vect vsnow"
+GISDBASE: /home/rsb/topics/grassdata
+LOCATION: snow2 MAPSET: rsb USER: rsb DATE: Tue Oct 25 19:15:05 2005

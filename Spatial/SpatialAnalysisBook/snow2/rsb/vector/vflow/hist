@@ -1,0 +1,7 @@
+COMMAND: r.flow elevin="snowcost" skip=6 bound=1475 flout="vflow" dsout="rdsnow"
+GISDBASE: /home/rsb/topics/grassdata
+LOCATION: snow2 MAPSET: rsb USER: rsb DATE: Tue Oct 25 22:14:33 2005
+---------------------------------------------------------------------------------
+COMMAND: v.digit map="vflow" bgcmd="d.rast map=snowcost ; d.vect vflow"
+GISDBASE: /home/rsb/topics/grassdata
+LOCATION: snow2 MAPSET: rsb USER: rsb DATE: Tue Oct 25 22:21:22 2005
