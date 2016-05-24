@@ -1,22 +1,22 @@
-#===================================#
-#									#
-#	Generalized Additive Models		#
-#		An Introduction with R		#
-#									#
-#	Simon N. Wood. 2006				#
-#									#
-#===================================#
+#===============================#
+#                               #
+#  Generalized Additive Models  #
+#       An Introduction with R  #
+#                               #
+#  Simon N. Wood. 2006          #
+#                               #
+#===============================#
 
-#===============================#
-#								#
-#	5. GAMS in Practice: mgcv	#
-#								#
-#===============================#
+#=============================#
+#                             #
+#  5. GAMS in Practice: mgcv  #
+#                             #
+#=============================#
 rm(list = ls())
 #install.packages('gamair', repos = 'http://cran.us.r-project.org')
 library(gamair)
 library(mgcv)
-load('~/Desktop/R/GAM/GAM.RData')
+load('~/Desktop/R/RLearning/GAM/GAM.RData')
 
 # 5.1 Cherry Trees Again
 data(trees)
@@ -231,8 +231,25 @@ vis.gam(m2,
   # variance of that estimate:
   d %*% Xp %*% m2$Vp %*% t(Xp) %*% t(d)
   
+  # 5.2.7 Variances of Non-Linear Functions of the Fitted Model
+  ind <- brain$region == 1 & !is.na(brain$region)
+  Xp <- predict(m2, newdata = brain[ind, ], type = 'lpmatrix')
+  # Simulate from posterior
+  br <- mvrnorm(n = 1000, coef(m2), m2$Vp)
   
+  mean.FPQ <- rep(0, 1000)
+  for (i in 1:1000) {
+  	# replicate linear predictor
+  	lp <- Xp %*% br[i, ]
+  	# replicate region 1 mean FPQ
+  	mean.FPQ[i] <- mean(exp(lp))
+  }
   
+  hist(mean.FPQ)  
   
 
-save.image('~/Desktop/R/GAM/GAM.RData')
+
+# 5.3 Air Pollution in Chicago Example  
+  
+
+save.image('~/Desktop/R/RLearning/GAM/GAM.RData')
