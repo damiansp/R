@@ -27,7 +27,8 @@ gridInit <- function(rMin, rMax, iMin, iMax) {
 	
   for (i in 1:di) {
     for (r in 1:dr) {
-      plane[i, r] <- complex(real = rMin + (r - 1), imaginary = (iMin + (i - 1)))
+        plane[i, r] <- complex(real = rMin + (r - 1),
+                               imaginary = (iMin + (i - 1)))
     }
   }
 	
