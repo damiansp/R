@@ -262,6 +262,118 @@ vis.gam(m2,
 
 
 # 5.3 Air Pollution in Chicago Example  
+data(chicago)
+
+# Model deaths as poisson-distributed
+# bs = 'cr': cubic regression spline as basis function (n = 5000, too many for TPRS)
+ap0 <- gam(
+  death ~ s(time, bs = 'cr', k = 200) + pm10median + so2median + o3median + tmpd, 
+  data = chicago,
+  family = poisson)  
+gam.check(ap0)
+
+par(mfrow = c(2, 1))
+plot(ap0, n = 1000) # n increased to smooth
+plot(ap0, resid = T, n = 1000)
+
+# outliers on consecutive days:
+chicago$death[3111:3125]
+# temp and ozone also unusually high at time--
+ap1 <- gam(death ~ s(time, bs = 'cr', k = 200) + s(pm10median, bs = 'cr') + 
+             s(so2median, bs = 'cr') + s(o3median, bs = 'cr') + s(tmpd, bs = 'cr'),
+           data = chicago, 
+           family = poisson)
+gam.check(ap1) # not really improved
+par(mfrow = c(3, 2))
+plot(ap1)
+
+lag.sum <- function(a, l0, l1) {
+  # l0, l1: smallest and largest lags
+  n <- length(a)
+  b <- rep(0, n - l1)
   
+  for (i in 0:(l1 - l0)) {
+    b <- b + a[(i + 1):(n - l1 + i)]
+  }
+  
+  return(b)
+}
+
+death <- chicago$death[4:5114]
+time  <- chicago$time[4:5114]
+o3   <- lag.sum(chicago$o3median, 0, 3)
+tmp  <- lag.sum(chicago$tmpd, 0, 3)
+pm10 <- lag.sum(log(chicago$pm10median + 40), 0, 3) 
+so2  <- lag.sum(log(chicago$so2median + 10), 0, 3)
+
+ap2 <- gam(death ~ s(time, bs = 'cr', k = 200) + te(o3, tmp, pm10, k = c(8, 8, 6)),
+           family = poisson)
+
+ap3 <- gam(death ~ s(time, bs = 'cr', k = 200) + te(o3, tmp, k = 8) + 
+             s(pm10, bs = 'cr', k = 6), 
+           family = poisson)
+gam.check(ap2)
+gam.check(ap3)
+par(mfrow = c(2, 2))
+plot(ap3)
+
+
+
+# 5.4 Mackerel Egg Survey Example
+  # 5.4.1 Model Development
+  data(mack)
+  
+  mack$log.net.area <- log(mack$net.area)
+  gm <- gam(egg.count ~ s(lon, lat, bs = 'ts') + s(I(b.depth^0.5), bs = 'ts') 
+              + s(c.dist, bs = 'ts') + s(salinity, bs = 'ts') 
+              + s(temp.surf, bs = 'ts') + s(temp.20m, bs = 'ts') 
+              + offset(log.net.area), 
+            data = mack, 
+            family = poisson, 
+            scale = -1, 
+            gamma = 1.4)
+  gam.check(gm)
+  par(mfrow = c(2, 3))
+  plot(gm)
+  
+  gm1 <- gam(egg.count ~ s(lon, lat, bs = 'ts', k = 100) 
+               + s(I(b.depth^0.5), bs = 'ts') + s(c.dist, bs = 'ts') 
+               + s(temp.surf, bs = 'ts') + s(temp.20m, bs = 'ts') 
+               + offset(log.net.area), 
+             data = mack, 
+             family = poisson, 
+             scale = -1, 
+             gamma = 1.4)
+  gam.check(gm1)
+  par(mfrow = c(2, 3))
+  plot(gm1)
+  gm1
+  
+  gm1a <- gam(egg.count ~ s(lon, lat, bs = 'ts', k = 100) 
+                + s(I(b.depth^0.5), bs = 'ts') + s(temp.20m, bs = 'ts') 
+                + offset(log.net.area), 
+              data = mack, 
+              family = poisson, 
+              scale = -1, 
+              gamma = 1.4)
+  gam.check(gm1a)
+  par(mfrow = c(2, 2))
+  plot(gm1a)
+
+  # Data overdispersed relative to Poisson... could use quasi-likelihood, but first
+  # try modeling as neg binomial
+  gm2 <- gam(egg.count ~ s(lon, lat, bs = 'ts', k = 40) 
+               + s(I(b.depth^0.5), bs = 'ts') + s(c.dist, bs = 'ts') 
+               + s(temp.surf, bs = 'ts') + s(temp.20m, bs = 'ts') 
+               + offset(log.net.area), 
+             data = mack, 
+             family = negative.binomial(1), 
+             control = gam.control(maxit = 100), 
+             gamma = 1.4)
+
+
+
+
+
 
 save.image('~/Desktop/R/RLearning/GAM/GAM.RData')
