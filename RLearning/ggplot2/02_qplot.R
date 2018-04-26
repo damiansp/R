@@ -1,3 +1,4 @@
+#---------#---------#---------#---------#---------#---------#---------#---------
 rm(list=ls())
 library(ggplot2)
 library(mgcv)
@@ -84,4 +85,20 @@ qplot(carat,
       facets=color ~ ., 
       geom='histogram', 
       binwidth=0.1, 
-      xlim=c(0, 3))      
+      xlim=c(0, 3))
+      
+
+# 2.7 Other Options
+# qplot(..., xlim=c(n1, n2), log='x', main='plot title', xlab='label')
+qplot(carat,
+      price, 
+      data=d.small, 
+      xlab='Price ($)', 
+      ylab='Weight (carats)', 
+      main='Diamonds')
+qplot(carat, 
+      price / carat, 
+      data=d.small, 
+      ylab=expression(frac(price, carat)), 
+      xlab='Weight (carats)')
+qplot(carat, price, data=d.small, log='xy')
