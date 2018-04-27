@@ -1,52 +1,59 @@
 #===============================================#
-#												#
-#	Nonparametric Statistical Methods Using R	#
-#		Kloke & McKean (2015)					#
-#												#
-#						#=======================#
-#						#
-#	Ch 4: Regression I	#
-#						#
-#=======================#
+#                                               #
+#  Nonparametric Statistical Methods Using R    #
+#    Kloke & McKean (2015)                      #
+#                                               #
+#                      #========================#
+#                      #
+#  Ch 4: Regression I  #
+#                      #
+#======================#
 
 rm(list = ls())
-library(boot)
-library(npsm)
+#library(boot)
+#library(npsm)
+library(quantreg)
 library(Rfit)
-library(sm)
+#library(sm)
 
-#data(engel)
+data(engel)
 #data(speed)
-load('~/Desktop/R/NonparametricStats/NPS.RData')
-
-# 4.1 Introduction
+#load('~/Desktop/R/NonparametricStats/NPS.RData')
 
 
-# 4.2 Simple Linear Regression
+
+# 2 Simple Linear Regression
 plot(engel)
-fit = rfit(foodexp ~ income, dat = engel)
+fit <- rfit(foodexp ~ income, dat=engel)
 summary(fit)
-lmfit = lm(foodexp ~ income, dat = engel)
+lmfit <- lm(foodexp ~ income, dat=engel)
 summary(lmfit)
 
-abline(fit, col = 2)
-abline(lmfit, col = 4)
-legend( 'topleft', lty = 1, col = c(2, 4), 
-		legend = c('Rank-based', 'Least squares'), title = 'Model' )
+abline(fit, col=2)
+abline(lmfit, col=4)
+legend('topleft', 
+       lty=1, 
+       col=c(2, 4), 
+       legend=c('Rank-based', 'Least squares'), 
+       title='Model' )
 
-rs = rstudent(fit)	# standardized resids
-y.hat = fitted.values(fit)
+par(mfrow=c(2, 2))
+plot(lmfit)
+
+rs <- rstudent(fit)	# standardized resids
+y.hat <- fitted.values(fit)
 par(mfrow = c(1, 2))
 qqnorm(rs)
 qqline(rs, col = 'grey')
 plot(y.hat, rs)	# equiv. to the second and first plots in plot(lm)
 lines(lowess(rs ~ y.hat), col = 2)
+par(mfrow=c(1, 1))
 
 
 
 
-# 4.3 Multiple Linear Regression
-	# 4.3.1 Multiple Regression
+# 3 Multiple Linear Regression
+# 3.1 Multiple Regression
 	fit = rfit(ffa ~ age + weight + skin, data = ffa)
 	summary(fit)
 	
