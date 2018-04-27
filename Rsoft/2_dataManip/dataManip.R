@@ -109,3 +109,13 @@ worldcup.t
 worldcup.t %>%
   spread(Position, PassSummary) %>%
   kable()
+  
+  
+  
+# Merging Datasets
+worldcup %>%
+  mutate(Name=rownames(worldcup), Team=as.character(Team)) %>%
+  select(Name, Position, Shots, Team) %>%
+  arrange(desc(Shots)) %>% # sort descending
+  left_join(team.standings, by='Team') %>%
+  rename('TeamStanding'=Standing)
