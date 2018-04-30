@@ -1,6 +1,10 @@
+#---------#---------#---------#---------#---------#---------#---------#---------
 library(dplyr)
+library(ggmap)
+library(ggplot2)
 library(gridExtra)
 library(lubridate)
+library(readr)
 library(tidyr)
 rm(list=ls())
 
@@ -84,3 +88,33 @@ a <- ggplot(check.weekdays, aes(x=grouping, y=max_max_wind)) +
   geom_bar(stat='identity') + xlab('')
 b <- a %+% check.months
 grid.arrange(a, b, ncol=1)
+
+
+
+# Timezones
+andrew.tracks <- ext.tracks %>%
+  filter(storm_name == 'ANDREW') %>%
+  select(year, month, day, hour, latitude, longitude) %>%
+  unite(datetime, year, month, day, hour) %>%
+  mutate(datetime=ymd_h(datetime), date=format(datetime, '%b %d'))
+  
+miami <- get_map('miami', zoom=5)
+ggmap(miami) +
+  geom_path(data=andrew.tracks, 
+            aes(x=-longitude, y=latitude), 
+            color='grey', 
+            size=1.2) +
+  geom_point(data=andrew.tracks, 
+             aes(x=-longitude, y=latitude, color=date, size=2))
+             
+andrew.tracks <- andrew.tracks %>%
+  mutate(datetime=with_tz(datetime, tzone='America/New_York'),
+         date=format(datetime, '%b %d'))
+
+ggmap(miami) +
+  geom_path(data=andrew.tracks, 
+            aes(x=-longitude, y=latitude), 
+            color='grey', 
+            size=1.2) +
+  geom_point(data=andrew.tracks, 
+             aes(x=-longitude, y=latitude, color=date, size=2))
