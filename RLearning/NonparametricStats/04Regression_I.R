@@ -11,26 +11,26 @@
 
 rm(list = ls())
 #library(boot)
-#library(npsm)
+library(npsm)
 library(quantreg)
 library(Rfit)
 #library(sm)
 
 data(engel)
-#data(speed)
+data(speed)
 #load('~/Desktop/R/NonparametricStats/NPS.RData')
 
 
 
 # 2 Simple Linear Regression
 plot(engel)
-fit <- rfit(foodexp ~ income, dat=engel)
-summary(fit)
-lmfit <- lm(foodexp ~ income, dat=engel)
-summary(lmfit)
+r.fit <- rfit(foodexp ~ income, dat=engel)
+summary(r.fit)
+lm.fit <- lm(foodexp ~ income, dat=engel)
+summary(lm.fit)
 
-abline(fit, col=2)
-abline(lmfit, col=4)
+abline(r.fit, col=2)
+abline(lm.fit, col=4)
 legend('topleft', 
        lty=1, 
        col=c(2, 4), 
@@ -38,10 +38,10 @@ legend('topleft',
        title='Model' )
 
 par(mfrow=c(2, 2))
-plot(lmfit)
+plot(lm.fit)
 
-rs <- rstudent(fit)	# standardized resids
-y.hat <- fitted.values(fit)
+rs <- rstudent(r.fit)	# standardized resids
+y.hat <- fitted.values(r.fit)
 par(mfrow = c(1, 2))
 qqnorm(rs)
 qqline(rs, col = 'grey')
@@ -54,40 +54,41 @@ par(mfrow=c(1, 1))
 
 # 3 Multiple Linear Regression
 # 3.1 Multiple Regression
-	fit = rfit(ffa ~ age + weight + skin, data = ffa)
-	summary(fit)
+r.fit <- rfit(ffa ~ age + weight + skin, data=ffa)
+summary(r.fit)
 	
-	fitR = rfit(ffa ~ skin, data = ffa)
-	drop.test(fit, fitR)		# the small p val indicates a signif drop in 
-							# dispersion between the models, favoring the 
-							# fuller model
+r.fit.red <- rfit(ffa ~ weight + skin, data=ffa)
+summary(r.fit.red)
+drop.test(r.fit, r.fit.red) # the large p val indicates a non-signif drop in 
+                            # dispersion between the models, favoring the 
+                            # smaller model                            
 	
-	# 4.3.2 Polynomial Regression
-	fit = rfit(sp ~ mpg + I(mpg^2), data = speed)
-	summary(fit)
-	lm.fit = lm(sp ~ mpg + I(mpg^2), data = speed)
-	summary(lm.fit)
-	plot(sp ~ mpg, data = speed)
-	xv = seq(min(speed$mpg), max(speed$mpg), length = 100)
-	yv.r = coef(fit)[1] + coef(fit)[2]*xv + coef(fit)[3]*xv^2
-	yv.ls = coef(lm.fit)[1] + coef(lm.fit)[2]*xv + coef(lm.fit)[3]*xv^2
-	lines(xv, yv.r, col = 2)
-	lines(xv, yv.ls, col = 4)
-	legend( 'topright', lty = 1, col = c(2, 4), 
-			legend = c('Rank-based', 'Least Squares'), title = 'Model')
+# 3.2 Polynomial Regression
+fit <- rfit(sp ~ mpg + I(mpg^2), data=speed)
+summary(fit)
+lm.fit <- lm(sp ~ mpg + I(mpg^2), data=speed)
+summary(lm.fit)
+plot(sp ~ mpg, data = speed)
+xv <- seq(min(speed$mpg), max(speed$mpg), length=100)
+yv.r <- coef(fit)[1] + coef(fit)[2]*xv + coef(fit)[3]*xv^2
+yv.ls <- coef(lm.fit)[1] + coef(lm.fit)[2]*xv + coef(lm.fit)[3]*xv^2
+lines(xv, yv.r, col=2)
+lines(xv, yv.ls, col=4)
+legend('topright', 
+       lty=1, 
+       col=c(2, 4), 
+	   legend=c('Rank-based', 'Least Squares'), 
+	   title='Model')
 
-	plot(resid(fit) ~ fitted(fit))
-	par(mfrow = c(2, 2))
-	plot(lm.fit)
-	par(mfrow = c(1, 1))
+plot(resid(fit) ~ fitted(fit))
+par(mfrow=c(2, 2))
+plot(lm.fit)
+par(mfrow=c(1, 1))
 	
 
 
-# 4.4 Linear Models
-	# 4.4.1 Estimation
-	# 4.4.2 Diagnostics
-	# 4.4.3 Inference
-	# 4.4.4 Confidence Interval for a Mean Response
+# 4 Linear Models
+# 4.4 Confidence Interval for a Mean Response
 	
 
 
