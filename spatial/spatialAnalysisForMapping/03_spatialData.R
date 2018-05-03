@@ -1,21 +1,26 @@
+#!/usr/bin/env Rscript
 #---------#---------#---------#---------#---------#---------#---------#---------
 setwd('~/Learning/R/spatial/spatialAnalysisForMapping')
+Sys.setenv(JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/jre')
 rm(list=ls())
 
 library(GISTools)
+library(maps)
 library(OpenStreetMap)
 library(PBSmapping)
+library(rJava)
 library(RgoogleMaps)
 
+data(georgia)
 data(newhaven)
-
+data(quakes)
 
 
 # 2 Introduction: GISTools
 # 2.2 Spatial tools in GISTools
 class(roads)
 
-par(mar=rep(4, 0))
+par(mar=rep(0, 4))
 plot(blocks, lwd=0.5, col='grey50')
 plot(roads, add=T, col=2)
 plot(breach, col=4, pch=1, add=T)
@@ -54,7 +59,7 @@ par(mar=rep(0, 4))
 plot(georgia, col=NA)
 point.label <- pointLabel(lon, lat, names, offset=0, cex=0.5)
 county.tmp <- c(16, 17, 21, 53, 62, 81:83, 121, 124, 150)
-georgia.sub <- georgia[county.tmp]
+georgia.sub <- georgia[county.tmp,]
 par(mar=c(0, 0, 3, 0))
 plot(georgia.sub, col='gold1', border='grey')
 plot(georgia.outline, add=T, lwd=2)
@@ -87,3 +92,51 @@ par(mar=c(5, 4, 4, 2))
 
 
 # 4 Mapping Spatial Data Attributes
+# 4.2 Attributes and data frames
+ls()
+summary(blocks)
+summary(breach)
+head(data.frame(blocks))
+blocks$OCCUPIED
+hist(blocks$P_VACANT)
+
+breach.dens <- kde.points(breach, lims=tracts) # kernel density
+summary(breach.dens)
+class(breach.dens)
+head(data.frame(breach.dens))
+plot(breach.dens)
+breach.dens.grid <- as(breach.dens, 'SpatialGridDataFrame')
+summary(breach.dens.grid)
+
+# 4.3 Mapping polygons and attributes
+par(mfrow=c(1, 1))
+display.brewer.all()
+
+head(data.frame(blocks))
+par(mfrow=c(2, 2))
+par(mar=rep(0, 4))
+choropleth(blocks, blocks$P_WHITE)
+white.shades <- auto.shading(blocks$P_WHITE)
+choro.legend(533000, 161000, white.shades)
+black.shades <- auto.shading(blocks$P_BLACK, n=7)
+choropleth(blocks, blocks$P_BLACK, shading=black.shades)
+choro.legend(533000, 165000, black.shades)
+es.shades <- auto.shading(blocks$P_AMERI_ES, cols=brewer.pal(7, 'BuGn'))
+choropleth(blocks, blocks$P_AMERI_ES, shading=es.shades)
+as.shades <- auto.shading(
+  blocks$P_ASIAN_PI, n=5, cols=brewer.pal(5, 'Blues'), cutter=rangeCuts)
+choropleth(blocks, blocks$P_ASIAN_PI, shading=as.shades)
+choro.legend(533000, 161000, as.shades)
+
+white.shades
+
+# 4.4 Mapping points and attributes
+par(mfrow=c(1, 1))
+plot(blocks)
+plot(breach, pch=16, col='#DE2D2680', add=T)
+
+head(quakes)
+quake.coords <- cbind(quakes$long, quakes$lat)
+quake.spdf <- SpatialPointsDataFrame(quake.coords, data=data.frame(quakes))
+plot(quake.spdf, pch=16, col='#FB6A4A80')
+map('world2', fill=F, add=T)
