@@ -10,7 +10,7 @@
 #======================#
 
 rm(list = ls())
-#library(boot)
+library(boot)
 library(npsm)
 library(quantreg)
 library(Rfit)
@@ -87,34 +87,29 @@ par(mfrow=c(1, 1))
 	
 
 
-# 4 Linear Models
-# 4.4 Confidence Interval for a Mean Response
-	
-
-
-# 4.5 Aligned Rank Tests
-k = 3	# n treatments
-p = 2	# n covariates
-n = 10 # n subjects per treatment
-N = n * k	# n total subjects
-y = rnorm(N)
-x = matrix(rnorm(N * p), ncol = p)
-g = rep(1:k, each = n)
+# 5 Aligned Rank Tests
+k <- 3	# n treatments
+p <- 2	# n covariates
+n <- 10 # n subjects per treatment
+N <- n * k	# n total subjects
+y <- rnorm(N)
+x <- matrix(rnorm(N * p), ncol=p)
+g <- rep(1:k, each=n)
 aligned.test(x, y, g)
 
 
 
-# 4.6 Bootstrap
-boot.rfit = function(data, indices) {
-	data = data[indices, ]
-	fit = rfit(weight ~ height, data = data, tau = 'N')
-	coef(fit)[2]		# return coef for height only
+# 6 Bootstrap
+boot.rfit <- function(data, indices) {
+  data <- data[indices, ]
+  fit <- rfit(weight ~ height, data=data, tau='N')
+  coef(fit)[2]	# return coef for height only
 }
 
-bb.boot = boot(data = baseball, statistic = boot.rfit, R = 1000)
+bb.boot <- boot(data=baseball, statistic=boot.rfit, R=1000)
 bb.boot
 plot(bb.boot)
-boot.ci(bb.boot, type = 'perc', index = 1)
+boot.ci(bb.boot, type='perc', index=1)
 
 
 
