@@ -6,6 +6,8 @@
 *.txt
 *.pdf
 *.ppt
+*.png
+*.png.*
 *~
 
 BayesBook/
