@@ -12,6 +12,7 @@ library(rJava)
 library(RgoogleMaps)
 
 data(georgia)
+data(meuse.grid)
 data(newhaven)
 data(quakes)
 
@@ -189,3 +190,84 @@ PlotOnStaticMap(g.map, lat, lon, cex=class, pch=16, col=rgb(0, 0, 0, 0.4))
 
 g.map <- MapBackground(lat, lon, zoom=10, maptype='satellite')
 PlotOnStaticMap(g.map, lat, lon, cex=class, pch=16, col=rgb(1, 0.5, 0.5, 0.3))
+
+
+# 4.5 Mapping lines and attributes
+xmin <- bbox(roads)[1, 1]
+ymin <- bbox(roads)[2, 1]
+xmax <- xmin + diff(bbox(roads)[1, ]) / 2
+ymax <- ymin + diff(bbox(roads)[2, ]) / 2
+xx <- as.vector(c(xmin, xmin, xmax, xmax, xmin))
+yy <- as.vector(c(ymin, ymax, ymax, ymin, ymin))
+crds <- cbind(xx, yy)
+pl <- Polygon(crds)
+id <- 'clip'
+pls <- Polygons(list(pl), ID=id)
+spls <- SpatialPolygons(list(pls))
+df <- data.frame(value=1, row.names=id)
+clip.bb <- SpatialPolygonsDataFrame(spls, df)
+
+roads.tmp <- gIntersection(clip.bb, roads, byid=T)
+tmp <- as.numeric(gsub('clip', '', names(roads.tmp)))
+tmp <- data.frame(roads)[tmp, ]
+roads.tmp <- SpatialLinesDataFrame(roads.tmp, data=tmp, match.ID=F)
+
+par(mfrow=c(1, 3))
+par(mar=rep(0, 4))
+plot(roads.tmp)
+road.class <- unique(roads.tmp$AV_LEGEND)
+shades <- rev(brewer.pal(length(road.class), 'Spectral'))
+tmp <- roads.tmp$AV_LEGEND
+index <- match(tmp, as.vector(road.class))
+plot(roads.tmp, col=shades[index], lwd=3)
+plot(roads.tmp, lwd=10*roads.tmp$LENGTH_MI)
+par(mfrow=c(1, 1))
+
+
+# 4.6 Mapping raster attributes
+class(meuse.grid)
+head(meuse.grid)
+plot(meuse.grid$x, meuse.grid$y, asp=1, col=meuse.grid$soil, pch=16)
+
+meuse.grid.spdf <- SpatialPixelsDataFrame(points=meuse.grid[c('x', 'y')], 
+                                          dat=meuse.grid)
+par(mfrow=c(1, 2))
+par(mar=rep(0, 4))
+image(meuse.grid.spdf, 'dist', col=rainbow(50))
+image(meuse.grid.spdf, 'dist', col=heat.colors(50))
+
+p1 <- spplot(meuse.grid.spdf, 'dist', col.regions=terrain.colors(50))
+p1
+spplot(meuse.grid.spdf, 
+       c('part.a', 'part.b', 'soil', 'ffreq'), 
+       col.regions=topo.colors(50))
+
+
+
+# 5 Simple Descriptive Statistical Analyses
+# 5.1 Histograms and boxplots
+par(mfrow=c(1, 1))
+par(mar=c(4, 5, 3, 1))
+hist(blocks$P_VACANT, breaks=20, col='cyan', border='salmon')
+index <- blocks$P_VACANT > 10
+high.vac <- blocks[index,]
+low.vac <- blocks[-index,]
+cols <- rev(brewer.pal(3, 'Blues'))
+par(mfrow=c(1, 2))
+par(mar=c(2.5, 2, 3, 1))
+boxplot(high.vac$P_OWNEROCC, 
+        high.vac$P_WHITE, 
+        high.vac$P_BLACK, 
+        names=c('Owner\nOccupied', 'White', 'Black'),
+        col=cols,
+        cex.axis=0.7,
+        main='High Vacancy')
+boxplot(low.vac$P_OWNEROCC, 
+        low.vac$P_WHITE, 
+        low.vac$P_BLACK, 
+        names=c('Owner\nOccupied', 'White', 'Black'),
+        col=cols,
+        cex.axis=0.7,
+        main='Low Vacancy')
+par(mfrow=c(1, 1))
+par(mar=c(5, 4, 4, 2))
