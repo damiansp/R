@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 #---------#---------#---------#---------#---------#---------#---------#---------
+rm(list=ls())
 setwd('~/Learning/R/spatial/spatialAnalysisForMapping')
 Sys.setenv(JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/jre')
-rm(list=ls())
 
 library(GISTools)
 library(maps)
@@ -140,3 +140,52 @@ quake.coords <- cbind(quakes$long, quakes$lat)
 quake.spdf <- SpatialPointsDataFrame(quake.coords, data=data.frame(quakes))
 plot(quake.spdf, pch=16, col='#FB6A4A80')
 map('world2', fill=F, add=T)
+
+tmp <- georgia.polys[c(1, 3, 151, 113)]
+t1 <- Polygon(tmp[1])
+t1 <- Polygons(list(t1), '1')
+t2 <- Polygon(tmp[2])
+t2 <- Polygons(list(t2), '2')
+t3 <- Polygon(tmp[3])
+t3 <- Polygons(list(t3), '3')
+t4 <- Polygon(tmp[4])
+t4 <- Polygons(list(t4), '4')
+tmp.sp <- SpatialPolygons(list(t1, t2, t3, t4), 1:4)
+names <- c('Appling', 'Bacon', 'Wayne', 'Pierce')
+tmp.spdf <- SpatialPolygonsDataFrame(tmp.sp, data=data.frame(names))
+data.frame(tmp.spdf)
+plot(tmp.spdf, col=2:5)
+
+par(mfrow=c(2, 2))
+par(mar=rep(0, 4))
+choropleth(quake.spdf, quakes$mag, pch=16)
+shades <- auto.shading(quakes$mag, n=6, cols=brewer.pal(6, 'Greens'))
+choropleth(quake.spdf, quakes$mag, shades, pch=16)
+shades$cols <- add.alpha(shades$cols, 0.5)
+choropleth(quake.spdf, quakes$mag, shades, pch=16)
+tmp <- quakes$mag
+tmp <- tmp - min(tmp)
+tmp <- tmp / max(tmp)
+plot(quake.spdf, cex=3*tmp, pch=16, col='#FB6A4A88')
+
+par(mfrow=c(1, 2))
+par(mar=rep(0, 4))
+tmp2 <- cut(quakes$mag, fivenum(quakes$mag), include.lowest=T)
+class <- match(tmp2, levels(tmp2)) # convert factors to numeric representation
+plot(quake.spdf, pch=16, cex=c(1, 2, 3, 4)[class], col='#25252566')
+
+idx1 <- 1 * (quakes$mag >= 4 & quakes$mag < 5)
+idx2 <- 2 * (quakes$mag >= 5 & quakes$mag < 5.5)
+idx3 <- 3 * (quakes$mag >= 5.5)
+class <- idx1 + idx2 + idx3
+col.var <- brewer.pal(3, 'Blues')
+plot(quake.spdf, col=col.var[class], cex=class, pch=16)
+
+par(mfrow=c(1, 1))
+lat <- as.vector(quakes$lat)
+lon <- as.vector(quakes$long)
+g.map <- MapBackground(lat, lon, zoom=10)
+PlotOnStaticMap(g.map, lat, lon, cex=class, pch=16, col=rgb(0, 0, 0, 0.4))
+
+g.map <- MapBackground(lat, lon, zoom=10, maptype='satellite')
+PlotOnStaticMap(g.map, lat, lon, cex=class, pch=16, col=rgb(1, 0.5, 0.5, 0.3))
