@@ -1,4 +1,0 @@
----------------------------------------------------------------------------------
-COMMAND: v.digit -n map="vpump" bgcmd="d.rast map=snowcost ; d.vect vflow_c"
-GISDBASE: /home/rsb/topics/grassdata
-LOCATION: snow2 MAPSET: rsb USER: rsb DATE: Tue Oct 25 22:36:17 2005

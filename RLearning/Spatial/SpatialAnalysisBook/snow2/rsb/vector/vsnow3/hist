@@ -1,8 +1,0 @@
-COMMAND: v.in.ogr -o dsn="." output="vsnow3" layer="vsnow" min_area=0.0001 snap=-1
-GISDBASE: /home/rsb/topics/grassdata
-LOCATION: snow2 MAPSET: rsb USER: rsb DATE: Tue Oct 25 19:40:01 2005
----------------------------------------------------------------------------------
-70 input polygons
-total area: 2.302056e+05 (70 areas)
-overlapping area: 0.000000e+00 (0 areas)
-area without category: 0.000000e+00 (0 areas)

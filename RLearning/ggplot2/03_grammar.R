@@ -1,4 +1,5 @@
 rm(list=ls())
+setwd('~/Learning/R/RLearning/ggplot2/')
 
 library(ggplot2)
 
@@ -18,4 +19,9 @@ qplot(displ, hwy, data=mpg, facets=. ~ year) + geom_smooth()
 
 
 
-# 5 Components of a Layered Grammar
+# 6 Data Structures
+p <- qplot(displ, hwy, data=mpg, color=factor(cyl))
+summary(p)
+save(p, file='data/plot.rdata')
+load('data/plot.rdata')
+ggsave('data/plot.png', width=5, height=5)
