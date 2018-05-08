@@ -113,40 +113,35 @@ boot.ci(bb.boot, type='perc', index=1)
 
 
 
-# 4.7 Nonparametric Regression
-	# 4.7.1 Polynomial Models
-	data(poly)
-	head(poly)
-	plot(y ~ x, data = poly)
-	deg = polydeg(poly[,'y'], poly[,'x'], 5, alpha = 0.05)
-	deg
-	summary(deg$fitf)
-	xv = seq(-6, 10, 0.1)
-	yv = coef(deg$fitf)[1] + coef(deg$fitf)[2]*xv + coef(deg$fitf)[3]*xv^2 +
-		 coef(deg$fitf)[4]*xv^3
-	lines(yv ~ xv, col = 4)
+# 7. Nonparametric Regression
+# 7.1 Polynomial Models
+data(poly)
+head(poly)
+plot(y ~ x, data=poly)
+deg <- polydeg(poly[,'y'], poly[,'x'], 5, alpha=0.05)
+deg
+summary(deg$fitf)
+xv <- seq(-6, 10, 0.1)
+yv <- (coef(deg$fitf)[1] 
+       + coef(deg$fitf)[2]*xv 
+       + coef(deg$fitf)[3]*xv^2 
+       + coef(deg$fitf)[4]*xv^3)
+lines(yv ~ xv, col=4)
 	
-	# 4.7.2 Nonparametric Regression
-	par(mfrow = c(2, 2))
-	plot(y ~ x, data = poly, col = 'lightgrey')
-	title('Bandwidth: 2.0')
-	lines( ksmooth(poly[, 'x'], poly[, 'y'], kernel = 'normal', bandwidth = 2), 
-		   col = 2 )
-	plot(y ~ x, data = poly, col = 'lightgrey')
-	title('Bandwidth: 1.4')
-	lines( ksmooth( poly[, 'x'], poly[, 'y'], kernel = 'normal', 
-					bandwidth = 1.4 ), 
-		   col = 2 )
-	plot(y ~ x, data = poly, col = 'lightgrey')
-	title('Bandwidth: 0.7')
-	lines( ksmooth( poly[, 'x'], poly[, 'y'], kernel = 'normal', 
-					bandwidth = 0.7 ), 
-		   col = 2 )
-	plot(y ~ x, data = poly, col = 'lightgrey')
-	title('Bandwidth: 0.1')
-	lines( ksmooth( poly[, 'x'], poly[, 'y'], kernel = 'normal', 
-					bandwidth = 0.1 ), 
-		   col = 2 )
+# 7.2 Nonparametric Regression
+par(mfrow=c(2, 2))
+plot(y ~ x, data=poly, col='lightgrey')
+title('Bandwidth: 2.0')
+lines(ksmooth(poly[, 'x'], poly[, 'y'], kernel='normal', bandwidth=2), col=2)
+plot(y ~ x, data=poly, col='lightgrey')
+title('Bandwidth: 1.4')
+lines(ksmooth(poly[, 'x'], poly[, 'y'], kernel='normal', bandwidth=1.4 ), col=2)
+plot(y ~ x, data=poly, col='lightgrey')
+title('Bandwidth: 0.7')
+lines(ksmooth(poly[, 'x'], poly[, 'y'], kernel='normal', bandwidth = 0.7), col=2)
+plot(y ~ x, data=poly, col='lightgrey')
+title('Bandwidth: 0.1')
+lines(ksmooth(poly[, 'x'], poly[, 'y'], kernel='normal', bandwidth=0.1), col=2)
 	
 	# Ex. 4.7.2 Sine-Cosine Model
 	data(sincos)
