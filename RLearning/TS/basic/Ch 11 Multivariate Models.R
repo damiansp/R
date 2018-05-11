@@ -1,4 +1,5 @@
 # 2. Spurious Regression
+rm(list=ls())
 setwd('~/Learning/R/RLearning/TS/basic')
 
 CBE <- read.table('./data/cbe.dat', header=T)
