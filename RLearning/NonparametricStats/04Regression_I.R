@@ -10,11 +10,12 @@
 #======================#
 
 rm(list = ls())
+setwd('~/Learning/R/RLearning/NonparametricStats')
 library(boot)
 library(npsm)
 library(quantreg)
 library(Rfit)
-#library(sm)
+library(sm)
 
 data(engel)
 data(speed)
@@ -143,32 +144,51 @@ plot(y ~ x, data=poly, col='lightgrey')
 title('Bandwidth: 0.1')
 lines(ksmooth(poly[, 'x'], poly[, 'y'], kernel='normal', bandwidth=0.1), col=2)
 	
-	# Ex. 4.7.2 Sine-Cosine Model
-	data(sincos)
-	head(sincos)
-	plot(sincos)
-	fit = sm.regression(sincos$x, sincos$y, display = 'none')
-	fit$h
-	plot(y ~ x, data = sincos)
-	with(fit, lines(estimate ~ eval.points, col = 2))
-	# sm.regression smoother is not robust consider adding an outlier
-	sincos2 = sincos
-	head(sincos2)
-	sincos2 = rbind(sincos2, data.frame(x = 38, y = 800))
-	fit2 = sm.regression(sincos2$x, sincos2$y, display = 'none')
-	with(fit2, lines(estimate ~ eval.points, col = 4))
-	fit3 = loess(sincos2$y ~ sincos2$x, family = 'symmetric', span = 0.35)
-	summary(fit3)
-	lines(sincos2$x[-198], fit3$fitted[-198], col = 5)
+	
+# Ex. 7.2 Sine-Cosine Model
+data(sincos)
+head(sincos)
+par(mfrow=c(1, 1))
+plot(sincos)
+fit <- sm.regression(sincos$x, sincos$y, display='none')
+fit$h  # data-driven bandwidth
+plot(y ~ x, data=sincos)
+with(fit, lines(estimate ~ eval.points, col=2))
+
+# sm.regression smoother is not robust consider adding an outlier
+sincos2 <- sincos
+sincos2 <- rbind(sincos2, data.frame(x=38, y=800))
+fit2 <- sm.regression(sincos2$x, sincos2$y, display='none')
+#plot(y ~ x, data=sincos2)
+with(fit2, lines(estimate ~ eval.points, col=4))
+fit3 <- loess(sincos2$y ~ sincos2$x, family='symmetric', span=0.35) # robust fit
+summary(fit3)
+lines(sincos2$x[-198], fit3$fitted[-198], col=5)
+fit4 <- loess(sincos2$y ~ sincos2$x, span=0.35) # Least Squares fit
+summary(fit4)
+lines(sincos2$x[-198], fit4$fitted[-198], col=6)
+
+data(faithful)
+head(faithful)
+plot(faithful)
+sm.mod <- sm.regression(faithful$eruptions, faithful$waiting, display='none')
+with(sm.mod, lines(estimate ~ eval.points, col=2))
+loess.mod <- loess(waiting ~ eruptions, data=faithful)
+lines(faithful$eruptions[order(faithful$eruptions)], 
+      loess.mod$fitted[order(faithful$eruptions)], 
+      col=4)
+loess.rob.mod <- loess(waiting ~ eruptions, data=faithful, family='symmetric')
+lines(faithful$eruptions[order(faithful$eruptions)], 
+      loess.rob.mod$fitted[order(faithful$eruptions)], 
+      col=5)
 
 	
-	
-#  4.8 Correlation
-	# 4.8.4 Computation and Examples
-	# Example 4.8.1 Baseball Data, 2014
-	# Data from: http://baseballguru.com/bbdata1.html
-	bb <- read.csv('~/Desktop/R/NonparametricStats/mlb2014.csv')
-	names(bb)
+# 8 Correlation
+# 8.4 Computation and Examples
+# Example 8.1 Baseball Data, 2014
+# Data from: http://baseballguru.com/bbdata1.html
+bb <- read.csv('mlb2014.csv')
+names(bb)
 	
 	plot(bb$HR ~ bb$avg, pch = 16, col = rgb(0, 0, 0, 0.25))
 	abline(lm(HR ~ avg, data = bb), col = 2)
