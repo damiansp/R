@@ -1,5 +1,5 @@
 # 2. Spurious Regression
-rm(list=rm())
+rm(list=ls())
 setwd('~/Learning/R/RLearning/TS/basic')
 
 library(tseries)

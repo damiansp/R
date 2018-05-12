@@ -1,3 +1,4 @@
+rm(list=ls())
 library(purrr)
 
 add.n.maker <- function(n) {
@@ -67,3 +68,109 @@ reduce_right(
 
 
 # Search
+has_element(letters, 'a')
+has_element(letters, 'A')
+
+detect(20:40, function(x) { x > 22 && x %% 2 == 0 })
+detect_index(20:40, function(x) { x > 22 && x %% 2 == 0 })
+(20:40)[5]
+
+
+# Filter
+keep(1:20, function(x) { x %% 2 == 0 })
+discard(1:20, function(x) { x %% 3 == 0 })
+every(1:20, function(x) { x %% 2 == 0 }) # F
+some(1:20, function(x) { x %% 2 == 0 })  # T
+
+
+# Compose
+x <- rep(1:5, 1:5)
+x # 1 2 2 3 3 3 ...
+n.unique <- function(x) {
+  length(unique(x))
+}
+n.unique(x) # 5
+
+# Same as:
+n_unique <- compose(length, unique)
+n_unique(x) # 5
+
+
+# Partial Application
+mult3n <- function(x, y, z) {
+  x * y * z
+}
+
+mult15 <- partial(mult3n, x=3, y=5)
+mult15(4) # same as
+mult15(z=4)
+
+
+# Side effects
+walk(c('Friends, Romans, countrymen,',
+       'lend me your ears;',
+       'I come to bury Caesar,',
+       'not to praise him.'),
+     message)
+     
+
+# Recursion
+vector.sum.loop <- function(v) {
+  result <- 0
+  for (i in v) {
+  	result <- result + i
+  }
+  result
+}
+vector.sum.loop(1:10)
+
+vector.sum.recursive <- function(v) {
+  if (length(v) == 1) {
+  	v
+  } else {
+  	v[1] + vector.sum.recursive(v[-1])
+  }
+}
+vector.sum.recursive(1:10)
+
+fibonacci <- function(n) {
+  stopifnot(n > 0)
+  if (n == 1) {
+  	0
+  } else if (n == 2) {
+  	1
+  } else {
+  	fibonacci(n - 1) + fibonacci(n - 2)
+  }
+}
+
+fibonacci(0)
+fibonacci(12)
+map_dbl(1:12, fibonacci)
+
+# Memoization
+fib.t <- c(0, 1, rep(NA, 23))
+
+fib.mem <- function(n) {
+  stopifnot(n > 0)
+  if (!is.na(fib.t[n])) {
+  	fib.t[n]
+  } else {
+  	fib.t[n - 1] <<- fib.mem(n - 1) # <<- is assignment out-of-scope
+  	fib.t[n - 2] <<- fib.mem(n - 2)
+  	fib.t[n - 1] + fib.t[n - 2]
+  }
+}
+
+t0 <- Sys.time()
+fib.mem(1)
+Sys.time() - t0
+
+t0 <- Sys.time()
+fib.mem(400)
+Sys.time() - t0
+
+t0 <- Sys.time()
+fib.mem(400)
+Sys.time() - t0
+
