@@ -53,3 +53,19 @@ pp.test(x.rates$EU) # p = 0.7297
 
 
 # 4 Cointegration
+# Test for cointegration:
+x <- y <- mu <- rep(0, 1000) # simulate cointegrated(x, y)
+for (i in 2:1000) {
+  mu[i] <- mu[i -1] + rnorm(1)
+}
+x <- mu + rnorm(1000)
+y <- mu + rnorm(1000)
+plot(mu, type='l', ylim=range(c(mu, x, y)))
+lines(x, col=2)
+lines(y, col=4)
+adf.test(x) # p = 0.2939 (fits random walk)
+adf.test(y) # p = 0.2731
+# PHillips-Ouliaris test for cointigration 
+po.test(cbind(x, y)) # p ≤ 0.01 (Null: not cointegrated; hence test suggest x, y 
+                     #           are integrated)
+
