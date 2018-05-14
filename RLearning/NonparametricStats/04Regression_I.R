@@ -190,13 +190,13 @@ lines(faithful$eruptions[order(faithful$eruptions)],
 bb <- read.csv('mlb2014.csv')
 names(bb)
 	
-	plot(bb$HR ~ bb$avg, pch = 16, col = rgb(0, 0, 0, 0.25))
-	abline(lm(HR ~ avg, data = bb), col = 2)
-	cor.test(bb$avg, bb$HR)
-	cor.test(bb$avg, bb$HR, method = 'spearman')	
-	cor.test(bb$avg, bb$HR, method = 'kendall')
+plot(bb$HR ~ bb$avg, pch = 16, col = rgb(0, 0, 0, 0.25))
+abline(lm(HR ~ avg, data=bb), col=2)
+cor.test(bb$avg, bb$HR)                    # 0.315
+cor.test(bb$avg, bb$HR, method='spearman') # 0.374
+cor.test(bb$avg, bb$HR, method='kendall')  # 0.271
 	
-	args(cor.boot.ci)
+args(cor.boot.ci)
 	
 	
 	# Example 4.8.2 (previous cont'd)
