@@ -27,13 +27,13 @@ map_lgl(
 })
 
 map_if(1:5,
-       function(x) { x %% 2 == 0}, # Condition
-       function(x) { x^2 }) %>%    # Mapping
-  unlist()                         # Prettify
+       function(x) { x %% 2 == 0 }, # Condition
+       function(x) { x^2 }) %>%     # Mapping
+  unlist()                          # Prettify
 
-map_at(seq(100, 500, 100),         # input
-       c(1, 3, 5),                 # indices
-       function(x) { x - 10 }) %>% # Mapping
+map_at(seq(100, 500, 100),          # input
+       c(1, 3, 5),                  # indices
+       function(x) { x - 10 }) %>%  # Mapping
   unlist()
 
 map2_chr(letters, 1:26, paste) # arg1, arg2, func
