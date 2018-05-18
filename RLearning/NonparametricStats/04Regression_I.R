@@ -199,12 +199,10 @@ cor.test(bb$avg, bb$HR, method='kendall')  # 0.271
 args(cor.boot.ci)
 	
 	
-	# Example 4.8.2 (previous cont'd)
-	cor.boot.ci(bb$avg[!is.na(bb$avg)], bb$HR[!is.na(bb$avg)])
-	
-	cor.boot.ci(bb$avg[!is.na(bb$avg)], bb$HR[!is.na(bb$avg)], method='pearson')
-	
-	cor.boot.ci(bb$avg[!is.na(bb$avg)], bb$HR[!is.na(bb$avg)], method='kendall')
+# Example 4.8.2 (previous cont'd)
+cor.boot.ci(bb$avg[!is.na(bb$avg)], bb$HR[!is.na(bb$avg)])	
+cor.boot.ci(bb$avg[!is.na(bb$avg)], bb$HR[!is.na(bb$avg)], method='pearson')	
+cor.boot.ci(bb$avg[!is.na(bb$avg)], bb$HR[!is.na(bb$avg)], method='kendall')
 	
 	
 	
