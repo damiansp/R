@@ -2,6 +2,7 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/TS/basic')
 
+library(mvtnorm)
 library(tseries)
 
 
@@ -53,6 +54,7 @@ pp.test(x.rates$EU) # p = 0.7297
 
 
 # 4 Cointegration
+# 4.1 Definition
 # Test for cointegration:
 x <- y <- mu <- rep(0, 1000) # simulate cointegrated(x, y)
 for (i in 2:1000) {
@@ -65,7 +67,43 @@ lines(x, col=2)
 lines(y, col=4)
 adf.test(x) # p = 0.2939 (fits random walk)
 adf.test(y) # p = 0.2731
-# PHillips-Ouliaris test for cointigration 
+# Phillips-Ouliaris test for cointigration 
 po.test(cbind(x, y)) # p ≤ 0.01 (Null: not cointegrated; hence test suggest x, y 
                      #           are integrated)
+
+# 4.2 Exchange Rate Series
+po.test(cbind(x.rates$UK, x.rates$EU))
+# p = 0.04, suggesting UK and EU are cointegrated
+
+uk.eu.lm <- lm(UK ~ EU, data=x.rates)
+par(mfrow=c(2, 2))
+plot(uk.eu.lm)
+summary(uk.eu.lm)
+
+uk.eu.resid <- resid(uk.eu.lm)
+uk.eu.resid.ar <- ar(uk.eu.resid)
+uk.eu.resid.ar # order selected = 3; uk.eu.resid.ar$order
+AIC(arima(uk.eu.resid, order=c(3, 0, 0))) # -9886.26
+AIC(arima(uk.eu.resid, order=c(2, 0, 0))) # -9886.16
+AIC(arima(uk.eu.resid, order=c(1, 0, 0))) # -9879.82
+AIC(arima(uk.eu.resid, order=c(1, 1, 0))) # -9875.72
+# AR(3) or AR(2) provide better fit that ARIMA(1, 1, 0), suggesting resids are 
+# stationary process; supporting results of po test
+
+
+
+# 5 Bivariate and Multivariate White Noise
+cov.matrix <- matrix(c(1, 0.8, 0.8, 1), nrow=2)
+w <- rmvnorm(1000, sigma=cov.matrix) # random sample from multivariate normal
+cov(w)
+head(w)
+par(mfrow=c(1, 1))
+plot(w)
+wx <- w[, 1]
+wy <- w[, 2]
+ccf(wx, wy, main='') # cross correlation/covariance function
+# cross correlations are ~0 for all non-0 lags.
+par(mfrow=c(2, 1))
+acf(wx)
+acf(wy)
 
