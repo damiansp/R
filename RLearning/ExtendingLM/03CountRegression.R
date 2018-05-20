@@ -1,65 +1,71 @@
-#=======================================================================#
-#																		#
-#	Extending the Linear Model with R:									#
-#		Generalized Linear, Mixed Effects and NonParametric Regression 	#
-#		Models		Faraway (2006)										#
-#																		#
-#=======================================================================#
-
-#===========================#
-#							#
-#	3.	Count Regression		#
-#							#
-#===========================#
+#---------#---------#---------#---------#---------#---------#---------#---------
 rm(list=ls())
 library(faraway)
-load('~/Desktop/R/Extending the Linear Model/ELM.RData')
+setwd('~/Learning/R/RLearning/ExtendingLM')
 
-#data(gala)
+data(gala)
 
 
-# 3.1 Poisson Regression
-# If counts are numbers of a larger population (proportions) binomial models should be used; if n is large and ps are small, poisson is a good approximation
-gala <- gala[, -2]
+# 1 Poisson Regression
+# If counts are numbers of a larger population (proportions) binomial models 
+# should be used; if n is large and ps are small, poisson is a good approximation
+head(gala)
+# Response, <Species> is count of tortoise species found on each of the Galapagos 
+# islands
+gala <- gala[, -2] # drop Endemics
+hist(gala$Species)
 
 modl <- lm(Species ~ ., gala)
+par(mfrow=c(2, 2))
+plot(modl)
+
 modt <- lm(sqrt(Species) ~ ., gala)
-
-par(mfrow=c(2, 1))
-plot(predict(modl), resid(modl), xlab='', ylab='Residual', main='Species')
-plot( predict(modt), resid(modt), xlab='Fitted', ylab='Residual', 
-	  main='srqrt(Species)' )
+plot(modt)
 # sqrt() model clears up heteroskedacity
-
+summary(modl)
 summary(modt)
 
 # Not bad, but a Poisson might be more appropriate:
-# For Poisson, the response is distributed according to the parameter mu (= mean = sd), which must be non-negative, hence the log link function is appropriate: log(mu[i]) = eta[i] = t(x[i])*beta; The model now has a linear predictor and log-likelihood is: 
+# For Poisson, the response is distributed according to the parameter mu (= mean 
+# = sd), which must be non-negative, hence the log link function is appropriate:
+# log(mu[i]) = eta[i] = t(x[i])*beta; The model now has a linear predictor and 
+# log-likelihood is: 
 # l(beta) = sum(y[i] * t(x[i])*beta - exp(t(x[i])*beta) - log(factorial(y[i]))
 # Differentiate w respect to beta[j] for MLE solution:
 # sum(( y[i] - exp(t(x[i])) ) * x[i, j]) = 0 (All j); or:
 # t(X) * y = t(X) * mu.hat
 modp <- glm(Species ~ ., family=poisson, gala)
+plot(modp)
 summary(modp)
-# resid deviance of 717 rel to 24 df suggests a poor fit--check resids for possible outliers
+# resid deviance of 717 rel to 24 df suggests a poor fit--check resids for 
+# possible outliers
 par(mfrow=c(1, 1))
-halfnorm(resid(modp)) 	# no apparent outlier; also proportion of the deviance 						# explained by the model is appx = to that of the lm()
+halfnorm(resid(modp)) 	# no apparent outlier; also proportion of the deviance 	 
+                        # explained by the model is appx = to that of the lm()
 1 - (716.85 / 3510.73)	# 79.6% (vs. 78.3 for lm(sqrt() ~ .))
 
 # For Poisson, mean and var are equal... investigate relationship in model:
 # Var for each given point est as (y - mu.hat)^2
-plot( log(fitted(modp)), log((gala$Species - fitted(modp))^2),
-	  xlab=expression(hat(mu)), ylab=expression((y - hat(mu))^2))
-abline(0, 1, col='grey')
+plot(log(fitted(modp)), 
+     log((gala$Species - fitted(modp))^2),
+	 xlab=expression(hat(mu)), 
+	 ylab=expression((y - hat(mu))^2))
+# if poisson process, points should be appx on this line (~var = mean)
+abline(0, 1, col=4) 
 abline(lm(log((gala$Species - fitted(modp))^2) ~ log(fitted(modp))), col=2)
-legend( 'bottomright', lty=1, col=c('grey', 'red'), 
-		legend=c('Perfect Poisson', 'Model') )
-# Model var is proportional to, but larger than, the mean... in such cases, estimates of coefs will be consistent, but SEs will be wrong, hence signif. cannot be determined
+legend('bottomright', lty=1, col=c(4, 2), legend=c('Perfect Poisson', 'Model'))
+
+# Model var is proportional to, but larger than, the mean... in such cases, 
+# estimates of coefs will be consistent, but SEs will be wrong, hence signif. 
+# cannot be determined
 # A dispersion parameter can be estimated (see p. 59-60 for details)
 (dp <- sum(resid(modp, type='pearson')^2) / modp$df.resid)	# 31.749 (!)
+
 # Use to correct SEs:
 summary(modp, dispersion=dp)
-# When comparing overdispersed (or under-) Poisson models, an F-test should be used instead of Chisq
+
+# When comparing overdispersed (or under-) Poisson models, an F-test should be 
+# used instead of Chisq
 drop1(modp, test='F')	# generally preferrable to z-stats in summary() 
 
 
