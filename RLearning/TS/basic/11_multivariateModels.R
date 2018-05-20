@@ -107,3 +107,41 @@ par(mfrow=c(2, 1))
 acf(wx)
 acf(wy)
 
+
+
+# 6. Vector Autoregressive Models
+# Model:
+# x[t] = theta[1, 1] * x[t - 1] + theta[1, 2] * y[t - 1] + w[x, t] and
+# y[t] = theta[2, 1] * y[t - 1] + theta[2, 2] * y[t - 1] + w[y, t] or
+# Z[t] = THETA*Z[t - 1] + w[t] where
+# Z[t] = c(x[t], y[t]);
+# THETA = [[theta[1,1], theta[1,2]]
+#          [theta[2,1], theta[2,2]]
+# w[t] = c(w[x, t], w[y, t])
+# Stationary if roots of |THETA(x)| (det(THETA(x))) all > 1 in abs. val.
+# for VAR(1) the determinant is
+# | 1 - theta[1,1]x,    -theta[1,2]x |
+# |   -theta[2, 1]x, 1 - theta[2,2]x | 
+# = (1 - theta[1, 1]x)(1 - theta[2,2]x) - theta[1,2]theta[2,1]x^2
+#
+# Ex. THETA = [[0.4, 0.3],
+#              [0.2, 0.1]]
+# Det = | 1 - 0.4x,    -0.3x |
+#       |    -0.2x, 1 - 0.1x | = 1 - 0.5x - 0.02x^2
+Mod(polyroot(c(1, -0.5, -0.02))) # both have abs value > 1 so stationary
+
+# Simulation
+x <- y <- rep(0, 1000)
+x[1] <- wx[1]
+y[1] <- wy[1]
+# Use the THETA matrix from above example:
+for (i in 2:1000) {
+  x[i] <- 0.4 * x[i - 1] + 0.3 * y[i - 1] + wx[i]
+  y[i] <- 0.2 * x[i - 1] + 0.1 * y[i - 1] + wy[i]
+}
+
+plot(x, type='l', ylim=range(c(x, y)), col=2)
+lines(y, col=4)
+
+xy.ar <- ar(cbind(x, y))
+xy.ar
