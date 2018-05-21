@@ -4,7 +4,7 @@ setwd('~/Learning/R/RLearning/TS/basic')
 
 library(mvtnorm)
 library(tseries)
-
+data(USeconomic)
 
 CBE <- read.table('./data/cbe.dat', header=T)
 elec.ts <- ts(CBE[, 3], start=1958, freq=12)
@@ -145,3 +145,9 @@ lines(y, col=4)
 
 xy.ar <- ar(cbind(x, y))
 xy.ar
+
+# 6.1 VAR model fitted to US economic series
+ts.plot(GNP, M1, col=c(1, 2))
+legend('topleft', lty=1, col=1:2, legend=c('GNP', 'Real Money'))
+us.ar <- ar(cbind(GNP, M1), method='ols', dmean=T, intercept=F)
+us.ar # best model is VAR(3)
