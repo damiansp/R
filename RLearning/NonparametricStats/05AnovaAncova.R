@@ -5,6 +5,7 @@ setwd('~/Learning/R/RLearning/NonparametricStats')
 
 library(npsm)
 library(Rfit)
+data(latour)
 data(plank)
 data(quail)
 data(serumLH)
@@ -60,3 +61,24 @@ summary(aov(serum ~ light.regime * LRF.dose, data=serumLH))
 head(plank)
 raov(response ~ strain * gender * age, data=plank)
 anova(lm(response ~ strain * gender * age, data=plank))
+
+
+
+# 4. ANCOVA
+# 4.1 Computation of rank-based ANCOVA
+head(latour)
+data <- latour[, c('quality', 'rain')]
+xcov <- cbind(latour[, 'end.of.harvest'])
+analysis <- onecovaheter(2, data, xcov) # onecovahomog() assumes equal slopes
+# for Homog Slopes, p = 0.0088 suggesting an interaction between groups
+# (quality) and predictor (rain)
+plot(jitter(quality, factor=0.5) ~ jitter(end.of.harvest), 
+     latour, 
+     col=rain + 1, 
+     pch=16,
+     xlab='End of Harvest',
+     ylab='Wine Quality')
+abline(lm(quality ~ end.of.harvest, data=subset(latour, rain == 0)))
+abline(lm(quality ~ end.of.harvest, data=subset(latour, rain == 1)), col=2)
+legend('bottomleft', lty=1, col=1:2, legend=c('No', 'Yes'), title='Rain')
+
