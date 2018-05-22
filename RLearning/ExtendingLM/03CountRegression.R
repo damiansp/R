@@ -3,7 +3,9 @@ rm(list=ls())
 library(faraway)
 setwd('~/Learning/R/RLearning/ExtendingLM')
 
+data(dicentric)
 data(gala)
+data(solder)
 
 
 # 1 Poisson Regression
@@ -71,26 +73,30 @@ drop1(modp, test='F')	# generally preferrable to z-stats in summary()
 
 
 # 3.2 Rate Models
-data(dicentric)
-round(xtabs(ca / cells ~ doseamt + doserate, dicentric), 2) # ca = chromosomal 															# abnormalities
+# ca = chromosomal abnormalities
+round(xtabs(ca / cells ~ doseamt + doserate, dicentric), 2) 
 with(dicentric, interaction.plot(doseamt, doserate, ca / cells, col=1:9))
+
 # doserate could be multiplicative, model as log:
 lmod <- lm(ca / cells ~ log(doserate) * factor(doseamt), dicentric)
 summary(lmod)
+
 # good fit, but:
 par(mfrow=c(2, 2))
 plot(lmod)	# ...serious heteroskedacity introduced
 
 # Model count response directly:
 dicentric$dosef <- factor(dicentric$doseamt)
+
 # log(cells) b/c also expected to have mult effect on response
 pmod <- glm(ca ~ log(cells) + log(doserate) * dosef, family=poisson, dicentric)
 summary(pmod)
 plot(pmod)
  
-# Note from the summary, the coef for log(cells) appx 1, fix as 1 for the rate model:
-rmod <- glm( ca ~ offset(log(cells)) + log(doserate) * dosef, family=poisson, 
-			 dicentric )
+# Note from the summary, the coef for log(cells) appx 1, fix as 1 for the rate 
+# model:
+rmod <- glm(
+  ca ~ offset(log(cells)) + log(doserate) * dosef, family=poisson, dicentric )
 summary(rmod)	# resid dev. indicates a good fit...
 plot(rmod)		# ...and diagnostics are pretty good
 
@@ -98,14 +104,16 @@ plot(rmod)		# ...and diagnostics are pretty good
 
 # 3.3 Negative Binomial
 # Ways the negative binomial may arise naturally: 
-# Given a system that can withstand k hits, with a prob of a hit = p within a given time period; generalization of Poisson when lambda is gamma distributed
-data(solder)
+# Given a system that can withstand k hits, with a prob of a hit = p within a 
+# given time period; generalization of Poisson when lambda is gamma distributed
 modp <- glm(skips ~ ., family=poisson, data=solder)
 summary(modp)	# note resid dev / df = poor fit
+deviance(modp)
 
 # Try adding interactions:
-modp2 <- glm( skips ~ (Opening + Solder + Mask + PadType + Panel)^2, 
-			  family=poisson, data=solder )
+modp2 <- glm(skips ~ (Opening + Solder + Mask + PadType + Panel)^2, 
+             family=poisson, 
+             data=solder)
 summary(modp2)	# Fit is still poor
 plot(modp2)		# ...even with pretty good diagnostics
 
@@ -114,15 +122,9 @@ modn <- glm(skips ~ ., family=negative.binomial(1), data=solder)
 summary(modn)
 plot(modn)	# much better fit and ok
 
-# Can further improve by estimating the k parameter of the negative binomial (e.g.: P(Z = z) = choose(z - 1, k - 1) * p^k * (1 - p)^(z - k); z = k, k + 1, ...)
+# Can further improve by estimating the k parameter of the negative binomial 
+# (e.g.: P(Z = z) = choose(z - 1, k - 1) * p^k * (1 - p)^(z - k); z = k, k + 
+# 1, ...)
 modn2 <- glm.nb(skips ~ ., data=solder)
 summary(modn2)	# Theta (4.397 ± 0.495) is the estimate of k
 plot(modn2)
-
-
-
-
-
-
-
-save.image('~/Desktop/R/Extending the Linear Model/ELM.RData')
