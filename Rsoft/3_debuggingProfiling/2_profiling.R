@@ -7,6 +7,7 @@ library(dplyr)
 library(ggplot2)
 library(magrittr)
 library(microbenchmark)
+library(profvis)
 load('~/Learning/R/Rsoft/data/chicagoNMMAPS.rda')
 
 error.if.n.greater.than.0 <- function(n) {
@@ -72,3 +73,18 @@ record.temp.perf.big <- microbenchmark(find.records.naive(chicagoNMMAPS, 27),
                                        find.records(chicagoNMMAPS, 27))
 record.temp.perf.big
 autoplot(record.temp.perf.big)
+
+
+# profvis
+df <- chicagoNMMAPS
+threshold <- 27
+
+profvis({
+  highest.temp <- c()
+  record.temp <- c()
+  for (i in 1:nrow(df)) {
+    highest.temp <- max(highest.temp, df$temp[i])
+    record.temp[i] <- df$temp[i] >= threshold & df$temp[i] >= highest.temp
+  }
+  cbind(df, record.temp)
+})
