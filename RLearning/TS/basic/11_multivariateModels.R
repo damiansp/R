@@ -4,6 +4,7 @@ setwd('~/Learning/R/RLearning/TS/basic')
 
 library(mvtnorm)
 library(tseries)
+library(vars)
 data(USeconomic)
 
 CBE <- read.table('./data/cbe.dat', header=T)
@@ -151,3 +152,19 @@ ts.plot(GNP, M1, col=c(1, 2))
 legend('topleft', lty=1, col=1:2, legend=c('GNP', 'Real Money'))
 us.ar <- ar(cbind(GNP, M1), method='ols', dmean=T, intercept=F)
 us.ar # best model is VAR(3)
+
+us.var <- VAR(cbind(GNP, M1), p=2, type='trend')
+us.var
+coef(us.var)
+
+par(mfrow=c(2, 1)) 
+resid(us.var)
+acf(resid(us.var)[, 1], main='GNP Residuals')
+acf(resid(us.var)[, 2], main='Real Money Residuals')
+
+us.pred <- predict(us.var, n.ahead=4)
+us.pred
+gnp.pred <- ts(us.pred$fcst$GNP[, 1], start=1988, freq=4)
+m1.pred <- ts(us.pred$fcst$M1[, 1], start=1988, freq=4)
+ts.plot(cbind(window(GNP, start=1981), gnp.pred), lty=1, col=1:2)
+ts.plot(cbind(window(M1, start=1981), m1.pred), lty=1, col=1:2)

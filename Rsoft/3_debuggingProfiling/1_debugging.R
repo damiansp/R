@@ -1,6 +1,6 @@
 #---------#---------#---------#---------#---------#---------#---------#---------
 rm(list=ls())
-setwd('~/Learning/R/Rsoft/2_advancedR/')
+setwd('~/Learning/R/Rsoft/3_debuggingProfiling/')
 
 
 # traceback()
@@ -55,3 +55,5 @@ body(check.n.value)
 
 trace('glm', browser, at=4, where=asNamespace('stats'))
 body(stats::glm)[1:5]
+
+
