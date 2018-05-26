@@ -13,13 +13,13 @@
 #===================================#
 rm(list = ls())
 library(faraway)
-load('~/Desktop/R/Extending the Linear Model/ELM.RData')
-
+setwd('~/Learning/R/RLearning/ExtendingLM')
 
 
 # 6.2 Fitting a GLM
 data(bliss)
-modl = glm(cbind(dead, alive) ~ conc, family = binomial, bliss)
+head(bliss)
+modl <- glm(cbind(dead, alive) ~ conc, family=binomial, bliss)
 summary(modl)
 
 # For binomial response:
@@ -29,27 +29,28 @@ summary(modl)
 #	w = n * mu * (1 - mu)
 #	and y is the proportion, not the count
 
-y = bliss$dead / 30	# convert to fraction of total
-mu = y	#initial est of mu
-eta = logit(mu)
-z = eta + (y - mu) / (mu * (1 - mu))
-w = 30 * mu * (1-mu)
-lmod = lm(z ~ conc, weights = w, bliss)
+n <- bliss$dead + bliss$alive
+y <- bliss$dead / (n)	# convert to fraction of total
+mu <- y	#initial est of mu
+eta <- logit(mu) # = log(mu / (1- mu))
+z <- eta + (y - mu) / (mu * (1 - mu))
+w <- n * mu * (1 - mu)
+lmod <- lm(z ~ conc, weights=w, bliss)
 summary(lmod)	# equal to model with initial estimates before converging
 
-#five iterations toward convergence:
-for(i in 1:5){
-	eta = lmod$fit
-	mu = ilogit(eta)
-	z = eta + (y - mu) / (mu * (1 - mu))
-	w = 30 * mu * (1 - mu)
-	lmod = lm(z ~ bliss$conc, weights = w)
-	cat(i, coef(lmod), "\n")
+# five iterations toward convergence:
+for(i in 1:5) {
+  eta <- lmod$fit
+  mu <- ilogit(eta)
+  z <- eta + (y - mu) / (mu * (1 - mu))
+  w <- 30 * mu * (1 - mu)
+  lmod <- lm(z ~ bliss$conc, weights=w)
+  cat(i, coef(lmod), "\n")
 }
 
 summary(lmod)	# SE not correct; to compute:
-xm = model.matrix(lmod)
-wm = diag(w)
+xm <- model.matrix(lmod)
+wm <- diag(w)
 sqrt(diag(solve(t(xm) %*% wm %*% xm)))	# for binomial 
 
 # To get the correct SE in the summary of lm
