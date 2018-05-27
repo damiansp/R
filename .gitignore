@@ -1,15 +1,28 @@
+# OS Generated
+#=============================
 .DS_Store
+*~
+
+
+# R
+#=============================
 .Rapp.history
 .Rhistory
 *.RData
-*.DS_Store
+*.rda
+
+
+# File Types
+#=============================
 *.txt
 *.pdf
 *.ppt
 *.png
 *.png.*
-*~
 
+
+# Directories
+#=============================
 BayesBook/
 Rsafd/
 Rsoft/data/
