@@ -3,6 +3,7 @@ rm(list=ls())
 setwd('~/Learning/R/Rsoft/4_OOP')
 
 library(ggplot2)
+library(magrittr)
 library(microbenchmark)
 library(purrr)
 
