@@ -5,6 +5,7 @@ setwd('~/Learning/R/RLearning/NonparametricStats')
 
 library(npsm)
 library(Rfit)
+data(huitema496)
 data(latour)
 data(plank)
 data(quail)
@@ -82,3 +83,22 @@ abline(lm(quality ~ end.of.harvest, data=subset(latour, rain == 0)))
 abline(lm(quality ~ end.of.harvest, data=subset(latour, rain == 1)), col=2)
 legend('bottomleft', lty=1, col=1:2, legend=c('No', 'Yes'), title='Rain')
 
+# Ex 4.3
+head(huitema496)
+huitema <- as.data.frame(huitema496)
+lvls <- c(2, 2)
+y.group <- huitema496[, c('y', 'i', 'j')]
+x.cov <- huitema496[, 'x']
+temp <- kancova(lvls, y.group, x.cov) # last row indicates sig. diff slopes
+plot(y ~ x, subset(huitema, i == 1 & j == 1))
+abline(lm(y ~ x, subset(huitema, i == 1 & j == 1)))
+points(y ~ x, subset(huitema, i == 1 & j == 2), col=2)
+abline(lm(y ~ x, subset(huitema, i == 1 & j == 2)), col=2)
+points(y ~ x, subset(huitema, i == 2 & j == 1), col=3)
+abline(lm(y ~ x, subset(huitema, i == 2 & j == 1)), col=3)
+points(y ~ x, subset(huitema, i == 2 & j == 2), col=4)
+abline(lm(y ~ x, subset(huitema, i == 2 & j == 2)), col=4)
+
+
+
+# 5 Methodology for Type III Hypothesis Testing
