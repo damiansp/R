@@ -1,4 +1,4 @@
-#---------#---------#---------#---------#---------#---------#---------#---------
+#!/usr/bin/env Rscript
 rm(list=ls())
 setwd('~/Learning/R/Rsoft/4_OOP')
 
@@ -47,7 +47,7 @@ factorial.recursive <- function(n) {
 
 
 # Vectorized
-factorial.vector <- function(n) {
+factorial.vectorize <- function(n) {
   if (n == 0) {
   	return (1)
   }
@@ -71,16 +71,16 @@ factorial.memoize <- function(n) {
 # Test that functions output correct values
 test <- function() {
   n <- 0:6
-  cat('Testing factorial functions:\n')
-  cat('loop----------------------------\n')
+  cat('Testing factorial functions output correct values:\n')
+  cat('\nloop----------------------------\n')
   cat(unlist(lapply(n, factorial.loop)))
-  cat('\nreduce--------------------------\n')
+  cat('\n\nreduce--------------------------\n')
   cat(unlist(lapply(n, factorial.reduce)))	
-  cat('\nrecursive-----------------------\n')
+  cat('\n\nrecursive-----------------------\n')
   cat(unlist(lapply(n, factorial.recursive)))	
-  cat('\nvector--------------------------\n')
-  cat(unlist(lapply(n, factorial.vector)))	
-  cat('\nmemoize--------------------------\n')
+  cat('\n\nvectorize-----------------------\n')
+  cat(unlist(lapply(n, factorial.vectorize)))	
+  cat('\n\nmemoize--------------------------\n')
   cat(unlist(lapply(n, factorial.memoize)))	
 }
 
@@ -93,37 +93,27 @@ run.benchmarks <- function(n) {
     benchmarks <- microbenchmark(lapply(n, factorial.loop),
                                  lapply(n, factorial.reduce),
                                  lapply(n, factorial.recursive),
-                                 lapply(n, factorial.vector),
-                                 lapply(n, factorial.memoize))
+                                 lapply(n, factorial.vectorize),
+                                 lapply(n, factorial.memoize),
+                                 lapply(n, factorial)) # <- r built-in
   } else {
     benchmarks <- microbenchmark(factorial.loop(n),
                                  factorial.reduce(n),
                                  factorial.recursive(n),
-                                 factorial.vector(n),
-                                 factorial.memoize(n)) 	
+                                 factorial.vectorize(n),
+                                 factorial.memoize(n),
+                                 factorial(n)) # <- r built-in	
   }
   benchmarks
 }
 
-# Small numbers
-ns <- 0:10
-benchmarks <- run.benchmarks(ns)
-autoplot(benchmarks)
 
-
-# Bigger numbers
-n <- 20
-benchmarks <- run.benchmarks(n)
-autoplot(benchmarks)
-
-n <- 40
-benchmarks <- run.benchmarks(n)
-autoplot(benchmarks)
-
-n <- 80
-benchmarks <- run.benchmarks(n)
-autoplot(benchmarks)
-
-n <- 160
-benchmarks <- run.benchmarks(n)
-autoplot(benchmarks)
+cat('\n\n\nRunning Benchmarks for batches of 10 numbers at a time:')
+cat('\nBenchmarks for n! for.....')
+for (i in c(10, 20, 40, 80, 160)) {
+  cat(sprintf('\n\n  n = %d, ..., %d ----------------------------\n', i - 10, i))
+  ns <- (i - 10):i
+  benchmarks <- run.benchmarks(ns)
+  print(benchmarks)
+  autoplot(benchmarks)
+}
