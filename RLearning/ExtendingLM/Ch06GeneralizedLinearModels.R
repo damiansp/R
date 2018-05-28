@@ -66,14 +66,13 @@ summary(modl)
 # test goodness of fit by comparing res.dev to res. df:
 1 - pchisq(deviance(modl), df.residual(modl))	
 # 0.9446 (large p: no evidence of lack of fit)
-
 # or, comparing to the null:
-anova(modl, test = "Chi")	# clearly better than null
+anova(modl, test="Chi")	# clearly better than null
 
 # Test a more complex model
-modl2 = glm(cbind(dead, alive) ~ conc + I(conc^2), family = binomial, bliss)
+modl2 <- glm(cbind(dead, alive) ~ conc + I(conc^2), family=binomial, bliss)
 summary(modl2)
-anova(modl2, test = "Chi")	# quadratic term not signif; reduces to previous
+anova(modl2, test="Chi")	# quadratic term not signif; reduces to previous
 
 
 
