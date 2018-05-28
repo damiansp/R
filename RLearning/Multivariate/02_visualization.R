@@ -64,3 +64,63 @@ stars(USairpollution[, -c(2, 5)],
       add=T, 
       labels=NULL)
 stars(USairpollution)
+
+
+
+# 4. The Scatterplot Matrix
+pairs(USairpollution, pch=16, col=rgb(0, 0, 0, 0.4))
+round(cor(USairpollution), 4)
+pairs(USairpollution, panel=panel.smooth, pch=16, col=rgb(0, 0, 0, 0.4))
+pairs(
+  USairpollution, 
+  panel=function(x, y, ...) {
+  	points(x, y, ...)
+  	abline(lm(y ~ x), col=4)
+  }, 
+  pch=16, 
+  col=rgb(0, 0, 0, 0.4))
+  
+  
+  
+# 5. Enhancing the Scatterplot with Esimated Bivariate Densities
+# 5.1 Kernel density estimators
+rec <- function(x) { (abs(x) < 1) / 2 }
+tri <- function(x) { (abs(x) < 1) * (1 - abs(x)) }
+gauss <- function(x) { (1 / sqrt(2*pi)) * exp(-(x^2) / 2) }
+x <- seq(-3, 3, 0.001)
+plot(x, rec(x), type='l', ylim=c(0, 1), ylab='K(x)')
+lines(x, tri(x), col=2)
+lines(x, gauss(x), col=4)
+legend('topleft', 
+       legend=c('Rectangualar', 'Triangualar', 'Gaussian'), 
+       lty=1, 
+       col=c(1, 2, 4), 
+       title='Kernel Functions', 
+       bty='n')
+
+kernel.est.plot <- function(x, h, kernel.func) {
+  n <- length(x)
+  xgrid <- seq(min(x) - 1, max(x) + 1, 0.01)
+  bumps <- sapply(x, function(a) { kernel.func((xgrid - a)/h) / (n*h) })
+  plot(xgrid, 
+       rowSums(bumps), 
+       ylab=expression(hat(f)(x)), 
+       type='l', 
+       xlab='x', 
+       lwd=2,
+       col=4)
+  rug(x, col=rgb(0, 0, 0, 10 / n))  
+  out <- apply(
+    bumps, 
+    2, 
+    function(b) { lines(xgrid, b, col=rgb(0, 0, 0, 10 / n)) })	
+}
+x <- rnorm(80, 5, 2)
+hs <- c(0.2, 0.4, 0.6)
+fs <- c(rec, tri, gauss)
+par(mfrow=c(3, 3), mar=rep(0.5, 4))
+for (h in hs) {
+  for (f in fs) {
+    kernel.est.plot(x, h, f)
+  }
+}
