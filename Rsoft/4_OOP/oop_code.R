@@ -5,12 +5,44 @@ setwd('~/Learning/R/Rsoft/4_OOP')
 library(dplyr)
 library(readr)
 library(magrittr)
-library(reshape)
 library(tidyr)
 
-setClass('Subject',
-         slots=list(id='numeric',
-                    data='data.frame'))
+
+
+# A class that coerces print() to use cat() instead
+setClass('Cat', slots=list(text='character'))
+         
+setClass('LongitudinalData', 
+         slots=list(dataframe='data.frame', pivot='data.frame'))
+
+setClass('Subject', slots=list(id='numeric', data='data.frame'))
+
+setClass('Summary', slots=list(output='function'))
+
+
+
+setGeneric(
+  'subject',
+  function(long.dat, idn) {
+  	standardGeneric('subject')
+  })
+setMethod(
+  'subject',
+  c(long.dat='LongitudinalData', idn='numeric'),
+  function(long.dat, idn) {
+  	if (!idn %in% long.dat@pivot$id) {
+  	  return (NULL)
+  	}
+  	subject.table <- subset(long.dat@pivot, id == idn)
+  	# Keep only columns w at least one non-NA value
+  	keep <- apply(subject.table,
+  	              2,
+  	              function(x) ifelse(length(x) == sum(is.na(x)), F, T))
+  	data <- subject.table[, keep]
+  	new('Subject', id=idn, data=data)
+  })
+  
+  
 setGeneric(
   'summary',
   function(x) {
@@ -20,17 +52,15 @@ setMethod(
   'summary',
   c(x='Subject'),
   function(x) {
-    print.summary <- function() {
-      cat(sprintf('ID: %d\n%s', x@id, capture.output(x@data)))	
+  	f <- function() {
+      cat(sprintf('ID: %d\n', x@id))
+      x@data
     }
-    capture.output(print.summary())
+    new('Summary', output=f)
   })
+  
 
-setClass('LongitudinalData',
-         slots=list(dataframe='data.frame',
-                    pivot='data.frame'))
-         
-         
+# Print funcs----------------------------------------------------------
 setGeneric('print')
 setMethod(
   'print',
@@ -43,31 +73,22 @@ setMethod(
   'print',
   c(x='Subject'),
   function(x) {
-  	cat(sprintf('Subject ID: %d\n', x@id))
-  })
-  
-setGeneric(
-  'subject',
-  function(x, idn) {
-  	standardGeneric('subject')
+  	sprintf('Subject ID: %d', x@id)
+  })  	
+setMethod(
+  'print',
+  c(x='Cat'),
+  function(x) {
+  	cat(x@text)
   })
 setMethod(
-  'subject',
-  c(x='LongitudinalData', idn='numeric'),
-  function(x, idn) {
-  	if (!idn %in% x@pivot$id) {
-  	 return (NULL)
-  	}
-  	subject.table <- subset(x@pivot, id == idn)
-  	# Keep columns only if at least one NA value
-    keep <- apply(test, 
-                  2, 
-                  function(x) ifelse(length(x) == sum(is.na(x)), F, T))
-    data <- subject.table[, keep]
-    new('Subject', id=idn, data=data[, -which(names(data) == 'id')])
+  'print',
+  c(x='Summary'),
+  function(x) {
+  	x@output()
   })
-  	
-         
+
+
 make_LD <- function(df) {
   pivot <- data %>%
     group_by(id, visit, room) %>%
@@ -76,6 +97,7 @@ make_LD <- function(df) {
     as.data.frame()
   new('LongitudinalData', dataframe=df, pivot=pivot)
 }
+
 
 
 
@@ -114,3 +136,12 @@ print(out)
 
 out <- subject(x, 44) %>% visit(1) %>% room("living room") %>% summary
 print(out)
+
+a <- 'the'
+b <- data.frame(a=1, b=2, c=3)
+cat(sprintf('%s\n%s', a, capture.output(b)))
+test <- function() {
+  cat(sprintf('%s\n', a))
+  b
+}
+test()
