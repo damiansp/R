@@ -2,9 +2,11 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/Multivariate')
 
+library(KernSmooth)
 library(MVA)
+library(scatterplot3d)
 data('USairpollution')
-
+measure <- read.csv('data/measure.csv')
 
 
 # 2. Scatterplot
@@ -124,3 +126,50 @@ for (h in hs) {
     kernel.est.plot(x, h, f)
   }
 }
+
+
+
+# 6. Three-Dimensional Plots
+epa <- function(x, y) {
+  ((x^2 + y^2) < 1) * 2/pi * (1 - x^2 - y^2)
+}
+
+x <- seq(-1.1, 1.1, 0.05)
+epa.vals <- sapply(x, function(a) { epa(a, x) })
+par(mfrow=c(1, 1))
+persp(x=x, 
+      y=x, 
+      z=epa.vals, 
+      xlab='x', 
+      ylab='y', 
+      zlab=expression(K(x, y)), 
+      theta=-35, 
+      axes=T, 
+      box=T)
+CYGOB1d <- bkde2D(CYGOB1, bandwidth=sapply(CYGOB1, dpik))
+head(CYGOB1d)
+plot(CYGOB1, xlab='log(surface temp)', ylab='log(light intensity)')
+contour(x=CYGOB1d$x1, y=CYGOB1d$x2, z=CYGOB1d$fhat, add=T)
+persp(x=CYGOB1d$x1, 
+      y=CYGOB1d$x2, 
+      z=CYGOB1d$fhat, 
+      xlab='log(surface temp)', 
+      ylab='log(light intensity)',
+      zlab='density')
+     
+
+      
+# 7. Trellis Graphics
+head(measure)
+as.numeric(measure$gender)
+scatterplot3d(measure$chest, 
+              measure$waist, 
+              measure$hips, 
+              color=as.numeric(measure$gender), 
+              type='h', 
+              angle=55)
+scatterplot3d(USairpollution$temp, 
+              USairpollution$wind, 
+              USairpollution$SO2, 
+              type='h', 
+              angle=30)
