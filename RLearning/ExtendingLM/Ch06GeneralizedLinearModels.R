@@ -10,12 +10,14 @@
 #									#
 #===================================#
 rm(list = ls())
-library(faraway)
 setwd('~/Learning/R/RLearning/ExtendingLM')
+
+library(faraway)
+data(bliss)
+data(gala)
 
 
 # 2 Fitting a GLM
-data(bliss)
 head(bliss)
 modl <- glm(cbind(dead, alive) ~ conc, family=binomial, bliss)
 summary(modl)
@@ -96,7 +98,6 @@ cooks.distance(modl)
 # more informative to plot the linear predictors (eta.hat) than the predicted
 # response (mu.hat) as with lms.
 # Using mu.hat
-data(gala)
 gala <- gala[, -2]
 head(gala)
 modp <- glm(Species ~ ., family=poisson, gala)
@@ -175,27 +176,26 @@ plot(z ~ predict(modpl),
 # deviate from the trend
 halfnorm(rstudent(modpl)) # of jackknife residuals; no apparent outliers
 
-gali = influence(modpl)
+gali <- influence(modpl)
 halfnorm(gali$hat)	# distriubution of leverages by predictor 
 					# (e.g., 25 = Scruz may have undue leverage)
 halfnorm(cooks.distance(modpl))	# distribution of Cook's D by predictor. 
 								# Again Scruz is 'outlier'
 
-plot(gali$coef[, 5], ylab = "Change in Scruz Coef", xlab = "Case no.")	
+plot(gali$coef[, 5], ylab="Change in Scruz Coef", xlab="Case no.")	
 # [, 5] == Scruz; Case 25 (Santa Cruz island itself; [Scruz = 0]) has biggest 
 # effect, cf. model w/o 25:
 
 # refit model without this datum
-modplr = update(modpl, ~., subset = -25)
+modplr <- update(modpl, ~., subset=-25)
 cbind(coef(modpl), coef(modplr))
 
 # Final model:
-modpla = glm(Species ~ log(Area) + log(Adjacent), family = poisson, gala)
-dp = sum(resid(modpla, type = "pearson")^2) / modpla$df.res
-summary(modpla, dispersion = dp)	
+modpla <- glm(Species ~ log(Area) + log(Adjacent), family=poisson, gala)
+dp <- sum(resid(modpla, type="pearson")^2) / modpla$df.res
+summary(modpla, dispersion=dp)	
 # same as modeling with quasipoisson dispersion parameter
-modpla2 = glm(Species ~ log(Area) + log(Adjacent), family = quasipoisson, 
-			  gala)
+modpla2 <- glm(Species ~ log(Area) + log(Adjacent), family=quasipoisson, gala)
 summary(modpla2)
 
 
