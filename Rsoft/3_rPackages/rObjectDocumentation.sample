@@ -1,0 +1,7 @@
+#' Postal Abbreviations for Mexico
+#'
+#' @examples
+#' \dontrun{
+#'  mexico_abb
+#' }
+"mexico_abb"
