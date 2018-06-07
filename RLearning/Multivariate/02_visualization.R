@@ -3,8 +3,10 @@ rm(list=ls())
 setwd('~/Learning/R/RLearning/Multivariate')
 
 library(KernSmooth)
+library(lattice)
 library(MVA)
 library(scatterplot3d)
+data('quakes')
 data('USairpollution')
 measure <- read.csv('data/measure.csv')
 
@@ -173,3 +175,19 @@ scatterplot3d(USairpollution$temp,
               USairpollution$SO2, 
               type='h', 
               angle=30)
+plot(xyplot(SO2 ~ temp | cut(wind, 2), data=USairpollution))
+pollution <- equal.count(USairpollution$SO2, 4)
+plot(cloud(
+  precip ~ temp * wind | pollution, panel.aspect=0.9, data=USairpollution))
+plot(xyplot(lat ~ long | cut(depth, 3), 
+            data=quakes, 
+            layout=c(3, 1), 
+            pch=16, 
+            col=rgb(0, 0.2, 0.9, 0.3)))
+plot(cloud(lat ~ depth * long | cut(mag, 4), 
+           data=quakes, 
+           panel.aspect=0.9, 
+           screen=list(z=105, x=-70)))
+
+# 8 Stalactite Plots
+stalac(USairpollution) # more substantial outliers have *s furthest down
