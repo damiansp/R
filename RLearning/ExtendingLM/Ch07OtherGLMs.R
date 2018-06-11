@@ -1,75 +1,91 @@
 #=======================================================================#
-#																		#
-#	Extending the Linear Model with R:									#
-#		Generalized Linear, Mixed Effects and NonParametric Regression 	#
-#		Models		Faraway (2006)										#
-#																		#
-#=======================================================================#
-
-#===================#
-#					#
-#	7. Other GLMs	#
-#					#
+#                                                                       #
+#  Extending the Linear Model with R:                                   #
+#    Generalized Linear, Mixed Effects and NonParametric Regression     #
+#    Models   Faraway (2006)                                            #
+#                                                                       #
+#                   #===================================================#
+#                   #
+#  7. Other GLMs    #
+#                   #
 #===================#
 rm(list = ls())
+setwd('~/Learning/R/RLearning/ExtendingLM/')
+
 library(faraway)
-library(SuppDists)
-load('~/Desktop/R/Extending the Linear Model/ELM.RData')
+library(MASS)
+#library(SuppDists)
+data(motorins)
+data(wafer)
 
-
-
-# 7.1 Gamma GLM
+# 1 Gamma GLM
 # Used for continuous, skewed responses
 # Some examples of the gamma distribution:
-x = seq(0, 8, 0.001)
-r = 1
-b = 0
-color = rgb(r, 0, b)
-plot(x, dgamma(x, 0.75), type='l', xlab='', ylab='', ylim=c(0, 1.25), 
-	 xaxs='i', yaxs='i', col = color)	#'i's make 0 flush with axes
+x <- seq(0, 8, 0.001)
+r <- 1
+b <- 0
+color <- rgb(r, 0, b)
+plot(x, 
+     dgamma(x, 0.75), 
+     type='l', 
+     xlab='', 
+     ylab='', 
+     ylim=c(0, 1.25), 
+	 xaxs='i',          #'i's make 0 flush with axes
+	 yaxs='i', 
+	 col=color)	
 for(s in seq(0.8, 5.0, 0.05)) {
-	r = r - 0.01
-	b = b + 0.01
-	lines(x, dgamma(x, s), col = rgb(r, 0, b))
+  r <- r - 0.01
+  b <- b + 0.01
+  lines(x, dgamma(x, s), col=rgb(r, 0, b))
 }
 
-data(wafer)
 head(wafer)
 summary(wafer)
-truehist(wafer$resist)
+hist(wafer$resist, freq=F)
 lines(density(wafer$resist))
 rug(wafer$resist)
-llmdl = lm(log(resist) ~ .^2, wafer)
-rlmdl = step(llmdl)
+
+llmdl <- lm(log(resist) ~ .^2, wafer)
+rlmdl <- step(llmdl)
 summary(rlmdl)
 
-gmdl = glm(resist ~ .^2, family = Gamma(link = log), wafer)
-rgmdl = step(gmdl)
+gmdl <- glm(resist ~ .^2, family=Gamma(link=log), wafer)
+rgmdl <- step(gmdl)
 summary(rgmdl)
 
 gamma.dispersion(rgmdl)
 
-data(motorins)
 head(motorins)
-motori = motorins[motorins$Zone == 1,]
+motori <- motorins[motorins$Zone == 1, ]
 hist(motori$Payment)
-gl = glm(Payment ~ offset(log(Insured)) + as.numeric(Kilometres) + Make + 
-		 Bonus, family = Gamma(link = log), motori)
+gl <- glm(
+  Payment ~ offset(log(Insured)) + as.numeric(Kilometres) + Make + Bonus, 
+  family=Gamma(link=log), 
+  motori)
 summary(gl)
 
 # cf lognormal model:
-llg = glm(log(Payment) ~ offset(log(Insured)) + as.numeric(Kilometres) + Make 
-		  + Bonus, family=gaussian, motori)
+llg <- glm(
+  log(Payment) ~ offset(log(Insured)) + as.numeric(Kilometres) + Make + Bonus, 
+  family=gaussian, 
+  motori)
 summary(llg)
 
-x = seq(0,5, 0.05)
-plot(x, dgamma(x, 1 / 0.55597, scale = 0.55597), type='l', ylab='', xlab='', 
-	 xaxs='i', yaxs='i', ylim=c(0, 1))
-lines(x, dlnorm(x, meanlog = -0.30551, sdlog = sqrt(0.61102)), col = 2)
-x0 = data.frame(Make = '1', Kilometres = 1, Bonus = 1, Insured = 100)
-predict(gl, new = x0, se = T, type='response')
+x <- seq(0,5, 0.05)
+plot(x, 
+     dgamma(x, 1 / 0.55597, scale=0.55597), 
+     type='l', 
+     ylab='', 
+     xlab='', 
+	 xaxs='i', 
+	 yaxs='i', 
+	 ylim=c(0, 1))
+lines(x, dlnorm(x, meanlog=-0.30551, sdlog=sqrt(0.61102)), col=2)
+x0 <- data.frame(Make='1', Kilometres=1, Bonus=1, Insured=100)
+predict(gl, new=x0, se=T, type='response')
 # and for lognormal:
-predict(llg, new = x0, se = T, type='response')	
+predict(llg, new=x0, se=T, type='response')	
 # and to rescale to original scale:
 c(exp(10.998), exp(10.998)*0.16145)
 
