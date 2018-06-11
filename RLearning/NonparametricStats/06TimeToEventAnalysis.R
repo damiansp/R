@@ -37,3 +37,12 @@ gehan.test(cancertrt$time, cancertrt$event, cancertrt$trt)
 fit <- coxph(Surv(time, recur) ~ genotype, data=hemorrhage)
 summary(fit3) # The coef, 1.33 indicates increased risk for genotype of group 2
 # Alternately est. risk of hemorrhage for hetero is 3.878 over homo 
+
+head(prostate)
+f2 <- coxph(Surv(time, event=status) ~ as.factor(treatment) + size + index, 
+            data=prostate)
+summary(f2)
+
+
+
+# 4. Accelerated Failure Time Models

@@ -3,17 +3,15 @@
 .DS_Store
 *~
 
-
 # R
 #=============================
 .Rapp.history
+.Rbuildignore
 .Rhistory
+.Rproj.user
 *.RData
 *.rda
-
-
 # File Types
-#=============================
 *.txt
 *.pdf
 *.ppt
@@ -31,3 +29,4 @@ ape/
 RLearning/MachineLearning/chapter*/*
 images/
 data/
+
