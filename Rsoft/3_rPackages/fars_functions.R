@@ -4,8 +4,8 @@
 #' Will throw an error if the file path does not exist, or if the file type is 
 #' not compatible with read_csv()
 #'
-#' @param filename A character string indicating the path to the (.csv) file to
-#' be loaded
+#' @parameter filename A character string indicating the path to the (.csv) file 
+#'   to be loaded
 #'
 #' @return The loaded data as a dataframe tibble object
 #'
@@ -24,19 +24,21 @@ fars_read <- function(filename) {
 }
 
 
+#' Generate a file name
+#'
 #' Generates a file name string of the format "accident_YYYY.csv.bz2" where YYYY 
 #'   is a year
 #'
-#' @param year Numeric or character string indicating the year of the data
+#' @parameter year Numeric or character string indicating the year of the data
 #'
 #' @return A character string indicating the file name
 #'
 #' @examples
-#' make_filename(1969)
-#' make_filename('2001')
+#' make_filename(2013)
+#' make_filename('2014')
 make_filename <- function(year) {
   year <- as.integer(year)
-  sprintf("accident_%d.csv.bz2", year)
+  sprintf("data/accident_%d.csv.bz2", year) 
 }
 
 
@@ -45,11 +47,16 @@ make_filename <- function(year) {
 #' Reads and formats all files "accident_YYYY.csv.bz2" for years YYYY
 #' Will generate a warning if the file does not exist
 #'
-#' @param years Vector or list of type numeric or string, with each element 
+#' @parameter years Numeric or Character vector, with each element 
 #'   indicating a year of data to be loaded and formatted
 #'
 #' @return a list of dataframe tibble objects with the month and year of the 
 #'   data for each year passed in <years>
+#'
+#' @examples
+#' fars_read_years(2013)
+#' fars_read_years(c(2013, 2015))
+#' fars_read_years(2013:2015)
 fars_read_years <- function(years) {
   lapply(
     years, 
@@ -68,7 +75,22 @@ fars_read_years <- function(years) {
 }
 
 
-
+#' Read and format data into a single table for all years supplied
+#'
+#' Reads all files "accident_YYYY.csv.bz2" for years YYYY. Formats data into a 
+#'   single table with summary values for each month and year
+#'
+#' @parameter years Numeric or Character vector, with each element 
+#'   indicating a year of data to be loaded and formatted
+#'
+#' @return a datafram tibble object with months as rows and years as columns
+#'
+#' @examples
+#' fars_summarize_years(2013)
+#' fars_summarize_years(c(2013, 2015))
+#' fars_summarize_years(2013:2015)
+#'
+#' @export
 fars_summarize_years <- function(years) {
   dat_list <- fars_read_years(years)
   dplyr::bind_rows(dat_list) %>% 
@@ -78,6 +100,23 @@ fars_summarize_years <- function(years) {
 }
 
 
+#' Generates a map of accident locations for a given state and year
+#'
+#' Will throw an error if the state value is out of range, or a warning if the 
+#'   year is out of range.  Will provide a message if there are no accidents to 
+#'   plot for the given year and state.
+#'
+#' @parameter state.num Numeric (integer) between 1-51 indicating the 50 states 
+#'   and Washington, DC.
+#' @parameter year Numeric (integer) indicating one of the years in the data set
+#'
+#' @return NULL (generates a graphic in the current plotting device)
+#' 
+#' @examples
+#' fars_map_state(1, 2013)
+#' fars_map_state(44, 2015)
+#'
+#' @export
 fars_map_state <- function(state.num, year) {
   filename <- make_filename(year)
   data <- fars_read(filename)
