@@ -7,6 +7,7 @@ library(Rfit)
 library(survival)
 data(cancertrt)
 data(hemorrhage)
+data(logrankscores)
 
 # 2 Kaplan-Meier and Log Rank Test
 head(hemorrhage)
@@ -46,3 +47,8 @@ summary(f2)
 
 
 # 4. Accelerated Failure Time Models
+eps <- log(rexp(10))
+x <- 1:10
+y <- round(4*x + eps, 2)
+plot(y ~ x)
+fit <- rfit(y ~ x, scores=mylogrank) #?
