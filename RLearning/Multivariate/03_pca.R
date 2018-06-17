@@ -2,8 +2,10 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/Multivariate')
 
+library('HSAUR2')
 library('MVA')
-
+data('heptathlon')
+#demo('Ch-PCA')
 
 # 4. Should PCs be Extracted from Covariance or Correlation Matrix?
 # Really no reason you should not always use correlations -- scale invariant
@@ -77,3 +79,41 @@ abline(a1, b1) # PC1
 abline(a2, b2) # PC2
 xl <- range(head.pca$scores[, 1])
 plot(head.pca$scores, xlim=xl, ylim=xl)
+
+# 10.2 Olympic heptathlon results
+heptathlon$hurdles <- max(heptathlon$hurdles) - heptathlon$hurdles
+heptathlon$run200m <- max(heptathlon$run200m) - heptathlon$run200m
+heptathlon$run800m <- max(heptathlon$run800m) - heptathlon$run800m
+score <- which(colnames(heptathlon) == 'score')
+round(cor(heptathlon[, -score]), 2)
+plot(heptathlon[, -score])
+
+heptathlon <- heptathlon[-grep('PNG', rownames(heptathlon)), ]
+round(cor(heptathlon[, -score]), 2)
+plot(heptathlon[, -score])
+
+heptathlon.pca <- prcomp(heptathlon[, -score], scale=T)
+print(heptathlon.pca) # loadings
+summary(heptathlon.pca)
+a1 <- heptathlon.pca$rotation[, 1]
+a1
+center <- heptathlon.pca$center
+scale <- heptathlon.pca$scale
+heptathlon.m <- as.matrix(heptathlon[, -score])
+
+# Each data point's projection on 1st PC:
+drop(scale(heptathlon.m, center=center, scale=scale) 
+     %*% heptathlon.pca$rotation[, 1])
+
+# Same as:
+predict(heptathlon.pca)[, 1]
+plot(heptathlon.pca)
+cor(heptathlon$score, heptathlon.pca$x[, 1])
+plot(heptathlon$score, heptathlon.pca$x[, 1])
+
+plot(heptathlon.pca$x[,1], 
+     heptathlon.pca$x[,2], 
+     type='n', 
+     xlim=c(-5, 5), 
+     ylim=c(-2, 1))
+text(heptathlon.pca$x[,1], heptathlon.pca$x[,2], rownames(heptathlon.pca$x))
