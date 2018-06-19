@@ -2,8 +2,8 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/Multivariate')
 
-library('HSAUR2')
-library('MVA')
+library(HSAUR2)
+library(MVA)
 data('heptathlon')
 #demo('Ch-PCA')
 
@@ -49,13 +49,13 @@ plot(log(blood.pca.cor$sdev^2),
 
 # 10 Some Examples of the Application of PCA
 headsize <- matrix(c(
-  191, 195, 181, 183, 176, 208, 189, 197, 188, 192, 179, 183, 174, 190, 188, 163, 
-  195, 186, 181, 175, 192, 174, 176, 197, 190, 155, 149, 148, 153, 144, 157, 150, 
-  159, 152, 150, 158, 147, 150, 159, 151, 137, 155, 153, 145, 140, 154, 143, 139, 
-  167, 163, 179, 201, 185, 188, 171, 192, 190, 189, 197, 187, 186, 174, 185, 195,
-  187, 161, 183, 173, 182, 165, 185, 178, 176, 200, 187, 145, 152, 149, 149, 142, 
-  152, 149, 152, 159, 151, 148, 147, 152, 157, 158, 130, 158, 148, 146, 137, 152, 
-  147, 143, 158, 150), 
+  191, 195, 181, 183, 176, 208, 189, 197, 188, 192, 179, 183, 174, 190, 188, 
+  163, 195, 186, 181, 175, 192, 174, 176, 197, 190, 155, 149, 148, 153, 144, 
+  157, 150, 159, 152, 150, 158, 147, 150, 159, 151, 137, 155, 153, 145, 140, 
+  154, 143, 139, 167, 163, 179, 201, 185, 188, 171, 192, 190, 189, 197, 187, 
+  186, 174, 185, 195, 187, 161, 183, 173, 182, 165, 185, 178, 176, 200, 187, 
+  145, 152, 149, 149, 142, 152, 149, 152, 159, 151, 148, 147, 152, 157, 158, 
+  130, 158, 148, 146, 137, 152, 147, 143, 158, 150), 
   nrow=25, 
   ncol=4,  
   dimnames=list(character(0), c("head1", "breadth1", "head2", "breadth2")))
@@ -117,3 +117,47 @@ plot(heptathlon.pca$x[,1],
      xlim=c(-5, 5), 
      ylim=c(-2, 1))
 text(heptathlon.pca$x[,1], heptathlon.pca$x[,2], rownames(heptathlon.pca$x))
+
+# 10.3 Air pollution in US cities
+cor(USairpollution[, -1])
+usair.pca <- princomp(USairpollution[, -1], cor=T)
+panel.hist <- function(x, ...) {
+  usr <- par('usr')
+  on.exit(par(usr))
+  par(usr=c(usr[1:2], 0, 1.5))
+  h <- hist(x, plot=F)
+  breaks <- h$breaks
+  n.breaks <- length(breaks)
+  y <- h$counts
+  y <- y / max(y)
+  rect(breaks[-n.breaks], 0, breaks[-1], y, ...)
+}
+
+USairpollution$negtemp <- -1 * USairpollution$temp
+USairpollution$temp <- NULL
+pairs(
+  USairpollution[, -1], diag.panel=panel.hist, pch=16, col=rgb(0, 0, 0, 0.5))
+  
+summary(usair.pca, loadings=T)
+
+pairs(
+  usair.pca$scores[, 1:3], 
+  ylim=c(-6, 4), 
+  xlim=c(-6, 4), 
+  panel=function(x, y, ... ) {
+    text(x, y, abbreviate(row.names(USairpollution)), cex=0.6)
+    bvbox(cbind(x, y), add=T)
+  })
+
+par(mfrow=c(3, 2))  
+out <- sapply(
+  1:6, 
+  function(i) {
+    plot(USairpollution$SO2, usair.pca$scores[, i],
+         xlab=paste('PC', i, sep=''),
+         ylab='SO2 concentration')
+  })
+  
+usair.reg <- lm(SO2 ~ usair.pca$scores, data=USairpollution)
+summary(usair.reg)
+
