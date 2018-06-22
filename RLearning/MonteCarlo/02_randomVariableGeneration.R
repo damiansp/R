@@ -2,42 +2,39 @@
 #                                          #
 #  Introducing Monte Carlo Methods with R  #
 #                                          #
-#==========================================#
-rm(list=ls())
-search()
-
-load('~/Desktop/R/MonteCarlo/MC.RData')
-
-library(mcsm)
-library(splines)
-
-#=======================================#
+#                                       #==#
 #										#
 # CHAPTER 2: Random Variable Generation #
 #										#
 #=======================================#
+rm(list=ls())
+setwd('~/Learning/R/RLearning/MonteCarlo')
 
-# 2.1 Introduction
-	# 2.1.1 Uniform Distribution
-	nSim <- 10000
-	x <- runif(nSim)
-	hist(x)
-	x1 <- x[-nSim]
-	x2 <- x[-1]
-	plot(x1, x2)		
-	acf(x)
+library(mcsm)
+library(splines)
+
+
+# 1. Introduction
+# 1.1 Uniform distribution
+n.sim <- 10000
+x <- runif(n.sim)
+hist(x)
+x1 <- x[-n.sim]
+x2 <- x[-1]
+plot(x1, x2)		
+acf(x)
 		
-	# 2.1.2 The Inverse Transform
-	U <- runif(nSim)
-	X <- -log(U)
-	Y <- rexp(nSim)
-	par(mfrow=c(1,2))
-	hist(X, freq=F, main='Exp from Uniform')
-	lines(density(X))
-	hist(Y, freq=F, main='Exp from rexp')
-	lines(density(Y))
+# 1.2 The inverse transform
+U <- runif(n.sim)
+X <- -log(U)
+Y <- rexp(nSim)
+par(mfrow=c(1,2))
+hist(X, freq=F, main='Exp from Uniform')
+lines(density(X))
+hist(Y, freq=F, main='Exp from rexp')
+lines(density(Y))
 		
-# 2.2 General Transformation Methods
+# 2 General Transformation Methods
 U <- runif(3000)
 U <- matrix(U, nrow=3)
 X <- -log(U)	# Uniform to exponential

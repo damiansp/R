@@ -2,21 +2,17 @@
 #                                          #
 #  Introducing Monte Carlo Methods with R  #
 #                                          #
-#==========================================#
-
-rm(list=ls())
-search()
-
-load('~/Desktop/R/MonteCarlo/MC.RData')
-
-library(mcsm)
-library(splines)
-
-#==================================#
+#                                  #=======#
 #								   #
 #  CHAPTER 1: Basic R Programming  #
 #								   #
 #==================================#
+
+rm(list=ls())
+
+library(mcsm)
+library(splines)
+
 
 Nit <- c(0,0,0, 1,1,1, 2,2,2, 3,3,3, 4,4,4, 6,6,6)
 AOB <- c( 4.3, 4.2, 4.7, 6.1, 5.9, 6.9, 6.9, 6.3, 6.8, 6.3, 6.6, 6.5, 7.4, 7.4, 7.7, 
