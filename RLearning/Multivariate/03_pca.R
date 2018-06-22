@@ -117,3 +117,12 @@ plot(heptathlon.pca$x[,1],
      xlim=c(-5, 5), 
      ylim=c(-2, 1))
 text(heptathlon.pca$x[,1], heptathlon.pca$x[,2], rownames(heptathlon.pca$x))
+
+
+
+# 11. The Biplot
+biplot(heptathlon.pca, col=1:2, xlim=c(-0.6, 0.5))
+
+
+
+# 13. Canonical Correlation Analysis
