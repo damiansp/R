@@ -118,8 +118,11 @@ plot(heptathlon.pca$x[,1],
      ylim=c(-2, 1))
 text(heptathlon.pca$x[,1], heptathlon.pca$x[,2], rownames(heptathlon.pca$x))
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> ebbf8f7be2681c8a1a8e48e9e678155ded0d7def
 # 10.3 Air pollution in US cities
 cor(USairpollution[, -1])
 usair.pca <- princomp(USairpollution[, -1], cor=T)
