@@ -1,3 +1,4 @@
+#=========#=========#=========#=========#=========#=========#=========#=========
 #==========================================#
 #                                          #
 #  Introducing Monte Carlo Methods with R  #
@@ -27,23 +28,24 @@ acf(x)
 # 1.2 The inverse transform
 U <- runif(n.sim)
 X <- -log(U)
-Y <- rexp(nSim)
+Y <- rexp(n.sim)
 par(mfrow=c(1,2))
 hist(X, freq=F, main='Exp from Uniform')
-lines(density(X))
+lines(density(X), col=4)
 hist(Y, freq=F, main='Exp from rexp')
-lines(density(Y))
+lines(density(Y), col=4)
 		
 # 2 General Transformation Methods
 U <- runif(3000)
 U <- matrix(U, nrow=3)
-X <- -log(U)	# Uniform to exponential
+X <- -log(U)	 # Uniform to exponential
 X <- 2 * apply(X, 2, sum) # Exponential to Chi Square w/ 3 df
 par(mfrow=c(2, 1))
 hist(U)
 hist(X)
-	# 2.2.1 A Normal Generator
-	# 2.2.2 Discrete Distributions
+
+# 2.1 A Normal Generator
+# 2.2 Discrete Distributions
 	nSim <- 4000
 	lambda <- 100
 	spread <- 3 * sqrt(lambda) # ~3sd
