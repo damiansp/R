@@ -13,7 +13,8 @@ tm <- c(0,      # birth
         1/365,  # 1 day
         7/365,  # 1 week
         28/365, # 4 weeks
-        1:109)  # subsequent years        
+        1:109)  # subsequent years
+tm <- 0:109
 haz.male <- survexp.us[, 'male', '2004']     # males 2004 cohort
 haz.female <- survexp.us[, 'female', '2004'] # females 2004 cohort
 
@@ -28,4 +29,55 @@ legend('bottomright', lty=1, col=1:2, legend=c('male', 'female'), bty='n')
 
 
 
-# 2 Other Representations of a Survival Distribution
+# 4. Parametric Survival Distributions
+# Weibull survival distribution, where shape = alpha, and scale = 1/lambda
+weib.surv <- function(t, shape, scale) {
+  pweibull(t, shape=shape, scale=scale, lower.tail=F)
+}
+
+alpha = 1.5
+lambda = 0.03
+
+par(mfrow=c(2, 1))
+curve(weib.surv(x, shape=alpha, scale=1 / lambda), 
+      from=0, 
+      to=80, 
+      ylim=c(0, 1), 
+      ylab='Survival Probability', 
+      xlab='Time')
+      
+weib.haz <- function(x, shape, scale) {
+  dweibull(x, shape=shape, scale=scale) / weib.surv(x, shape, scale)
+}
+
+curve(weib.haz(x, shape=alpha, scale=1 / lambda), 
+      from=0, 
+      to=80, 
+      ylab='Hazard', 
+      xlab='Time')
+
+# 1000 rand vars
+n <- 1000
+tt.weib <- rweibull(n, shape=alpha, scale=1 / lambda)
+mean(tt.weib) # ~
+gamma(1 + 1/alpha) / lambda
+median(tt.weib) # ~
+(log(2))^(1/alpha) / lambda
+
+
+# Gamma distribution
+gamma.haz <- function(x, shape, scale) {
+  dgamma(x, shape=shape, scale=scale) / 
+    pgamma(x, shape=shape, scale=scale, lower.tail=F)
+}
+
+par(mfrow=c(1, 1))
+curve(gamma.haz(x, alpha, 1 / lambda), 
+      from=0, 
+      to=80, 
+      ylab='Hazard', 
+      xlab='Time',
+      ylim=c(0, 0.065),
+      col=2)
+curve(gamma.haz(x, shape=1, 1 / lambda), add=T)
+curve(gamma.haz(x, shape=0.75, 1 / lambda), col=4, add=T)
