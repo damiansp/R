@@ -9,8 +9,8 @@ data('heptathlon')
 
 # 4. Should PCs be Extracted from Covariance or Correlation Matrix?
 # Really no reason you should not always use correlations -- scale invariant
-blood.sd <- c(rblood=0.371, plate=41.253,  wblood=1.935, neut=0.077, lymph=0.071, 
-              bilir=4.037, sodium=2.732, potass=0.297)
+blood.sd <- c(rblood=0.371, plate=41.253,  wblood=1.935, neut=0.077, 
+              lymph=0.071, bilir=4.037, sodium=2.732, potass=0.297)
 bc <- c(
   0.290,           
   0.202,  0.415,       
@@ -118,11 +118,8 @@ plot(heptathlon.pca$x[,1],
      ylim=c(-2, 1))
 text(heptathlon.pca$x[,1], heptathlon.pca$x[,2], rownames(heptathlon.pca$x))
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> ebbf8f7be2681c8a1a8e48e9e678155ded0d7def
 # 10.3 Air pollution in US cities
 cor(USairpollution[, -1])
 usair.pca <- princomp(USairpollution[, -1], cor=T)
@@ -169,8 +166,23 @@ summary(usair.reg)
 
 
 # 11. The Biplot
+par(mfrow=c(1, 1))
 biplot(heptathlon.pca, col=1:2, xlim=c(-0.6, 0.5))
 
 
 
 # 13. Canonical Correlation Analysis
+headsize.std <- sweep(headsize, 2, apply(headsize, 2, sd), FUN='/')
+R <- cor(headsize.std)
+r11 <- R[1:2, 1:2]
+r22 <- R[-(1:2), -(1:2)]
+r12 <- R[1:2, -(1:2)]
+r21 <- R[-(1:2), 1:2]
+(E1 <- solve(r11) %*% r12 %*% solve(r22) %*% r21)
+(E2 <- solve(r22) %*% r21 %*% solve(r11) %*% r12)
+(e1 <- eigen(E1))
+(e2 <- eigen(E2))
+girth1 <- headsize.std[, 1:2] %*% e1$vectors[, 1]
+girth2 <- headsize.std[, 3:4] %*% e2$vectors[, 1]
+shape1 <- headsize.std[, 1:2] %*% e1$vectors[, 2]
+shape2 <- headsize.std[, 3:4] %*% e2$vectors[, 2]
