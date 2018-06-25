@@ -81,3 +81,20 @@ curve(gamma.haz(x, alpha, 1 / lambda),
       col=2)
 curve(gamma.haz(x, shape=1, 1 / lambda), add=T)
 curve(gamma.haz(x, shape=0.75, 1 / lambda), col=4, add=T)
+
+
+
+# 5. Computing the Survival Function from the Hazard Function
+tm.diff <- diff(tm)
+surv.male <- exp(-cumsum(haz.male * tm.diff) * 365.25)
+surv.female <- exp(-cumsum(haz.female * tm.diff) * 365.25)
+plot(surv.male, type='l')
+lines(surv.female, col=2)
+abline(h=0.5, col='grey', lty=4)
+sum(surv.male * tm.diff)   # mean male survival (2004)
+sum(surv.female * tm.diff) # female
+
+
+
+# 6. A Brief Introduction to Maximum Likelihood Estimation
+
