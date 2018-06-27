@@ -73,7 +73,4 @@ lines(0:50, dnbinom(0:50, n, p), lwd=2, col='sienna')
 		
 
 
-
-
-
-save.image('~/Desktop/R/MonteCarlo/MC.RData')
+# 3. Accept-Reject Methods
