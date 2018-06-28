@@ -1,3 +1,4 @@
+#=========#=========#=========#=========#=========#=========#=========#=========
 #===================================#
 #									#
 #	Generalized Additive Models		#
@@ -13,47 +14,45 @@
 #						#
 #=======================#
 rm(list = ls())
-#install.packages('gamair', repos = 'http://cran.us.r-project.org')
-library(gamair)
-load('~/Desktop/R/GAM/GAM.RData')
+setwd('~/Learning/R/RLearning/GAM')
 
-# 1.1 A Simple Linear Model
-	# 1.1.1 Sampling Properties of Beta.hat
-	# 1.1.2 So How Old is the Universe?
-	data(hubble)
-	hub.mod = lm(y ~ x - 1, data = hubble)
-	summary(hub.mod)
-	plot(y ~ x, hubble)
-	abline(hub.mod)
+library(gamair)
+data(hubble)
+
+# 1 A Simple Linear Model
+# 1.2 So How Old is the Universe?
+hub.mod <- lm(y ~ x - 1, data=hubble)
+summary(hub.mod)
+plot(y ~ x, hubble)
+abline(hub.mod)
 	
-	par(mfrow = c(2, 2))
-	plot(hub.mod)
+par(mfrow=c(2, 2))
+plot(hub.mod)
 	
-	hub.mod1 = lm(y ~ x - 1, data = hubble[-c(3, 15), ])
-	summary(hub.mod1)
-	par(mfrow = c(1, 1))
-	plot(y ~ x, hubble, pch = 16, col = rgb(0, 0 , 0, 0.5))
-	abline(hub.mod, col = 'grey')
-	abline(hub.mod1)
+hub.mod1 <- lm(y ~ x - 1, data=hubble[-c(3, 15), ])
+summary(hub.mod1)
+par(mfrow=c(1, 1))
+plot(y ~ x, hubble, pch=16, col=rgb(0, 0 , 0, 0.5))
+abline(hub.mod, col='grey')
+abline(hub.mod1)
 	
-	hubble.const = c(coef(hub.mod), coef(hub.mod1)) / 3.09e19
-	ageSec = 1 / hubble.const
-	(ageYear = ageSec / (60^2 * 24 * 365))
+hubble.const <- c(coef(hub.mod), coef(hub.mod1)) / 3.09e19
+ageSec <- 1 / hubble.const
+(ageYear <- ageSec / (60^2 * 24 * 365))
 	
-	# 1.1.3 Adding a Distributional Assumption
-	cs.hubble = 163000000	# necessary hubble const. for biblical interp.
-	t.stat = (coef(hub.mod1) - cs.hubble) / 
-			 summary(hub.mod1)$coefficients[2]
-	pt(t.stat, df = 21) * 2
+# 1.3 Adding a Distributional Assumption
+cs.hubble <- 163000000	# necessary hubble const. for biblical interp.
+t.stat = (coef(hub.mod1) - cs.hubble) / summary(hub.mod1)$coefficients[2]
+pt(t.stat, df = 21) * 2
 	
-	# Confidence Intervals
-	qt(c(0.025, 0.975), df = 21) # range of t values consistent with null h.
+# Confidence Intervals
+qt(c(0.025, 0.975), df = 21) # range of t values consistent with null h.
 	
-	sigb = summary(hub.mod1)$coef[2]
-	(h.ci = coef(hub.mod1) + qt(c(0.025, 0.975), df = 21) * sigb)
-	# Express as age of universe:
-	h.ci = h.ci * 60 * 60 * 24 * 365.25 / 3.09e19 # = 1/yrs
-	sort(1 / h.ci)
+sigb <- summary(hub.mod1)$coef[2]
+(h.ci <- coef(hub.mod1) + qt(c(0.025, 0.975), df = 21) * sigb)
+# Express as age of universe:
+h.ci <- h.ci * 60 * 60 * 24 * 365.25 / 3.09e19 # = 1/yrs
+sort(1 / h.ci)
 
 
 
