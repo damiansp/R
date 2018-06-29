@@ -18,6 +18,7 @@ setwd('~/Learning/R/RLearning/GAM')
 
 library(gamair)
 data(hubble)
+data(sperm.comp1)
 
 # 1 A Simple Linear Model
 # 1.2 So How Old is the Universe?
@@ -40,7 +41,7 @@ hubble.const <- c(coef(hub.mod), coef(hub.mod1)) / 3.09e19
 ageSec <- 1 / hubble.const
 (ageYear <- ageSec / (60^2 * 24 * 365))
 	
-# 1.3 Adding a Distributional Assumption
+# 3 Adding a Distributional Assumption
 cs.hubble <- 163000000	# necessary hubble const. for biblical interp.
 t.stat = (coef(hub.mod1) - cs.hubble) / summary(hub.mod1)$coefficients[2]
 pt(t.stat, df = 21) * 2
@@ -56,25 +57,21 @@ sort(1 / h.ci)
 
 
 
-# 1.5 Practical Linear Modeling
-	# 1.5.1 Model Fitting and Model Checking
-	data(sperm.comp1)
-	pairs(sperm.comp1[, -1], panel = panel.smooth)
+# 5 Practical Linear Modeling
+# 5.1 Model Fitting and Model Checking
+pairs(sperm.comp1[, -1], panel=panel.smooth)
+sc.mod1 <- lm(count ~ time.ipc + prop.partner, sperm.comp1)
+model.matrix(sc.mod1)
+summary(sc.mod1)
+par(mfrow=c(2, 2))
+plot(sc.mod1)
+sperm.comp1[9, ]
 	
-	sc.mod1 = lm(count ~ time.ipc + prop.partner, sperm.comp1)
-	model.matrix(sc.mod1)
-	
-	par(mfrow = c(2, 2))
-	plot(sc.mod1)
-	
-	sperm.comp1[9, ]
-	
-	# Try modeling hours together in place of prop. of time together
-	sc.mod2 = lm(count ~ time.ipc + I(prop.partner * time.ipc), sperm.comp1)
-	summary(sc.mod2)
-	plot(sc.mod2)
-	
-	sperm.comp1[4, ]
+# Try modeling hours together in place of prop. of time together
+sc.mod2 <- lm(count ~ time.ipc + I(prop.partner * time.ipc), sperm.comp1)
+summary(sc.mod2)
+plot(sc.mod2)
+sperm.comp1[4, ]
 
 	# 1.5.2 Model summary()
 	summary(sc.mod1)
