@@ -74,3 +74,27 @@ lines(0:50, dnbinom(0:50, n, p), lwd=2, col='sienna')
 
 
 # 3. Accept-Reject Methods
+par(mfrow=c(1, 1))
+optimize(f=function(x) { dbeta(x, 2.7, 6.3) },
+         interval=c(0, 1),
+         maximum=T)$objective
+n.sim <- 2500
+a <- 2.7
+b <- 6.3
+M <- 2.67
+u <- runif(n.sim, max=M)
+y <- runif(n.sim)
+x <- y[u < dbeta(y, a, b)]
+plot(y, u, col=rgb(0, 0, 0, 0.4), pch=16)
+points(x, u[u < dbeta(y, a, b)], col=rgb(1, 0, 0, 0.4), pch=16)
+
+x <- NULL
+while (length(x) < n.sim) {
+  y <- runif(n.sim * M)
+  x <- c(x, y[runif(n.sim * M) * M < dbeta(y, a, b)])
+}
+hist(x)
+
+optimize(f=function(x) { dbeta(x, 2.7, 6.3) / dbeta(x, 2, 6) }, 
+         maximum=T, 
+         interval=c(0, 1))$objective
