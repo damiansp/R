@@ -92,3 +92,40 @@ plot(result.km,
      ylab='Survival Prob.',
      xlim=c(0, 30))
 lines(surv ~ times[1:length(times) - 1], col=2)
+
+
+
+# 5. Left Truncation
+tt <- c(7, 6, 6, 5, 2, 4)
+status <- c(0, 1, 0, 0, 1, 1)
+back.time <- c(-2, -5, -3, -3, -2, -5)
+tm.enter <- -back.time
+tm.exit <- tt - back.time
+result.left.trunc.km <- survfit(
+  Surv(tm.enter, tm.exit, status, type='counting') ~ 1, conf.type='none')
+summary(result.left.trunc.km)
+
+result.left.trunc.naa <- survfit(
+  Surv(tm.enter, tm.exit, status, type='counting') ~ 1, 
+  type='fleming-harrington', 
+  conf.type='none')
+summary(result.left.trunc.naa)
+
+head(ChanningHouse)
+ChanningHouse <- within(ChanningHouse, 
+                        { entryYears <- entry / 12
+  	                      exitYears <- exit / 12 })
+ChanningMales <- subset(ChanningHouse, sex == 'Male')
+result.km <- survfit(Surv(entryYears, exitYears, cens, type='counting') ~ 1,
+                     data=ChanningMales)
+result.naa <- survfit(Surv(entryYears, exitYears, cens, type='counting') ~ 1,
+                      type='fleming-harrington', 
+                      data=ChanningMales)
+result.km.68 <- survfit(Surv(entryYears, exitYears, cens, type='counting') ~ 1,
+                        start.time=68, 
+                        data=ChanningMales)
+plot(result.km, xlim=c(64, 100), xlab='Age', ylab='Survival Prob.', conf.int=F)
+lines(result.naa, col=4, conf.int=F)
+lines(result.km.68, col=2, conf.int=F)
+legend(
+  'topright', lty=1, col=c(1, 4, 2), legend=c('KM', 'NAA', 'KM 68+'), bty='n')
