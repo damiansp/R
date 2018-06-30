@@ -5,7 +5,7 @@ setwd('~/Learning/R/RLearning/TS/coursera')
 library(astsa)
 
 # 1. Visualizing and Describing TS: Time Plots, Autocovariance & Autocorrelation
-# 1.1 TIme plots
+# 1.2 Time plots
 class(jj)
 plot(jj, 
      type='o', 
@@ -33,5 +33,7 @@ plot(star,
      ylab='Magnitude',
      main='Magnitude of star at midnight form 600 consecutive days')
      
-# 1.2 First Intuitions on (Weak) Stationarity
+# 1.3 First Intuitions on (Weak) Stationarity
 # - no trend, constant variance, no periodicity
+
+# 1.4 Autocovariance Function
