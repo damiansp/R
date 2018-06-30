@@ -5,6 +5,7 @@ setwd('~/Learning/R/RLearning/Multivariate')
 library(MVA)
 library(HSAUR2)
 data(skulls)
+data(watervoles)
 
 # 4. Classical Multidimensional Scaling
 # 4.2 Examples 
@@ -103,3 +104,12 @@ plot(skulls_mds,
      type="n")
 text(skulls_mds, labels = levels(skulls$epoch), cex = 0.7)
 
+head(watervoles)
+voles.mds <- cmdscale(watervoles, k=13, eig=T)
+voles.mds$eig
+cumsum(abs(voles.mds$eig)) / sum(abs(voles.mds$eig))
+cumsum(voles.mds$eig^2) / sum(voles.mds$eig^2)
+x <- voles.mds$points[, 1]
+y <- voles.mds$points[, 2]
+plot(x, y, xlab='Coord 1', ylab='Coord 2', xlim=1.2 * range(x), type='n')
+text(x, y, colnames(watervoles), cex=0.7)
