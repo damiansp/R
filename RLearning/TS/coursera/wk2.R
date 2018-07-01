@@ -36,4 +36,20 @@ plot(star,
 # 1.3 First Intuitions on (Weak) Stationarity
 # - no trend, constant variance, no periodicity
 
-# 1.4 Autocovariance Function
+# 1.6 Autocorrelation Function
+
+
+
+# 2 Random Walks and Intro to Moving Averages
+# 2.1 Random Walk
+n <- 1000
+x <- numeric(n)
+x[1] <- 0
+for (i in 2:n) {
+  x[i] <- x[i - 1] + rnorm(1)
+}
+
+plot(x, type='l')
+acf(x)
+plot(diff(x), type='l')
+acf(diff(x))
