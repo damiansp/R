@@ -73,22 +73,22 @@ summary(sc.mod2)
 plot(sc.mod2)
 sperm.comp1[4, ]
 
-	# 1.5.2 Model summary()
-	summary(sc.mod1)
+# 5.2 Model summary()
+summary(sc.mod1)
 	
-	# 1.5.3 Model selection
-	sc.mod3 = step(sc.mod1)
-	summary(sc.mod3)
-	sc.mod3 = update(sc.mod1, ~ . -time.ipc)
-	summary(sc.mod3)
+# 5.3 Model selection
+sc.mod3 <- step(sc.mod1)
+summary(sc.mod3)
+sc.mod3 <- update(sc.mod1, ~ . -time.ipc)
+summary(sc.mod3)
 	
-	sc.mod4 = lm(count ~ 1, sperm.comp1)
-	AIC(sc.mod1, sc.mod2, sc.mod3, sc.mod4)
-	summary(sc.mod2)
-	par(mfrow = c(2, 2))
-	plot(sc.mod2)
+sc.mod4 <- lm(count ~ 1, sperm.comp1)
+AIC(sc.mod1, sc.mod2, sc.mod3, sc.mod4)
+summary(sc.mod2)
+par(mfrow=c(2, 2))
+plot(sc.mod2)
 	
-	# 1.5.4 Another model selection example
+# 5.4 Another model selection example
 	data(sperm.comp2)
 	sc2.mod1 = lm(count ~ f.age + f.height + f.weight + m.age + m.height + 
 				  m.weight + m.vol, sperm.comp2)
