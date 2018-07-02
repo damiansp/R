@@ -19,6 +19,8 @@ setwd('~/Learning/R/RLearning/GAM')
 library(gamair)
 data(hubble)
 data(sperm.comp1)
+data(sperm.comp2)
+
 
 # 1 A Simple Linear Model
 # 1.2 So How Old is the Universe?
@@ -89,24 +91,24 @@ par(mfrow=c(2, 2))
 plot(sc.mod2)
 	
 # 5.4 Another model selection example
-	data(sperm.comp2)
-	sc2.mod1 = lm(count ~ f.age + f.height + f.weight + m.age + m.height + 
-				  m.weight + m.vol, sperm.comp2)
-	plot(sc2.mod1)
-	summary(sc2.mod1)
-	sperm.comp2[19, ]
-	sc2.mod2 = update(sc2.mod1, ~ . -m.age)
-	summary(sc2.mod2)
-	# ...continue single-predictor simplifications...
-	sc2.mod7 = lm(count ~ f.weight, sperm.comp2)
-	summary(sc2.mod7)
+sc2.mod1 <- lm(count ~ f.age + f.height + f.weight + m.age + m.height 
+                 + m.weight + m.vol, sperm.comp2)
+summary(sc2.mod1)
+par(mfrow=c(2, 2))
+plot(sc2.mod1)
+sperm.comp2[19, ]
+sc2.mod2 <- update(sc2.mod1, ~ . -m.age)
+summary(sc2.mod2)
+# ...continue single-predictor simplifications...
+sc2.mod7 <- lm(count ~ f.weight, sperm.comp2)
+summary(sc2.mod7)
 	
-	# Try again with outlier point 19 removed
-	sc3.mod1 = lm(count ~ f.age + f.height + f.weight + m.age + m.height + 
-				  m.weight + m.vol, sperm.comp2[-19, ])
-	summary(sc3.mod1)
-	sc3.mod2 = step(sc3.mod1)
-	summary(sc3.mod2)
+# Try again with outlier point 19 removed
+sc3.mod1 <- lm(count ~ f.age + f.height + f.weight + m.age + m.height + m.weight  
+                 + m.vol, sperm.comp2[-19, ])
+summary(sc3.mod1)
+sc3.mod2 <- step(sc3.mod1)
+summary(sc3.mod2)
 	
 	# A follow-up
 	sperm.comp1$m.vol = sperm.comp2$m.vol[sperm.comp2$pair %in% sperm.comp1$subject]
