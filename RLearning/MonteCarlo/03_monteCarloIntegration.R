@@ -1,3 +1,4 @@
+#=========#=========#=========#=========#=========#=========#=========#=========
 #==========================================#
 #                                          #
 #  Introducing Monte Carlo Methods with R  #
@@ -5,32 +6,29 @@
 #                                          #
 #==========================================#
 rm(list=ls())
-search()
+setwd('~/Learning/R/RLearning/MonteCarlo')
 
-load('~/Desktop/R/MonteCarlo/MC.RData')
 
 # 3.1 Introduction
 # Ex. 3.1 Compare results of the integrate() function to those of gamma()
 ch <- function(la) {
-	integrate( function(x) {
-					x^(la - 1) * exp(-x)
-			   }, 0, Inf)$val
+  integrate(function(x) { x^(la - 1) * exp(-x) }, 0, Inf)$val
 }
 
-plot( lgamma(seq(0.01, 10, length = 100)), 
-	  log(apply(as.matrix(seq(0.01, 10, length = 100)), 1, ch)), 
-	  xlab = 'log(integrate(f))', ylab=expression(log(Gamma(lambda))) )
+plot(lgamma(seq(0.01, 10, length=100)), 
+	 log(apply(as.matrix(seq(0.01, 10, length=100)), 1, ch)), 
+	 xlab='log(integrate(f))', 
+	 ylab=expression(log(Gamma(lambda))))
 
 # Ex. 3.2 From a sample of 10 Cauchy rvs, integrate() returns the wrong 
 # numerical value
 cac <- rcauchy(10) + 350
-lik <- function(the) {
-	u <- dcauchy(cac[1] - the)
-	for (i in 2:10) {
-		u <- u * dcauchy(cac[i] - the)
-	}
-	
-	return (u)
+lik <- function(theta) {
+  u <- dcauchy(cac[1] - theta)
+  for (i in 2:10) {
+    u <- u * dcauchy(cac[i] - theta)
+  }
+  u
 }
 
 integrate(lik, -Inf, Inf)
@@ -38,18 +36,18 @@ integrate(lik, 200, 400)
 
 cac <- rcauchy(10)
 nin <- function(a) {
-	integrate(lik, -a, a)$val
+  integrate(lik, -a, a)$val
 }
 
 nan <- function(a) {
-	area(lik, -a, a)
+  area(lik, -a, a)
 }
 
 x <- seq(1, 10^3, length = 10^4)
 y <- log(apply(as.matrix(x), 1, nin))
 z <- log(apply(as.matrix(x), 1, nan))
-plot(x, y, type='l', ylim = range(cbind(y, z)))
-lines(x, z, col = 2)
+plot(x, y, type='l', ylim=range(cbind(y, z)))
+lines(x, z, col=2)
 
 
 
