@@ -2,9 +2,12 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/Multivariate')
 
-library(MVA)
+library(ape)
 library(HSAUR2)
+library(MASS)
+library(MVA)
 data(skulls)
+data(voting)
 data(watervoles)
 
 # 4. Classical Multidimensional Scaling
@@ -113,3 +116,25 @@ x <- voles.mds$points[, 1]
 y <- voles.mds$points[, 2]
 plot(x, y, xlab='Coord 1', ylab='Coord 2', xlim=1.2 * range(x), type='n')
 text(x, y, colnames(watervoles), cex=0.7)
+
+st <- mst(watervoles) # min spanning tree
+for (i in 1:nrow(watervoles)) {
+  w1 <- which(st[i, ] == 1)
+  segments(x[i], y[i], x[w1], y[w1], col=rgb(1, 0, 0, 0.5))
+}
+
+
+
+# 5. Non-metric Multidimensional Scaling
+# 5.1 House of representative voting
+voting.mds <- isoMDS(voting)
+party <- ifelse(grepl('\\(R\\)', rownames(voting.mds$points)), 2, 4)
+x <- voting.mds$points[, 1]
+y <- voting.mds$points[, 2]
+plot(x, 
+     y, 
+     xlab='Coord 1', 
+     ylab='Coord 2', 
+     xlim=range(voting.mds$points) * 1.2, 
+     type='n')
+text(x, y, colnames(voting), cex=0.6, col=party)
