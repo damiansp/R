@@ -110,21 +110,38 @@ summary(sc3.mod1)
 sc3.mod2 <- step(sc3.mod1)
 summary(sc3.mod2)
 	
-	# A follow-up
-	sperm.comp1$m.vol = sperm.comp2$m.vol[sperm.comp2$pair %in% sperm.comp1$subject]
-	sc1.mod1 = lm(count ~ m.vol, sperm.comp1)
-	summary(sc1.mod1)
+# A follow-up
+sperm.comp1$m.vol <- sperm.comp2$m.vol[
+  sperm.comp2$pair %in% sperm.comp1$subject]
+sc1.mod1 <- lm(count ~ m.vol, sperm.comp1)
+summary(sc1.mod1)
 	
-	# 1.5.5 Confidence Intervals
-	sc.c = summary(sc1.mod1)$coeff
-	sc.c
-	(sc.c.95ci = sc.c[2, 1] + qt(c(0.025, 0.975), 6) * sc.c[2, 2])
+# 5.5 Confidence Intervals
+sc.c <- summary(sc1.mod1)$coeff
+sc.c
+(sc.c.95ci <- sc.c[2, 1] + qt(c(0.025, 0.975), 6) * sc.c[2, 2])
 	
-	# 1.5.6 Prediction
-	df = data.frame(m.vol = c(10, 15, 20, 25))
-	predict(sc1.mod1, df, se = T)
-	
+# 5.6 Prediction
+new <- c(10, 15, 20, 25)
+df <- data.frame(m.vol=new)
+(preds <- predict(sc1.mod1, df, se=T))
+par(mfrow=c(1, 1))
+plot(preds$fit ~ new, type='l', ylim=c(50, 700))
+lines(preds$fit + (1.96 * preds$se.fit) ~ new, col=2)	
+lines(preds$fit - (1.96 * preds$se.fit) ~ new, col=2)	
 
+# 5.7 Colinearity, confounding and causation
+n <- 100
+x <- runif(n)
+z <- x + 0.05*rnorm(n)
+y <- 3*x + 2 + rnorm(n)
+mod <- lm(y ~ z)
+plot(y ~ z)
+abline(mod, col=2)
+summary(mod)
+
+mod2 <- lm(y ~ x + z)
+summary(mod2)
 	
 # 1.6 Pratical Modeling with Factors
 
