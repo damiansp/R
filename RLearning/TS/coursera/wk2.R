@@ -60,7 +60,7 @@ noise <- rnorm(n)
 ma.2 <- numeric(n)
 ma.2[1:2] <- noise[1:2]
 for (i in 3:n) {
-  ma.2[i] <- noise[i] + 0.7*noise[i - 1] + 0.2*noise[i - 1]
+  ma.2[i] <- noise[i] + 0.7*noise[i - 1] + 0.2*noise[i - 2]
 }
 
 ma.2 <- ts(ma.2[3:n])
