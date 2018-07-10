@@ -144,20 +144,18 @@ mod2 <- lm(y ~ x + z)
 summary(mod2)
 	
 # 1.6 Pratical Modeling with Factors
+# 1.6.4 Using Factor Variables in R
+z <- c(1, 1, 1, 2, 2, 1, 3, 3, 3, 3, 4)
+z <- as.factor(z)
+PlantGrowth$group
+pgm.1 <- lm(weight ~ group, data=PlantGrowth)
+par(mfrow=c(2, 2))
+plot(pgm.1)
+summary(pgm.1)
+pgm.0 <- lm(weight ~ 1, data=PlantGrowth)
+anova(pgm.0, pgm.1)
+anova(pgm.1)
 
-	# 1.6.4 Using Factor Variables in R
-	z = c(1, 1, 1, 2, 2, 1, 3, 3, 3, 3, 4)
-	z = as.factor(z)
-	
-	PlantGrowth$group
-	pgm.1 = lm(weight ~ group, data = PlantGrowth)
-	par(mfrow = c(2, 2))
-	plot(pgm.1)
-	summary(pgm.1)
-	
-	pgm.0 = lm(weight ~ 1, data = PlantGrowth)
-	anova(pgm.0, pgm.1)
-	
 	
 
 # 1.7 General Linear Model Specifications in R
