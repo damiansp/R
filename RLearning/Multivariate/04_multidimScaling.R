@@ -138,3 +138,46 @@ plot(x,
      xlim=range(voting.mds$points) * 1.2, 
      type='n')
 text(x, y, colnames(voting), cex=0.6, col=party)
+
+# 5.2 Judgements of WWII Leaders
+x <- voting.mds$points[, 1]
+y <- voting.mds$points[, 2]
+plot(x, 
+     y, 
+     xlab='Coord 1', 
+     ylab='Coord 2', 
+     xlim=1.2 * range(voting.mds$points[, 1]),
+     type='n')
+text(x, y, labels=colnames(voting), cex=0.6)
+WWII.leaders <- c(
+  3,
+  4, 6, 
+  7, 8, 4, 
+  3, 5, 6, 8,
+  8, 9, 3, 9, 8, 
+  3, 2, 5, 7, 6, 7,
+  4, 4, 3, 5, 6, 5, 4,  
+  8, 9, 8, 9, 6, 9, 8, 7,       
+  9, 9, 5, 4, 7, 8, 8, 4, 4,
+  4, 5, 5, 4, 7, 2, 2, 5, 9, 5,
+  7, 8, 2, 4, 7, 8, 3, 2, 4, 5, 7)
+tmp <- matrix(0, ncol=12, nrow=12)
+tmp[upper.tri(tmp)] <- WWII.leaders
+tmp <- tmp + t(tmp)
+#rownames(tmp) <- colnames(tmp) <- c(
+#  "Hitler", "Mussolini", "Churchill", "Eisenhower", "Stalin", "Attlee", 
+#  "Franco", "De Gaulle", "Mao Tse-Tung", "Truman", "Chamberlin", "Tito")
+#WWII.leaders <- as.dist(tmp)
+#WWII.leaders <- as.data.frame(as.matrix(WWII.leaders))
+#colnames(WWII.leaders) <- abbreviate(colnames(WWII.leaders), 3)]
+WWII.leaders <- tmp
+(WWII.mds <- isoMDS(WWII.leaders))
+voting.sh <- Shepard(voting[lower.tri(voting)], voting.mds$points)
+
+
+plot(voting.sh, 
+     xlab='Dissimilarity', 
+     ylab='Distance', 
+     xlim=range(voting.sh$x), 
+     ylim=range(voting.sh$x))
+lines(voting.sh$x, voting.sh$yf, type='S', col=2)
