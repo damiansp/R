@@ -9,8 +9,8 @@ rm(list=ls())
 setwd('~/Learning/R/RLearning/MonteCarlo')
 
 
-# 3.1 Introduction
-# Ex. 3.1 Compare results of the integrate() function to those of gamma()
+# 1 Introduction
+# Ex. 1 Compare results of the integrate() function to those of gamma()
 ch <- function(la) {
   integrate(function(x) { x^(la - 1) * exp(-x) }, 0, Inf)$val
 }
@@ -20,7 +20,7 @@ plot(lgamma(seq(0.01, 10, length=100)),
 	 xlab='log(integrate(f))', 
 	 ylab=expression(log(Gamma(lambda))))
 
-# Ex. 3.2 From a sample of 10 Cauchy rvs, integrate() returns the wrong 
+# Ex. 2 From a sample of 10 Cauchy rvs, integrate() returns the wrong 
 # numerical value
 cac <- rcauchy(10) + 350
 lik <- function(theta) {
@@ -51,38 +51,40 @@ lines(x, z, col=2)
 
 
 
-# 3.2 Classic Monte Carlo Integration
+# 2 Classic Monte Carlo Integration
 # Ex. 3.3 Use toy function: h(x) = [cos(50x) + sin(20x)]^2;
 # Eval integral over [0, 1]
 h <- function(x) {
-	((cos(50 * x) + sin(20 * x)))^2
+  ((cos(50 * x) + sin(20 * x)))^2
 }
 
-par(mar = c(2, 2, 2, 1), mfrow = c(2, 1))
-curve(h, n = 1000, xlab = 'Function', ylab = '')
+par(mar=c(2, 2, 2, 1), mfrow=c(2, 1))
+curve(h, n=1000, xlab='Function', ylab = '')
 integrate(h, 0, 1)
 
 x <- h(runif(10^4))
 estint <- cumsum(x) / (1:10^4)
 esterr <- sqrt(cumsum((x - estint)^2)) / (1:10^4)
-plot( estint, xlab = 'Mean and Error Range', type = 'l', 
-	  ylim = mean(x) + 20 * c(-esterr[10^4], esterr[10^4]), ylab='' )
+plot(estint, 
+     xlab='Mean and Error Range', 
+     type='l', 
+     ylim=mean(x) + 20 * c(-esterr[10^4], esterr[10^4]), 
+     ylab='')
 lines(estint + 2 * esterr, col=2)
 lines(estint - 2 * esterr, col=2)
 
-# Ex. 3.4 Appoximating PHI(t) for ~N(0, 1) and sample size n
-x <- rnorm(10^8)	# I reduced from book ex of 10^8
+# Ex. 4 Appoximating PHI(t) for ~N(0, 1) and sample size n
+x <- rnorm(10^8)
 bound <- qnorm(c(0.5, 0.75, 0.8, 0.9, 0.95, 0.99, 0.999, 0.9999))
-res <- matrix(0, ncol = 8, nrow = 7)
+res <- matrix(0, ncol=8, nrow=7)
 for (i in 2:8) {
-	for (j in 1:8) {
-		res[i - 1, j] <- mean(x[1:10^i] < bound[j])
-	}
+  for (j in 1:8) {
+    res[i - 1, j] <- mean(x[1:10^i] < bound[j])
+  }
 }
 
 res <- matrix(as.numeric(format(res, digi=4)), ncol=8)
-colnames(res) <- c( '0.5', '0.75', '0.8', '0.9', '0.95', '0.99', '0.999', 
-					'0.999')
+colnames(res) <- c('0.5', '0.75', '0.8', '0.9', '0.95', '0.99', '0.999', '0.999')
 res
 rm(x)
 
