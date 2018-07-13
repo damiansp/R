@@ -91,57 +91,56 @@ rm(x)
 
 
 
-# 3.3 Importance Sampling
-	# 3.3.1 An arbitrary change of reference measure
-	# Ex. 3.5 Simulating probabilites if the far regions of tails
-	pnorm(4.5) # given the rarity of such an event, simulations will
-			   # only create them about 1x in 3 million...
-	# A corresponding importance sampler resticted to Z on [4.5, Inf)
-	nsim <- 10^4
-	Z <- 4.5
-	y <- rexp(nsim) + Z
-	weit <- dnorm(y) / dexp(y - Z)
-	plot(cumsum(weit) / 1:nsim, type='l')
-	abline(h=pnorm(-Z), col=2)
+# 3 Importance Sampling
+# 3.1 An arbitrary change of reference measure
+# Ex. 3.5 Simulating probabilites in the far regions of tails
+pnorm(4.5) # given the rarity of such an event, simulations will
+           # only create them about 1x in 3 million...
+# A corresponding importance sampler resticted to Z on [4.5, Inf)
+nsim <- 10^4
+Z <- 4.5
+y <- rexp(nsim) + Z
+weit <- dnorm(y) / dexp(y - Z)
+plot(cumsum(weit) / 1:nsim, type='l')
+abline(h=pnorm(-Z), col=2)
 	
-	# Ex. 3.6 Simulating intractable gamma functions with conjugate priors
-	f <- function(a, b) {
-		exp( 2 * (lgamma(a + b) - lgamma(a) - lgamma(b)) + a * log(0.3) + 
-			 b * log(0.2) )
-	}
+# Ex. 3.6 Simulating intractable gamma functions with conjugate priors
+f <- function(a, b) {
+  exp(2*(lgamma(a + b) - lgamma(a) - lgamma(b)) + a*log(0.3) + b*log(0.2))
+}
 
-	aa <- 1:150
-	bb <- 1:100
-	post <- outer(aa, bb, f)
-	image(aa, bb, post, xlab=expression(alpha), ylab='')
-	contour(aa, bb, post, add=T)
+aa <- 1:150
+bb <- 1:100
+post <- outer(aa, bb, f)
+image(aa, bb, post, xlab=expression(alpha), ylab='')
+contour(aa, bb, post, add=T)
 	
-	# Simulate from t distribution
-	x <- matrix(rt(2 * 10^4, 3), ncol=2)
-	E <- matrix(c(220, 190, 190, 180), ncol=2) # Scale matrix
-	y <- t(t(chol(E)) %*% t(x) + c(50, 45))
-	points(y, cex=0.5, pch=16, col=rgb(0, 0, 0, 0.2))
+# Simulate from t distribution
+x <- matrix(rt(2 * 10^4, 3), ncol=2)
+E <- matrix(c(220, 190, 190, 180), ncol=2) # Scale matrix
+y <- t(t(chol(E)) %*% t(x) + c(50, 45))
+points(y, cex=0.5, pch=16, col=rgb(0, 0, 0, 0.2))
 	
-	ine <- apply(y, 1, min)
-	y <- y[ine > 0, ]
-	x <- x[ine > 0, ]
-	normx <- sqrt(x[, 1]^2 + x[, 2]^2)
-	f <- function(a) {
-		exp( 2 * (lgamma(a[, 1] + a[, 2]) - lgamma(a[, 1]) - lgamma(a[, 2])) 
-			 + a[, 1] * log(0.3) + a[, 2] * log(0.2) )
-	}
+ine <- apply(y, 1, min)
+y <- y[ine > 0, ]
+x <- x[ine > 0, ]
+normx <- sqrt(x[, 1]^2 + x[, 2]^2)
+f <- function(a) {
+  exp(2 * (lgamma(a[, 1] + a[, 2]) - lgamma(a[, 1]) - lgamma(a[, 2])) 
+	  + a[, 1] * log(0.3) + a[, 2] * log(0.2))
+}
 	
-	h <- function(a) {
-		exp( 1 * (lgamma(a[, 1] + a[, 2]) - lgamma(a[, 1]) - lgamma(a[, 2])) 
-			 + a[, 1] * log(0.5) + a[, 2] * log(0.5) )
-	}
+h <- function(a) {
+  exp(1 * (lgamma(a[, 1] + a[, 2]) - lgamma(a[, 1]) - lgamma(a[, 2]))
+      + a[, 1] * log(0.5) + a[, 2] * log(0.5) )
+}
 	
-	den <- dt(normx, 3)
-	mean(f(y) / den) / mean(h(y) / den)	# marginal likelihood
-	# Faulty code:
-	mean(y[, 1] * apply(y, 1, f) / den) / mean(apply(y, 1, h) / den)
-	# Assumed to be:
-	mean(y[, 1] * f(y) / den) / mean(h(y) / den)
+den <- dt(normx, 3)
+mean(f(y) / den) / mean(h(y) / den)	# marginal likelihood
+# Faulty code:
+mean(y[, 1] * apply(y, 1, f) / den) / mean(apply(y, 1, h) / den)
+# Assumed to be:
+mean(y[, 1] * f(y) / den) / mean(h(y) / den)
 
 	# 3.3.2 Sampling importance resampling
 	# Ex. 3.7 (3.6 Continued)
