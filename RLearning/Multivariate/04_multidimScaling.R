@@ -6,7 +6,9 @@ library(ape)
 library(HSAUR2)
 library(MASS)
 library(MVA)
+#demo('Ch-MDS')
 data(skulls)
+data(teensex)
 data(voting)
 data(watervoles)
 
@@ -139,6 +141,7 @@ plot(x,
      type='n')
 text(x, y, colnames(voting), cex=0.6, col=party)
 
+
 # 5.2 Judgements of WWII Leaders
 x <- voting.mds$points[, 1]
 y <- voting.mds$points[, 2]
@@ -181,3 +184,41 @@ plot(voting.sh,
      xlim=range(voting.sh$x), 
      ylim=range(voting.sh$x))
 lines(voting.sh$x, voting.sh$yf, type='S', col=2)
+
+
+
+# 6. Correspondence Analysis
+# 6.1 Teenage relationships
+
+teensex <- matrix(c(21, 8, 2, 21, 9, 3, 14, 6, 4, 13, 8, 10, 8, 2, 10), nrow=3)
+rownames(teensex) <- c("No boyfriend", "Boyfriend no sex", "Boyfriend sex")
+colnames(teensex) <- c("<16", "16-17", "17-18", "18-19", "19-20")
+teensex <- as.table(teensex, dnn=c("Boyfriend", "Age group"))
+#teensex <- as.data.frame(teensex)
+#names(teensex) <- c("Boyfriend", "Age", "Freq")
+
+
+dist.chisq <- function(x) {
+  a <- t(t(x) / colSums(x))
+  rep1 <- rep(1:ncol(x), ncol(x))
+  rep2 <- rep(1:ncol(x), rep(ncol(x), ncol(x)))
+  ret <- sqrt(colSums((a[, rep1] - a[, rep2])^2 * sum(x) / rowSums(x)))
+  matrix(ret, ncol=ncol(x))
+}
+
+(dcols <- dist.chisq(teensex))
+(drows <- dist.chisq(t(teensex)))
+r1 <- cmdscale(dcols, eig=T)
+c1 <- cmdscale(drows, eig=T)
+plot(r1$points, 
+     xlim=range(r1$points[,1], c1$points[,1]) * 1.5,
+     ylim=range(r1$points[,1], c1$points[,1]) * 1.5, 
+     type="n",  
+     xlab="Coordinate 1", 
+     ylab="Coordinate 2", 
+     lwd=2)
+text(r1$points, labels=colnames(teensex), cex=0.7)
+text(c1$points, labels=rownames(teensex), cex=0.7)
+abline(h=0, lty=2)
+abline(v=0, lty=2)
+

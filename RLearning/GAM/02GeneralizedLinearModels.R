@@ -1,22 +1,24 @@
+#=========#=========#=========#=========#=========#=========#=========#=========
 #===================================#
-#									#
-#	Generalized Additive Models		#
-#		An Introduction with R		#
-#									#
-#	Simon N. Wood. 2006				#
-#									#
-#===================================#
-
-#===================================#
-#									#
-#	2. Generalized Linear Models	#
-#									#
+#                                   #
+#   Generalized Additive Models     #
+#      An Introduction with R       #
+#                                   #
+#      Simon N. Wood. 2006          #
+#                                   #
+#                                   #
+#                                   #
+#   2. Generalized Linear Models    #
+#                                   #
 #===================================#
 rm(list = ls())
-#install.packages('gamair', repos = 'http://cran.us.r-project.org')
+setwd('~/Learning/R/RLearning/GAM')
 library(gamair)
-load('~/Desktop/R/GAM/GAM.RData')
+data(stomata)
 
+
+
+# 1. Mixed Models
 # 2.3 GLMs with R
   # 2.3.1 Binomial models and heart disease
   heart <- data.frame(
