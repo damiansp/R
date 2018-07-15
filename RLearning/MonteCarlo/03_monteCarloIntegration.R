@@ -142,8 +142,8 @@ mean(y[, 1] * apply(y, 1, f) / den) / mean(apply(y, 1, h) / den)
 # Assumed to be:
 mean(y[, 1] * f(y) / den) / mean(h(y) / den)
 
-	# 3.3.2 Sampling importance resampling
-	# Ex. 3.7 (3.6 Continued)
+# 3.2 Sampling importance resampling
+# Ex. 3.7 (3.6 Continued)
 	par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
 	# Faulty code:
 	weit <- (apply(y, 1, f) / den) / mean(apply(y, 1, h) / den)
