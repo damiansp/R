@@ -46,4 +46,34 @@ likelihood.ratio <- 2 * (partial.likelihood.simple(beta.hat)
 p <- pchisq(likelihood.ratio, 1, lower.tail=F)
 
 
-                         
+
+# 6. Handling of Tied Survival Times
+tt     <- c(7, 6, 6, 5, 2, 4, 4, 1, 3, 1)
+status <- c(0, 1, 0, 0, 1, 1, 1, 1, 0, 1)
+grp    <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1)
+
+loglik.continuous <- function(b) {
+  (3*b 
+   + log(exp(b) + 9) 
+   - log(4*exp(b) + 6) 
+   - log(3*exp(b) + 6) 
+   - log(2*exp(b) + 6) 
+   - log(exp(b) + 5) 
+   - log(exp(b) + 4))
+}
+
+loglik.discrete <- function(b) {
+  result.a <- exp(2*b) / (6*exp(2*b) + 24*exp(b) + 15)
+  result.b <- 1 / (6 + 2*exp(2*b))
+  result.c <- exp(b) / (10 + 5*exp(b))
+  log(result.a) + log(result.b) + log(result.c)
+}
+
+result.optim.continuous <- optim(
+  par=1.4, fn=loglik.continuous, method='BFGS', control=list(fnscale=-1))                         
+result.optim.discrete <- optim(
+  par=1.4, fn=loglik.discrete, method='BFGS', control=list(fnsacle=-1))
+result.optim.continuous
+result.optim.discrete
+result.coxph <- coxph(Surv(tt, status) ~ grp, ties='exact') 
+result.coxph$coef
