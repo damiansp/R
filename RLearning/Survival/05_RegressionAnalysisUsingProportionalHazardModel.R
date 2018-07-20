@@ -2,6 +2,7 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/Survival')
 library(numDeriv)
+library(survival)
 
 
 # 2. Comparing Two Survival Distributions Using a Partial Likelihood Function
@@ -77,3 +78,18 @@ result.optim.continuous
 result.optim.discrete
 result.coxph <- coxph(Surv(tt, status) ~ grp, ties='exact') 
 result.coxph$coef
+
+
+
+# 7. Left Truncation
+# time from entry into trial until death or censoring
+tt <- c(6, 7, 10, 15, 19, 25) 
+status <- c(1, 0, 1, 1, 0, 1) # death observed
+grp <- c(0, 0, 1, 0, 1, 1)    # experimental group/treatment
+# time before entry that patient was diagnosed
+back.time <- c(-3, -11, -3, -7, -10, -5) 
+coxph(Surv(tt, status) ~ grp)
+
+tm.enter <- -back.time
+tm.exit <- tt - back.time
+coxph(Surv(tm.enter, tm.exit, status, type='counting') ~ grp)
