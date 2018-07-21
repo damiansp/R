@@ -74,3 +74,44 @@ mean(M$score)
 # Worker var
 summary(m00)$sigma^2 - (summary(m0)$sigma^2) / 3
 
+
+
+# 4. Maximum Likelihood Estimation for the Linear Mixed Model
+# 4.2 Maximizing the profile likelihood
+llm <- function(theta , X, Z, y) {
+  # Untransform params
+  sigma.b <- exp(theta[1])
+  sigma <- exp(theta[2])
+  
+  # Extract dims
+  n <- length(y)
+  pr <- ncol(Z)
+  pf <- ncol(X)
+  
+  # Obtain beta.hat, b.hat
+  X1 <- cbind(X, Z)
+  ipsi <- c(rep(0, pf), rep(1 / sigma.b^2, pr))
+  b1 <- solve(crossprod(X1)/sigma^2 + diag(ipsi), t(X1) %*% y/sigma^2)
+  
+  # Compute log|Z'Z/sigma^2 + I/sigma.b^2|
+  ldet <- sum(log(diag(chol(crossprod(Z)/sigma^2 + diag(ipsi[-(1:pf)])))))
+  
+  # Compute log profile likelihood
+  l <- ((-sum((y - X1 %*% b1)^2)/sigma^2 
+         - sum(b1^2*ipsi) 
+         - n*log(sigma^2) 
+         - pr*log(sigma.b^2) 
+         - 2*ldet 
+         - n*log(2*pi)) 
+        / 2)
+  attr(l, 'b') <- as.numeric(b1) # return beta.hat, b.hat
+  -l
+}
+
+options(contrasts=c('contr.treatment', 'contr.treatment'))
+Z <- model.matrix(~ Rail$Rail - 1)
+X <- matrix(1, 18, 1)
+rail.mod <- optim(c(0, 0), llm, hessian=T, X=X, Z=Z, y=Rail$travel)
+exp(rail.mod$par) # variance components
+solve(rail.mod$hessian) # appx. cov matrix for theta
+attr(llm(rail.mod$par, X, Z, Rail$travel), 'b')
