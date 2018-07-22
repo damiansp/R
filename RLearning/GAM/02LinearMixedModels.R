@@ -115,3 +115,11 @@ rail.mod <- optim(c(0, 0), llm, hessian=T, X=X, Z=Z, y=Rail$travel)
 exp(rail.mod$par) # variance components
 solve(rail.mod$hessian) # appx. cov matrix for theta
 attr(llm(rail.mod$par, X, Z, Rail$travel), 'b')
+
+
+
+# 5. Linear Mixed Models in R
+# 5.1 Package nlme
+head(Rail)
+lme(travel ~ 1, data=Rail, random=list(Rail=~1)) # same as:
+lme(travel ~ 1, Rail, ~1|Rail)
