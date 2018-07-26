@@ -81,3 +81,21 @@ logLik.0 <- -386.153 # mod output
 (ratio.stat.c0 <- 2 * (logLik(mod.c) - logLik.0))
 
 anova(mod.a, mod.c)
+
+
+
+# 4. AIC for Comparing Non-Nested Models
+AIC(mod.a)
+AIC(mod.b)
+AIC(mod.c)
+
+mod.all <- coxph(
+  Surv(ttr, relapse) ~ grp + gender + race + employment + yearsSmoking 
+    + levelSmoking + ageGroup4 + priorAttempts + longestNoSmoke, 
+  data=pharmacoSmoking)
+result.step <- step(
+  mod.all, 
+  scope=list(upper=~grp + gender+ race + employment + yearsSmoking 
+               + levelSmoking + ageGroup4 + priorAttempts + longestNoSmoke,
+             lower=~grp))
+result.step             
