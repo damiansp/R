@@ -123,3 +123,53 @@ attr(llm(rail.mod$par, X, Z, Rail$travel), 'b')
 head(Rail)
 lme(travel ~ 1, data=Rail, random=list(Rail=~1)) # same as:
 lme(travel ~ 1, Rail, ~1|Rail)
+
+# 5.2 Tree growth: Example using lme
+head(Loblolly)
+Loblolly$age <- Loblolly$age - mean(Loblolly$age) # center
+
+# Can control lme optimization params:
+lmc <- lmeControl(niterEM=500, msMaxIter=100)
+m0 <- lme(height ~ age + I(age^2) + I(age^3), 
+          Loblolly, 
+          random=list(Seed =~age + I(age^2) + I(age^3)), 
+          correlation=corAR1(form=~age|Seed), 
+          control=lmc)
+summary(m0)
+plot(m0)
+
+m2 <- lme(height ~ age + I(age^2) + I(age^3) + I(age^4) + I(age^5), 
+          Loblolly, 
+          random=list(Seed =~age + I(age^2) + I(age^3)), 
+          correlation=corAR1(form=~age|Seed), 
+          control=lmc)
+summary(m2)
+plot(m2)
+
+m3 <- lme(height ~ age + I(age^2) + I(age^3) + I(age^4) + I(age^5), 
+          Loblolly, 
+          random=list(Seed =~age + I(age^2) + I(age^3)), 
+          control=lmc)
+summary(m3)
+plot(m3)
+anova(m3, m2)
+
+m4 <- lme(height ~ age + I(age^2) + I(age^3) + I(age^4) + I(age^5), 
+          Loblolly, 
+          random=list(Seed =~age + I(age^2)), 
+          correlation=corAR1(form=~age|Seed), 
+          control=lmc)
+summary(m4)
+anova(m4, m2)
+plot(m4)
+
+m5 <- lme(height ~ age + I(age^2) + I(age^3) + I(age^4) + I(age^5), 
+          Loblolly, 
+          list(Seed=pdDiag(~age + I(age^2) + I(age^3))),
+          correlation=corAR1(form=~age|Seed), 
+          control=lmc)
+anova(m5, m2)
+
+# m2 continues to be the better model
+plot(m2)
+plot(augPred(m2))
