@@ -2,6 +2,7 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/Survival')
 
+library(asaur)
 library(survival)
 
 
@@ -98,4 +99,13 @@ result.step <- step(
   scope=list(upper=~grp + gender+ race + employment + yearsSmoking 
                + levelSmoking + ageGroup4 + priorAttempts + longestNoSmoke,
              lower=~grp))
-result.step             
+result.step
+
+
+
+# 5. Including Smooth Estimates of Continuous Covariates in a Suvival Model
+mod.s4 <- coxph(Surv(ttr, relapse) ~ grp + employment + pspline(age, df=4), 
+                pharmacoSmoking)
+summary(mod.s4)
+par(mfrow=c(1, 3))
+termplot(mod.s4, se=T, ylabs='Log hazard')
