@@ -2,6 +2,7 @@
 rm(list = ls())
 setwd('~/Learning/R/RLearning/GAM')
 library(gamair)
+library(lme4)
 library(nlme)
 data(Machines)
 data(Rail)
@@ -173,3 +174,13 @@ anova(m5, m2)
 # m2 continues to be the better model
 plot(m2)
 plot(augPred(m2))
+
+# 5.3 Several levels of nesting
+lme(score ~ Machine, Machines, list(Worker=~1, Machine=~1))
+
+# 5.4 Package lme4
+a1 <- lmer(score ~ Machine + (1|Worker) + (1|Worker:Machine), data=Machines)
+a1
+a2 <- lmer(score ~ Machine + (1|Worker) + (Machine - 1|Worker), data=Machines)
+a2
+AIC(a1, a2)
