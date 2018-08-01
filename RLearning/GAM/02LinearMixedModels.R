@@ -3,6 +3,7 @@ rm(list = ls())
 setwd('~/Learning/R/RLearning/GAM')
 library(gamair)
 library(lme4)
+library(mgcv)
 library(nlme)
 data(Machines)
 data(Rail)
@@ -184,3 +185,22 @@ a1
 a2 <- lmer(score ~ Machine + (1|Worker) + (Machine - 1|Worker), data=Machines)
 a2
 AIC(a1, a2)
+
+# 5.5 Package mgcv
+b1 <- gam(score ~ Machine + s(Worker, bs='re') + s(Machine, Worker, bs='re'),
+          data=Machines,
+          method='REML')
+summary(b1)
+gam.vcomp(b1)
+par(mfrow=c(1, 2))
+plot(b1)
+
+b2 <- gam(score ~ Machine + s(Worker, bs='re') + s(Worker, bs='re', by=Machine),
+          data=Machines,
+          method='REML')
+summary(b2)
+gam.vcomp(b2)
+par(mfrow=c(2, 2))
+plot(b2)
+
+AIC(b1, b2)
