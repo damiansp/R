@@ -14,7 +14,7 @@ library(Rgraphviz)
 # 2. Graphs
 # 2.1 Undirected graphs
 ug0 <- ug(~a:b, ~b:c:d, ~e) # same as
-ug0 <- ug(~a:b + b:c:d + e) # same as
+ug0 <- ug(~a:b + b:c:d + e) # same as ***
 ug0 <- ug(~a*b + b*c*d + e) # same as
 ug0 <- ug(c('a', 'b'), c('b', 'c', 'd'), 'e')
 plot(ug0)
@@ -47,3 +47,19 @@ adj(ug0, 'c') # adjacent/neighors
 closure('c', ug0) # adj + self
 
 # 2.2 Directed acyclic graphs
+dag0 <- dag(~a, ~b*a, ~c*a*b, ~d*c*e, ~e*a, ~g*f) # ~b*a: a -> b # same as:
+dag0 <- dag(~a + b*a + c*a*b + d*c*e + e*a + g*f) # same as:
+dag0 <- dag(~a + b|a + c|a*b + d|c*e + e|a + g|f) # same as: ***
+dag0 <- dag('a', c('b', 'a'), c('c', 'a', 'b'), c('d', 'c', 'e'), c('e', 'a'), 
+            c('g', 'f'))
+plot(dag0)
+
+nodes(dag0)
+str(edges(dag0))
+str(edgeList(dag0))
+vpardag0 <- vpar(dag0)
+vpardag0
+parents('d', dag0)
+children('a', dag0)
+ancestralSet(c('b', 'e'), dag0)
+plot(ancestralGraph(c('b', 'e'), dag0))
