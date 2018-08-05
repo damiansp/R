@@ -4,7 +4,7 @@ setwd('~/Learning/R/RLearning/QuantileRegression')
 
 library(nor1mix)
 library(quantreg)
-
+data(barro)
 
 
 # akj: univariate adaptive kernel density estimation
@@ -29,3 +29,18 @@ rug(x)
 
 
 # anova.rq
+head(barro)
+fit0 <- rq(y.net ~ lgdp2 + fse2 + gedy2, data=barro)
+fit1 <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, data=barro)
+fit2 <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, data=barro, tau=0.75)
+fit3 <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, data=barro, tau=0.25)
+anova(fit1, fit0)
+anova(fit1, fit2, fit3)
+anova(fit1, fit2, fit3, joint=F)
+fit <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, 
+          method='fn', 
+          tau=1:4 / 5, 
+          data=barro)
+          
+          
+# bandwidth.rq (pg. 8)
