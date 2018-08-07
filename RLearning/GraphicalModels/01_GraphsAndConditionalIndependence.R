@@ -2,11 +2,13 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/GraphicalModels')
 #source('https://bioconductor.org/biocLite.R')
+#biocLite('lcd')
 #biocLite('RBGL')
 #biocLite('Rgraphviz')
 
 library(gRbase)
 library(igraph)
+library(lcd)
 library(RBGL)
 library(Rgraphviz)
 
@@ -63,3 +65,46 @@ parents('d', dag0)
 children('a', dag0)
 ancestralSet(c('b', 'e'), dag0)
 plot(ancestralGraph(c('b', 'e'), dag0))
+
+dag0m <- moralize(dag0)
+plot(dag0m)
+
+# 2.3 Mixed Graphs
+adj.m <- matrix(c(0, 1, 1, 0,
+                  1, 0, 0, 1,
+                  1, 0, 0, 0,
+                  1, 1, 1, 0),
+                nrow=4)
+rownames(adj.m) <- colnames(adj.m) <- letters[1:4]
+adj.m
+gG <- as(adj.m, 'graphNEL')
+plot(gG)
+plot(gG, 'neato')
+#graphvizCapabilities()$layoutTypes
+plot(gG, 'dot') # default
+plot(gG, 'circo')
+plot(gG, 'fdp')
+plot(gG, 'osage')
+plot(gG, 'twopi')
+
+gG1 <- as(adj.m, 'igraph')
+plot(gG1)
+plot(gG1, layout=layout.spring)
+#  bidirectionals as segments instead of arrows:
+E(gG1)$arrow.mode <- c(2, 0)[1 + is.mutual(gG1)]
+plot(gG1)
+
+?plot.igraph
+
+d1 <- matrix(0, 11, 11)
+d1[1, 2] <- d1[2, 1] <- d1[1, 3] <- d1[3, 1] <- d1[2, 4] <- d1[4, 2] <- 1
+d1[5, 6] <- d1[6, 5] <- d1[9, 10] <- d1[10, 9] <- d1[7, 8] <- d1[8, 7] <- 1
+d1[3, 5] <- d1[5, 10] <- d1[4, 6] <- d1[4, 7] <- d1[6, 11] <- d1[7, 11] <- 1
+rownames(d1) <- colnames(d1) <- letters[1:11]
+cG1 <- as(d1, 'igraph')
+E(cG1)$arrow.mode <- c(2, 0)[1 + is.mutual(cG1)]
+plot(cG1, layout=layout.spring)
+
+is.chaingraph(as(cG1, 'matrix'))
+cGm <- as(moralize(dag(adj.m)), 'graphNEL')
+plot(cGm)
