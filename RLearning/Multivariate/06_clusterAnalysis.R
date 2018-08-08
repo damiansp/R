@@ -154,11 +154,11 @@ text(crime_pca$x[, 1:2],
      rownames(crime_s), 
      col=kmeans(crime_s, centers=3)$cluster)
 
-# ...
+# 4.2 Clustering Romano-British pottery
+pottery.dist <- dist(
+    pots <- scale(pottery[, colnames(pottery) != "kiln"], center=F))
+levelplot(as.matrix(pottery.dist), xlab = "Pot Number", ylab = "Pot Number")
 
-
-pottery_dist <- dist(
-  
-  pots <- scale(pottery[, colnames(pottery) != "kiln"], center=F))
-levelplot(as.matrix(pottery_dist), xlab = "Pot Number", ylab = "Pot Number")
+pottery.cluster <- kmeans(pots, centers=3)$cluster
+xtabs(~pottery.cluster + kiln, data=pottery)
 
