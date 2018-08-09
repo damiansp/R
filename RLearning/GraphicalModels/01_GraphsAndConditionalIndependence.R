@@ -6,6 +6,7 @@ setwd('~/Learning/R/RLearning/GraphicalModels')
 #biocLite('RBGL')
 #biocLite('Rgraphviz')
 
+library(ggm)
 library(gRbase)
 library(igraph)
 library(lcd)
@@ -108,3 +109,28 @@ plot(cG1, layout=layout.spring)
 is.chaingraph(as(cG1, 'matrix'))
 cGm <- as(moralize(dag(adj.m)), 'graphNEL')
 plot(cGm)
+
+
+
+# 3. Conditional Independence and Graphs
+plot(ug0)
+separates('a', 'd', 'b', ug0) # {b} separates a from d in ug0: T
+# hence a cond.indep. of d given b
+# Marginally independent? (= separated by the empty set?)
+separates('a', 'd', character(0), ug0) # F
+separates('a', 'e', character(0), ug0) # T
+
+d.separates <- function(a, b, c, dag) {
+  separates(a, 
+            b, 
+            c, 
+            gRbase::moralize(ancestralGraph(union(union(a, b), c), dag)))
+}
+
+plot(dag0)
+d.separates('c', 'e', 'a', dag0) # T
+
+# from library(ggm)
+dSep(as(dag0, 'matrix'), 'c', 'e', 'a') # T
+# library(lcd) (not available)
+#is.separated('e', 'g', c('k'), as(cG1, 'matrix')) # F: e not cond. ind of g | k
