@@ -7,7 +7,7 @@ library(quantreg)
 data(barro)
 
 
-# akj: univariate adaptive kernel density estimation
+# akj (pg. 3) Density Estimation using Adaptive Kernel Method
 x <- c(rnorm(600), 2 + 2*rnorm(400))
 xx <- seq(-5, 8, length=200)
 z <- akj(x, xx)
@@ -28,7 +28,7 @@ lines(xx, z3$dens, col=4)
 rug(x)
 
 
-# anova.rq
+# anova.rq (pg. 5) ANOVA Function for Quantile Regression Fits
 head(barro)
 fit0 <- rq(y.net ~ lgdp2 + fse2 + gedy2, data=barro)
 fit1 <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, data=barro)
@@ -43,4 +43,14 @@ fit <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2,
           data=barro)
           
           
-# bandwidth.rq (pg. 8)
+# bandwidth.rq (pg. 8)  Bandwidth Selection for rq Functions
+# bandwidth.rq(p, n, hs=T, alpha=0.05)
+# p: quantile(s) of interest     # n: sample size
+# hs: hall-sheather method flag  # alpha: alpha for CI
+
+
+# barro (pg. 9) Barro Data Set
+# data(barro)
+
+
+# boot.crq (pg. 9) Bootstrapping Censored Quantile Regression
