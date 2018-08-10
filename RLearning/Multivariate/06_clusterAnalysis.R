@@ -162,3 +162,6 @@ levelplot(as.matrix(pottery.dist), xlab = "Pot Number", ylab = "Pot Number")
 pottery.cluster <- kmeans(pots, centers=3)$cluster
 xtabs(~pottery.cluster + kiln, data=pottery)
 
+
+
+# 5. Model-Based Clustering
