@@ -54,3 +54,18 @@ fit <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2,
 
 
 # boot.crq (pg. 9) Bootstrapping Censored Quantile Regression
+# boot.crq(
+#   x, y, c, taus, method, ctype='right', R=100, mboot, bmethod='jack', ...)
+# x: model matrix
+# y: response vec
+# c: censor indicator
+# taus: quantiles of interest
+# method: 'P' (Portnoy), 'PH' (Peng & Huang)
+# ctype: 'right', 'left'
+# R: n bootstrap replicates
+# mboot (optional): for bmethod='jack': number of drops; for 'xy-pair': size of 
+#   samples
+# bmethod: 'jack' (jackknife); 'xy-pair'; 'Bose'
+
+
+# boot.rq (pg. 11) Bootstrapping Quantile Regression
