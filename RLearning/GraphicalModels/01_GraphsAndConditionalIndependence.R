@@ -134,3 +134,24 @@ d.separates('c', 'e', 'a', dag0) # T
 dSep(as(dag0, 'matrix'), 'c', 'e', 'a') # T
 # library(lcd) (not available)
 #is.separated('e', 'g', c('k'), as(cG1, 'matrix')) # F: e not cond. ind of g | k
+
+
+
+# 4. More About Graphs
+# 4.1 Special properties
+is.simplicial('b', ug0) # F
+simplicialNodes(ug0) # a, c, d, e
+connComp(ug0) # {a, b, c, d}, {e}
+is.triangulated(ug0) # T (?)
+is.decomposition(set='a', set2='d', set3=c('b', 'c'), ug0) # F
+mcs(ug0) # maximum cardinality search: a, b, c, d, e
+mcs(ug0, root=c('d', 'c', 'a')) # d, c, b, a, e
+rip(ug0) # running intersection property: cliques {b, a}, {b, c, d}, {e}
+         # separators                              -       b          -
+         # parents                                 0       1          0
+ug2 <- ug(~a:b:c + c:d + d:e + a:e)
+plot(ug2)
+is.triangulated(ug2) # F
+ug3 <- triangulate(ug2)
+is.triangulated(ug3) # T
+plot(ug3)
