@@ -155,3 +155,37 @@ is.triangulated(ug2) # F
 ug3 <- triangulate(ug2)
 is.triangulated(ug3) # T
 plot(ug3)
+
+G1 <- ug(~a:b + b:c + c:d + d:e + e:f + a:f + b:e)
+mt1.G1 <- minimalTriang(G1)
+G2 <- ug(~a:b:e:f + b:c:d:e)
+mt2.G1 <- minimalTriang(G1, tobject=G2)
+par(mfrow=c(2, 2))
+plot(G1, main='G1')
+plot(mt1.G1)
+plot(G2, main='G2')
+plot(mt2.G1)
+
+par(mfrow=c(1, 3))
+G1 <- ug(~a:b + b:c + c:d + d:e + e:f + a:f + b:e)
+G1.rip <- mpd(G1)
+G1.rip
+plot(G1)
+plot(subGraph(G1.rip$clique[[1]], G1))
+plot(subGraph(G1.rip$clique[[2]], G1))
+
+par(mfrow=c(1, 1))
+plot(dag0)
+adj(moralize(dag0), 'e')
+
+
+# 4.2 Layout in Rgraphviz
+plot(dag0, attrs=list(node=list(fillcolor='lightgrey', fontcolor='red')))
+edgeNames(ug3)
+ng3 <- agopen(ug3, name='ug3', layoutType='fdp')
+ng4 <- ng3
+AgEdge(ng4) <- AgEdge(ng4)[-3]
+par(mfrow=c(1, 2))
+plot(ng3)
+plot(ng4)
+par(mfrow=c(1, 1))
