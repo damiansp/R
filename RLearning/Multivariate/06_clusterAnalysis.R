@@ -1,7 +1,9 @@
 #=========#=========#=========#=========#=========#=========#=========#=========
 setwd('~/Learning/R/RLearning/Multivariate')
 
+library(flexclust)
 library(lattice)
+library(mclust)
 library(MVA)
 library(mvtnorm)
 #demo('Ch-CA')
@@ -165,3 +167,85 @@ xtabs(~pottery.cluster + kiln, data=pottery)
 
 
 # 5. Model-Based Clustering
+# 5.2 Maximum likelihood estimation in a finite mixture density with 
+#     multivariate normal components
+cnt <- c(
+  "Iceland", "Norway", "Sweden", "Finland", "Denmark", "UK", "Eire",
+  "Germany", "Netherlands", "Belgium", "Switzerland", "France", "Spain",
+  "Portugal", "Italy", "Greece", "Yugoslavia", "Albania", "Bulgaria", "Romania",
+  "Hungary", "Czechia", "Slovakia", "Poland", "CIS", "Lithuania", "Latvia",
+  "Estonia")
+thomson <- expand.grid(answer=factor(c("no", "yes")),
+                       question=factor(paste("Q", 1:6, sep="")),
+                       country=factor(cnt, levels=cnt))  
+thomson$Freq <- c(
+  0, 5, 0, 5, 0, 4, 0, 5, 0, 5, 0, 5, 1, 6, 1, 5, 0, 6, 0, 5, 0, 4, 1, 4, 0, 11, 
+  4, 7, 0, 7, 0, 11, 5, 5, 3, 6, 0, 6, 2, 4, 0, 6, 0, 6, 1, 5, 2, 4, 1, 12, 4, 
+  9, 0, 12, 3, 9, 7, 4, 6, 7, 7, 12, 2, 16, 0, 20, 1, 19, 9, 10, 0, 17, 0, 1, 1, 
+  2, 0, 3, 2, 0, 2, 0, 0, 3, 0, 14, 0, 13, 0, 13, 2, 12, 11, 2, 1, 13, 0, 8, 0, 
+  8, 0, 8, 1, 7, 2, 5, 1, 7, 2, 0, 0, 2, 0, 2, 1, 1, 2, 0, 0, 2, 0, 5, 0, 5, 0,
+  4, 2, 2, 5, 0, 0, 4, 7, 3, 1, 7, 3, 5, 8, 2, 10, 0, 1, 7, 11, 1, 0, 12, 2, 8, 
+  5, 6, 11, 0, 0, 11, 5, 1, 0, 6, 2, 4, 3, 3, 6, 0, 0, 6, 8, 7, 0, 15, 1, 13, 9, 
+  6, 13, 2, 0, 15, 7, 1, 0, 8, 3, 5, 7, 1, 8, 0, 0, 7, 11, 4, 0, 15, 7, 8, 11, 
+  4, 15, 0, 0, 14, 3, 2, 2, 3, 3, 2, 3, 2, 3, 3, 2, 3, 3, 0, 0, 3, 2, 1, 3, 0, 
+  3, 0, 0, 3, 7, 0, 0, 6, 6, 1, 6, 1, 6, 1, 0, 7, 4, 1, 0, 5, 1, 4, 5, 0, 5, 0, 
+  0, 5, 18, 2, 0, 20, 17, 3, 20, 0, 20, 0, 0, 20, 13, 0, 1, 14, 14, 0, 16, 0, 
+  13, 0, 15, 0, 18, 0, 0, 19, 13, 5, 17, 2, 17, 0, 0, 19, 7, 0, 1, 6, 5, 2, 7, 
+  0, 7, 0, 1, 6, 8, 0, 0, 8, 8, 0, 8, 0, 8, 0, 0, 8, 5, 0, 0, 5, 5, 0, 5, 0, 5, 
+  0, 0, 5,2, 2, 0, 3, 0, 3, 3, 0, 3, 0, 0, 3)
+ttab <- xtabs(Freq ~ country + answer + question, data=thomson)
+thomsonprop <- prop.table(ttab, c(1,3))[,"yes",]
+plot(1:(22 * 6), 
+     rep(-1, 22 * 6), 
+     ylim=c(-nlevels(thomson$country), -1), 
+     type="n",
+     axes=F, 
+     xlab="", 
+     ylab="")
+for (q in 1:6) {   
+  tmp <- ttab[,,q]
+  xstart <- (q - 1) * 22 + 1
+  y <- -rep(1:nrow(tmp), rowSums(tmp))
+  x <- xstart + unlist(sapply(rowSums(tmp), function(i) 1:i))
+  pch <- unlist(apply(tmp, 1, function(x) c(rep(19, x[2]), rep(1, x[1]))))
+  points(x, y, pch = pch)
+}
+axis(2, 
+     at=-(1:nlevels(thomson$country)), 
+     labels=levels(thomson$country),
+     las=2, 
+     tick=F, 
+     line=0)
+mtext(text=paste("Question", 1:6), 3, at=22 * (0:5), adj=0)
+(mc <- Mclust(thomsonprop))
+plot(mc, thomsonprop, what="BIC", col="black")
+cl <- mc$classification
+nm <- unlist(sapply(1:3, function(i) names(cl[cl == i])))
+ttab <- ttab[nm,,]
+plot(1:(22 * 6), 
+     rep(-1, 22 * 6), 
+     ylim=c(-nlevels(thomson$country), -1), 
+     type="n",
+     axes=F, 
+     xlab="", 
+     ylab="")
+for (q in 1:6) {   
+  tmp <- ttab[,,q]
+  xstart <- (q - 1) * 22 + 1
+  y <- -rep(1:nrow(tmp), rowSums(tmp))
+  x <- xstart + unlist(sapply(rowSums(tmp), function(i) 1:i))
+  pch <- unlist(apply(tmp, 1, function(x) c(rep(19, x[2]), rep(1, x[1]))))
+  points(x, y, pch=pch)
+}
+axis(2, 
+     at=-(1:nlevels(thomson$country)), 
+     labels=dimnames(ttab)[[1]], 
+     las=2, 
+     tick=F, 
+     line=0)
+mtext(text=paste("Question", 1:6), 3, at=22 * (0:5), adj=0)
+abline(h=-cumsum(table(cl))[-3] - 0.5, col="grey")
+text(-c(0.75, 0.75, 0.75), -cumsum(table(cl)) + table(cl)/2,
+     label=paste("Cluster", 1:3), 
+     srt=90, 
+     pos=1)
