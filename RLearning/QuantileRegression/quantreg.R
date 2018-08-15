@@ -5,6 +5,7 @@ setwd('~/Learning/R/RLearning/QuantileRegression')
 library(nor1mix)
 library(quantreg)
 data(barro)
+data(Bosco)
 
 
 # akj (pg. 3) Density Estimation using Adaptive Kernel Method
@@ -69,3 +70,12 @@ fit <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2,
 
 
 # boot.rq (pg. 11) Bootstrapping Quantile Regression
+y <- rnorm(50)
+x <- matrix(rnorm(100), 50)
+fit <- rq(y ~ x, tau=0.4)
+summary(fit, se='boot', bsmethod='xy')
+summary(fit, se='boot', bsmethod='pwy')
+summary(fit, se='boot', bsmethod='mcmb')
+
+
+# Bosco (pg. 13) Boscovich Data
