@@ -249,3 +249,7 @@ text(-c(0.75, 0.75, 0.75), -cumsum(table(cl)) + table(cl)/2,
      label=paste("Cluster", 1:3), 
      srt=90, 
      pos=1)
+     
+     
+     
+# 6. Displaying Clustering Solutions
