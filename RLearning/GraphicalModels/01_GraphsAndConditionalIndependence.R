@@ -189,3 +189,52 @@ par(mfrow=c(1, 2))
 plot(ng3)
 plot(ng4)
 par(mfrow=c(1, 1))
+
+
+# 4.3 The igraph package
+ug4 <- graph.formula(a -- b:c, c -- b:d, e -- a:d)
+ug4
+plot(ug4, layout=layout.graphopt)
+
+ug4.2 <- graph.empty(n=5, directed=F)
+V(ug4.2)$name <- V(ug4.2)$label <- letters[1:5]
+#ug4.2 <- add.edges(ug4.2, c(0,1, 0,2, 0,4, 1,2, 2,3, 3,4)) # broken
+
+ug4$layout <- layout.graphopt(ug4)
+V(ug4)$label <- V(ug4)$name
+V(ug4)$color <- 'red'
+V(ug4)[1]$color <- 'blue'
+V(ug4)$size <- 40
+V(ug4)$label.cex <- 3
+plot(ug4)
+
+ug5 <- set.vertex.attribute(ug4, 'discrete', value=c(T, T, F, F, T))
+V(ug5)[discrete]$color <- 'green'
+V(ug5)[!discrete]$color <- 'yellow'
+plot(ug5)
+
+#xy <- tkplot.getcoords(2) # broken
+#plot(g, layout=xy)
+
+layout.spring(ug4)
+
+ug5 <- ug(~A*B*C + B*C*D + D*E, result='igraph')
+ug6 <- ug(~A*B + B*C + C*D + D*E, result='igraph')
+ug6$layout <- ug5$layout <- layout.spring(ug5)
+V(ug5)$size <- V(ug6)$size <- 50
+V(ug5)$label.cex <- V(ug6)$label.cex <- 3
+par(mfrow=c(1, 2))
+plot(ug5)
+plot(ug6)
+
+em1 <- c(0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0)
+dim(em1) <- c(4, 4)
+iG <- graph.adjacency(em1)
+V(iG)$shape <- c('circle', 'square')
+V(iG)$color <- c('red', 'green')
+V(iG)$label <- c('A', 'B', 'C','D')
+E(iG)$arrow.mode <- c(2, 0)[1 + is.mutual(iG)]
+E(iG)$color <- c('black', 'darkgrey')
+E(iG)$curved <- c(T, F)
+iG$layout <- layout.graphopt(iG)
+plot(iG)
