@@ -12,6 +12,7 @@ library(igraph)
 library(lcd)
 library(RBGL)
 library(Rgraphviz)
+library(sna)
 
 
 # 2. Graphs
@@ -238,3 +239,31 @@ E(iG)$color <- c('black', 'darkgrey')
 E(iG)$curved <- c(T, F)
 iG$layout <- layout.graphopt(iG)
 plot(iG)
+
+
+# 4.4 3D graphs
+aG <- as(graph.famous('Meredith'), 'matrix')
+#gplot3d(aG) # broken
+
+
+# 4.5 Alternative graph representations
+V <- c('a', 'b', 'c', 'd')
+edL <- vector('list', length=4)
+names(edL) <- V
+for (i in 1:4) {
+  edL[[i]] <- list(edges=5 - i)
+}
+gR <- new('graphNEL', nodes=V, edgeL=edL)
+plot(gR)
+
+
+# 4.6 Operations on graphs in different representations
+args(querygraph)
+
+ug_NEL <- ug(~a:b + b:c:d + e)
+ug_igraph <- as(ug_NEL, 'igraph')
+plot(ug_NEL)
+
+separates('a', 'd', c('b', 'c'), ug_NEL)
+querygraph(ug_igraph, 'separates', 'a', 'd', c('b', 'c'))
+
