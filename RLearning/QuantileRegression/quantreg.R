@@ -6,6 +6,7 @@ library(nor1mix)
 library(quantreg)
 data(barro)
 data(Bosco)
+data(CobarOre)
 
 
 # akj (pg. 3) Density Estimation using Adaptive Kernel Method
@@ -79,3 +80,26 @@ summary(fit, se='boot', bsmethod='mcmb')
 
 
 # Bosco (pg. 13) Boscovich Data
+head(Bosco)
+plot(0:10 / 10, 0:10 * 100,
+     xlab='sin^2(latitude)',
+     ylab='arc-length of 1° latitude',
+     type='n')
+points(Bosco)
+text(Bosco, pos=3, rownames(Bosco))
+z <- rq(y ~ x, tau=-1, data=Bosco)
+title('Boscovitch Ellipticity of the Earth')
+xb <- c(0.85, 0.9, 0.6, 0.6)
+yb <- c(400, 600, 450, 600)
+for (i in 1:4) {
+  abline(c(z$sol[4:5, i]))
+  interval <- paste('t=(', format(round(z$sol[1, i], 2)), 
+                    ', ', 
+                    format(round(z$sol[1, i + 1], 2)), 
+                    ')', 
+                    sep='')
+  text(xb[i], yb[i], interval)
+}
+
+
+# CobarOre (pg. 14) Cobar Ore Data
