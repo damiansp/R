@@ -103,3 +103,9 @@ for (i in 1:4) {
 
 
 # CobarOre (pg. 14) Cobar Ore Data
+head(CobarOre)
+plot(CobarOre)
+
+
+
+# combos (pg. 15) Ordered Combinations
