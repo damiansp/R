@@ -109,3 +109,7 @@ plot(CobarOre)
 
 
 # combos (pg. 15) Ordered Combinations
+H <- combos(20, 3)
+
+
+# critval (pg. 16) Hotelling Critical Values
