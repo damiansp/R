@@ -113,3 +113,11 @@ H <- combos(20, 3)
 
 
 # critval (pg. 16) Hotelling Critical Values
+# Critical values for uniform confidence bands for rqss fitting
+# critval(kappa, alphp=0.05, rdf=0)
+# kappa: length of tube
+# alpha: alpha-level (CI = 1 - alpha)
+# rdf: "residual" degrees of freedom of fitted object; Gaussian if 0, else t
+
+
+# crq (pg. 17) Functions to fit censored quantile regression models
