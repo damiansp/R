@@ -4,6 +4,7 @@ setwd('~/Learning/R/RLearning/QuantileRegression')
 
 library(nor1mix)
 library(quantreg)
+library(survival)
 data(barro)
 data(Bosco)
 data(CobarOre)
@@ -121,3 +122,45 @@ H <- combos(20, 3)
 
 
 # crq (pg. 17) Functions to fit censored quantile regression models
+x <- sqrt(rnorm(100)^2) # abs(rnorm(100))
+y <- -0.5 + x + (0.25 + 0.25*x) * rnorm(100)
+s <- y > 0
+
+plot(x, y, type='n')
+points(x[s], y[s], pch=16, cex=0.9)
+points(x[!s], y[!s], pch=1, cex=0.9)
+y.latent <- y
+y <- pmax(0, y)
+yc <- rep(0, 100)
+for (tau in (1:4) / 5) {
+  f <- crq(Curv(y, yc) ~ x, tau=tau, method='Powell')
+  xs <- sort(x)
+  lines(xs, pmax(0, cbind(1, xs) %*% f$coef), col=2)
+  abline(rq(y ~ x, tau=tau), col=4)
+  abline(rq(y.latent ~ x), tau=tau, col=3)
+}
+legend('bottomright',
+       legend=c('Naive QR', 'Censored QR', 'Omniscient QR'), 
+       lty=1, 
+       col=c(4, 2, 3))
+       
+# Example with left censoring
+n <- 200
+x <- rnorm(n)
+y <- 5 + x + rnorm(n)
+
+plot(x, y, cex = 0.5)
+c <- 4 + x + rnorm(n)
+d <- y > c
+points(x[!d], y[!d], cex=0.5, col=2)
+
+f <- crq(Surv(pmax(y, c), d, type='left') ~ x, method='Portnoy')
+(g <- summary(f))
+for (i in 1:4) {
+  abline(coef(g[[i]])[, 1])
+}
+
+
+# dither (pg. 21) Randomly perturb a vector
+
+
