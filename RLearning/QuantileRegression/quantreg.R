@@ -162,5 +162,12 @@ for (i in 1:4) {
 
 
 # dither (pg. 21) Randomly perturb a vector
+x <- rlnorm(40)
+y <- rpois(40, exp(0.5 + log(x)))
+f <- rq(dither(y, type='right', value=1) ~ x)
+summary(f)
+plot(y, dither(y, type='symmetric', value=1))
 
 
+
+# dynrq (pg. 22) Dynamic Linear Quantile Regression
