@@ -8,7 +8,7 @@
 #                                   #
 #                                   #
 #                                   #
-#   2. Generalized Linear Models    #
+#   3. Generalized Linear Models    #
 #                                   #
 #===================================#
 rm(list = ls())
@@ -18,9 +18,19 @@ data(stomata)
 
 
 
-# 1. Mixed Models
-# 2.3 GLMs with R
-  # 2.3.1 Binomial models and heart disease
+# 2 Geometry of GLMs
+# 2.2 Geometry of IRLS convergence
+x <- c(0.6, 1.5)
+ms <- exp(-x * 4)
+y <- c(0.02, 0.09)
+glm(y ~ I(-x) - 1, family=gaussian(link=log), mustart=ms)
+ms <- exp(-x * 0.1)
+glm(y ~ I(-x) - 1, family=gaussian(link=log), mustart=ms)
+
+
+
+# 3 GLMs with R
+# 3.1 Binomial models and heart disease
   heart <- data.frame(
     ck = c(20, 60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460),
     ha = c( 2, 13,  30,  30,  21,  19,  18,  13,  19,  15,   7,   8),
