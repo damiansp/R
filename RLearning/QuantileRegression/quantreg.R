@@ -2,13 +2,16 @@
 rm(list=ls())
 setwd('~/Learning/R/RLearning/QuantileRegression')
 
+library(datasets)
 library(nor1mix)
 library(quantreg)
 library(survival)
 library(zoo)
+data(AirPassengers)
 data(barro)
 data(Bosco)
 data(CobarOre)
+data(UKDriverDeaths)
 
 
 # akj (pg. 3) Density Estimation using Adaptive Kernel Method
@@ -172,3 +175,36 @@ plot(y, dither(y, type='symmetric', value=1))
 
 
 # dynrq (pg. 22) Dynamic Linear Quantile Regression
+# multiplicative median SARIMA(1, 0, 0)(1, 0, 0)_12 model fitted to UK seatbelt
+# data
+uk <- log10(UKDriverDeaths)
+dfm <- dynrq(uk ~ L(uk, 1) + L(uk, 12))
+dfm
+dfm3 <- dynrq(uk ~ L(uk, 1) + L(uk, 12), tau=1:3 / 4)
+summary(dfm3)
+
+# Explicitly set start/end date
+dfm1 <- dynrq(uk ~ L(uk, 1) + L(uk, 12), start=c(1975, 1), end=c(1982, 12))
+
+# Remove lag12
+dfm0 <- update(dfm1, . ~ . - L(uk, 12))
+tuk1 <- anova(dfm0, dfm1)
+tuk1
+
+# Add seasonal term
+dfm1 <- dynrq(uk ~ 1, start=c(1975, 1), end=c(1982, 12))
+dfm2 <- dynrq(uk ~ season(uk), start=c(1975, 1), end=c(1982, 12))
+(tuk2 <- anova(dfm1, dfm2))
+summary(dfm2)
+
+# Regression on multiple lags in a single L() call
+dfm3 <- dynrq(uk ~ L(uk, c(1, 11, 12)), start=c(1975, 1), end=c(1982, 12))
+anova(dfm1, dfm3)
+summary(dfm3)
+
+
+# Time Series Decomposition
+ap <- log(AirPassengers)
+fm <- dynrq(ap ~ trend(ap) + season(ap), tau=1:4 / 5)
+(sfm <- summary(fm))
+plot(sfm)
