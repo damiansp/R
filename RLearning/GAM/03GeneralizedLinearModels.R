@@ -31,14 +31,13 @@ glm(y ~ I(-x) - 1, family=gaussian(link=log), mustart=ms)
 
 # 3 GLMs with R
 # 3.1 Binomial models and heart disease
-  heart <- data.frame(
-    ck = c(20, 60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460),
-    ha = c( 2, 13,  30,  30,  21,  19,  18,  13,  19,  15,   7,   8),
-    ok = c(88, 26,   8,   5,   0,   1,   1,   1,   1,   0,   0,   0)  
-  )
-  p <- heart$ha / (heart$ha + heart$ok)
-  plot(heart$ck, p, xlab = 'Creatinine Kinase Level', 
-       ylab = 'Proportion Heart Attacks')
+heart <- data.frame(
+  ck = c(20, 60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460),
+  ha = c( 2, 13,  30,  30,  21,  19,  18,  13,  19,  15,   7,   8),
+  ok = c(88, 26,   8,   5,   0,   1,   1,   1,   1,   0,   0,   0))
+p <- heart$ha / (heart$ha + heart$ok)
+plot(
+  heart$ck, p, xlab='Creatinine Kinase Level', ylab='Proportion Heart Attacks')
   
   mod.0 <- glm(cbind(ha, ok) ~ ck, family = binomial(link = 'logit'), data = heart)
   summary(mod.0)
