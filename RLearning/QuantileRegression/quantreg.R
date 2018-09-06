@@ -11,7 +11,9 @@ data(AirPassengers)
 data(barro)
 data(Bosco)
 data(CobarOre)
+data(engel)
 data(UKDriverDeaths)
+
 
 
 # akj (pg. 3) Density Estimation using Adaptive Kernel Method
@@ -35,6 +37,7 @@ lines(xx, z3$dens, col=4)
 rug(x)
 
 
+
 # anova.rq (pg. 5) ANOVA Function for Quantile Regression Fits
 head(barro)
 fit0 <- rq(y.net ~ lgdp2 + fse2 + gedy2, data=barro)
@@ -50,14 +53,17 @@ fit <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2,
           data=barro)
           
           
+
 # bandwidth.rq (pg. 8)  Bandwidth Selection for rq Functions
 # bandwidth.rq(p, n, hs=T, alpha=0.05)
 # p: quantile(s) of interest     # n: sample size
 # hs: hall-sheather method flag  # alpha: alpha for CI
 
 
+
 # barro (pg. 9) Barro Data Set
 # data(barro)
+
 
 
 # boot.crq (pg. 9) Bootstrapping Censored Quantile Regression
@@ -75,6 +81,7 @@ fit <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2,
 # bmethod: 'jack' (jackknife); 'xy-pair'; 'Bose'
 
 
+
 # boot.rq (pg. 11) Bootstrapping Quantile Regression
 y <- rnorm(50)
 x <- matrix(rnorm(100), 50)
@@ -82,6 +89,7 @@ fit <- rq(y ~ x, tau=0.4)
 summary(fit, se='boot', bsmethod='xy')
 summary(fit, se='boot', bsmethod='pwy')
 summary(fit, se='boot', bsmethod='mcmb')
+
 
 
 # Bosco (pg. 13) Boscovich Data
@@ -107,6 +115,7 @@ for (i in 1:4) {
 }
 
 
+
 # CobarOre (pg. 14) Cobar Ore Data
 head(CobarOre)
 plot(CobarOre)
@@ -117,12 +126,14 @@ plot(CobarOre)
 H <- combos(20, 3)
 
 
+
 # critval (pg. 16) Hotelling Critical Values
 # Critical values for uniform confidence bands for rqss fitting
 # critval(kappa, alphp=0.05, rdf=0)
 # kappa: length of tube
 # alpha: alpha-level (CI = 1 - alpha)
 # rdf: "residual" degrees of freedom of fitted object; Gaussian if 0, else t
+
 
 
 # crq (pg. 17) Functions to fit censored quantile regression models
@@ -163,6 +174,7 @@ f <- crq(Surv(pmax(y, c), d, type='left') ~ x, method='Portnoy')
 for (i in 1:4) {
   abline(coef(g[[i]])[, 1])
 }
+
 
 
 # dither (pg. 21) Randomly perturb a vector
@@ -208,3 +220,25 @@ ap <- log(AirPassengers)
 fm <- dynrq(ap ~ trend(ap) + season(ap), tau=1:4 / 5)
 (sfm <- summary(fm))
 plot(sfm)
+
+
+# Edgeworth 1886 Problem; DGP
+fye <- function(n, m=20) {
+  a <- rep(0, n)
+  s <- sample(0:9, m, replace=T)
+  a[1] <- sum(s)
+  for (i in 2:n) {
+    s[sample(20, 1)] <- sample(0:9, 1)
+    a[i] <- sum(s)
+  }
+  zoo(a)
+}
+
+x <- fye(1000)
+f <- dynrq(x ~ L(x, 1))
+plot(x, col=2)
+lines(fitted(f), col=4)
+
+
+
+# engel (pg. 25) Engel Data
