@@ -4,6 +4,7 @@ setwd('~/Learning/R/RLearning/GraphicalModels')
 
 library(ggm)
 library(gRbase)
+library(gRim)
 library(igraph)
 library(lcd)
 library(RBGL)
@@ -33,3 +34,6 @@ lizard
 
 
 # 3. Log-Linear Models
+# 3.2 Hierarchical log-linear models
+m1 <- dmod(~species*height + species*diam, data=lizard) # same as
+m2 <- dmod(list(c('species', 'height'), c('species', 'diam')), lizard)
