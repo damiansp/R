@@ -39,33 +39,33 @@ p <- heart$ha / (heart$ha + heart$ok)
 plot(
   heart$ck, p, xlab='Creatinine Kinase Level', ylab='Proportion Heart Attacks')
   
-  mod.0 <- glm(cbind(ha, ok) ~ ck, family = binomial(link = 'logit'), data = heart)
-  summary(mod.0)
-  # Deviance explained:
-  1 - (36.929 / 217.712)
-  
-  par(mfrow = c(2, 2))
-  plot(mod.0)
-  1 - pchisq(36.929, df = 10) # also indicates poor fit based on prob of dev for df
+mod.0 <- glm(cbind(ha, ok) ~ ck, family=binomial(link='logit'), data=heart)
+summary(mod.0)
 
-  par(mfrow = c(1, 1))
-  plot(heart$ck, p, xlab = 'Creatinine Kinase Level', 
-       ylab = 'Proportion Heart Attacks')
-  lines(heart$ck, fitted(mod.0), col = 2)
+# Deviance explained:
+1 - (36.929 / 271.712)  
+par(mfrow=c(2, 2))
+plot(mod.0)
+1 - pchisq(36.929, df=10) # also indicates poor fit based on prob of dev for df.
+
+par(mfrow = c(1, 1))
+plot(heart$ck, p, xlab='Creatinine Kinase Level', ylab='Proportion Heart Attacks')
+lines(heart$ck, fitted(mod.0), col=2)
   
-  # Try cubic model instead
-  mod.2 <- glm(cbind(ha, ok) ~ ck + I(ck^2) + I(ck^3), family = binomial, 
-  			   data = heart)  
-  summary(mod.2)
-  lines(heart$ck, fitted(mod.2), col = 4)
+# Try cubic model instead
+mod.2 <- glm(cbind(ha, ok) ~ ck + I(ck^2) + I(ck^3), family=binomial, data=heart)  
+summary(mod.2)
+lines(heart$ck, fitted(mod.2), col=4)
+
+par(mfrow=c(2, 2))
+plot(mod.2)
+1 - (4.2525 / 271.7124)  	# better
+1 - pchisq(4.2525, 8)		# much better
+
+anova(mod.0, mod.2, test='Chisq')
+
   
-  par(mfrow = c(2, 2))
-  plot(mod.2)
-  1 - (4.2525 / 271.7124)  	# better
-  1 - pchisq(4.2525, 8)		# much better
-  
-  
-  # 2.3.2 A Poisson regression epidemic model
+# 3.2 A Poisson regression epidemic model
   y <- c(12, 14, 33, 50, 67, 74, 123, 141, 165, 204, 243, 246, 240)
   t <- 1:13
   plot(t + 1980, y, xlab = 'Year', ylab = 'New AIDS cases', ylim = c(0, 250))
