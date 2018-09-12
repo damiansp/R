@@ -6,7 +6,7 @@ library(ggm)
 library(gRbase)
 library(gRim)
 library(igraph)
-library(lcd)
+#library(lcd) # no version for 3.5
 library(RBGL)
 library(Rgraphviz)
 library(sna)
@@ -37,3 +37,21 @@ lizard
 # 3.2 Hierarchical log-linear models
 m1 <- dmod(~species*height + species*diam, data=lizard) # same as
 m2 <- dmod(list(c('species', 'height'), c('species', 'diam')), lizard)
+plot(m1) # height indep of diam given species
+
+# which conditional independences hold over model?
+separates('height', 'diam', 'species', as(m1, 'graphNEL')) # T
+
+
+# 3.3 Graphical and decomposable log-linear models
+no3f <- dmod(~species:height + species:diam + height:diam, data=lizard)
+par(mfcol=c(1, 2))
+sat <- dmod(~species:height:diam, data=lizard)
+plot(no3f, main='no 3-factor interaction')
+plot(sat, main='saturated')
+summary(no3f)
+
+g <- ug(~la10:locc:mp58 + locc:mp58:c365 + mp58:c365:p53a + c365:p53a:a367)
+mg <- dmod(g, data=mildew)
+plot(mg)
+summary(mg) # decomposable: has closed for for ML estimation
