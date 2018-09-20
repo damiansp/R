@@ -55,3 +55,17 @@ g <- ug(~la10:locc:mp58 + locc:mp58:c365 + mp58:c365:p53a + c365:p53a:a367)
 mg <- dmod(g, data=mildew)
 plot(mg)
 summary(mg) # decomposable: has closed for for ML estimation
+
+
+
+# 3.5 Hypothesis testing
+m1 <- dmod(~species:height + species:diam, data=lizard)
+plot(m1)
+m1
+m1$fitinfo$pearson
+
+m3 <- dmod(~la10*locc*mp58*c365*p53a + locc*mp58*c365*p53a*a367, data=mildew)
+m4 <- update(m3, list(dedge=~locc*a367))
+par(mfrow=c(1, 2))
+plot(m3, 'neato')
+plot(m4, 'neato')
