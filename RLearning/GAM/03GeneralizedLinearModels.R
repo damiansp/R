@@ -66,33 +66,33 @@ anova(mod.0, mod.2, test='Chisq')
 
   
 # 3.2 A Poisson regression epidemic model
-  y <- c(12, 14, 33, 50, 67, 74, 123, 141, 165, 204, 243, 246, 240)
-  t <- 1:13
-  plot(t + 1980, y, xlab = 'Year', ylab = 'New AIDS cases', ylim = c(0, 250))
+y <- c(12, 14, 33, 50, 67, 74, 123, 141, 165, 204, 243, 246, 240)
+t <- 1:13
+plot(t + 1980, y, xlab = 'Year', ylab = 'New AIDS cases', ylim = c(0, 250))
   
-  m0 <- glm(y ~ t, poisson)
-  summary(m0)
-  1 - pchisq(77.623, 11)
-  par(mfrow = c(2, 2))
-  plot(m0)
+m0 <- glm(y ~ t, poisson)
+summary(m0)
+1 - pchisq(77.623, 11)
+par(mfrow=c(2, 2))
+plot(m0)
   
-  m1 <- glm(y ~ t + I(t^2), poisson)
-  summary(m1)
-  1 - pchisq(7.5816, 10)
-  plot(m1)
+m1 <- glm(y ~ t + I(t^2), poisson)
+summary(m1)
+1 - pchisq(7.5816, 10)
+plot(m1)
   
-  anova(m0, m1, test = 'Chisq')
+anova(m0, m1, test='Chisq') # indicates bigger mod (m1) is preferred
   
-  (beta1 <- summary(m1)$coef[2, ])
-  (ci <- c(beta1[1] - 1.96 * beta1[2], beta1[1] + 1.96 * beta1[2]))
+(beta1 <- summary(m1)$coef[2, ])
+(ci <- c(beta1[1] - 1.96*beta1[2], beta1[1] + 1.96*beta1[2]))
   
-  new.t <- seq(1, 13, length = 100)
-  fv <- predict(m1, data.frame(t = new.t), se = T)
-  par(mfrow = c(1, 1))
-  plot(t + 1980, y, xlab = 'Year', ylab = 'New AIDS cases', ylim = c(0, 270))
-  lines(new.t + 1980, exp(fv$fit), col = 2)
-  lines(new.t + 1980, exp(fv$fit + 1.96 * fv$se.fit), col = 2, lty = 2)
-  lines(new.t + 1980, exp(fv$fit - 1.96 * fv$se.fit), col = 2, lty = 2)
+new.t <- seq(1, 13, length=100)
+fv <- predict(m1, data.frame(t=new.t), se=T)
+par(mfrow=c(1, 1))
+plot(t + 1980, y, xlab='Year', ylab='New AIDS cases', ylim=c(0, 270))
+lines(new.t + 1980, exp(fv$fit), col=4)
+lines(new.t + 1980, exp(fv$fit + 1.96*fv$se.fit), col=2, lty=2)
+lines(new.t + 1980, exp(fv$fit - 1.96*fv$se.fit), col=2, lty=2)
 
 
 	# 2.3.3 Log-linear models for categorical data
