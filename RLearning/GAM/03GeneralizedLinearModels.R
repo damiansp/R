@@ -95,6 +95,9 @@ lines(new.t + 1980, exp(fv$fit + 1.96*fv$se.fit), col=2, lty=2)
 lines(new.t + 1980, exp(fv$fit - 1.96*fv$se.fit), col=2, lty=2)
 
 
+# 3.3 Cox proportional hazards modeling of survival data
+
+
 	# 2.3.3 Log-linear models for categorical data
 	a1 <- data.frame(y = c(435, 147, 375, 134), 
 					 gender = as.factor(c('F', 'F', 'M', 'M')),
