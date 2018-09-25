@@ -95,4 +95,25 @@ ciTest_ordinal(dumping, c(3, 1, 2), 'kruskal', N=1000)
 
 
 # 4. Model Selection
+m.init <- dmod(~.^., data=reinis) # ^.: fully connected
+plot(m.init)
+m.reinis <- stepwise(m.init) # AIC
+plot(m.reinis)
+m.reinis2 <- stepwise(m.init, k=log(sum(reinis))) # BIC
+plot(m.reinis2)
 
+mildew.init <- dmod(~.^1, data=mildew) # ^1: unconnected 
+plot(mildew.init)
+m.mildew <- stepwise(
+  mildew.init, k=log(sum(mildew)), direction='forward', details=1)
+plot(m.mildew)
+
+mildew.init.2 <- dmod(~.^., data=mildew)
+m.mildew.2 <- stepwise(mildew.init.2, crit='test', alpha=0.05, details=0)
+m.mildew.2
+plot(m.mildew.2)
+
+
+
+# 5. Further Topics
+# 5.1 Fitting log-linear models with glm()
