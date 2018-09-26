@@ -117,3 +117,23 @@ plot(m.mildew.2)
 
 # 5. Further Topics
 # 5.1 Fitting log-linear models with glm()
+lizardAGG
+m1.glm <- glm(
+  Freq ~ 1 + diam:species + height:species, family=poisson, data=lizardAGG)
+summary(m1.glm)
+
+mild.glm <- glm(Freq ~ .^3, family=poisson, data=as.data.frame(mildew))
+summary(mild.glm)
+
+mildew.dmod <- dmod(~ .^3, data=mildew)
+plot(mildew.dmod)
+mildew.step <- stepwise(mildew.dmod)
+summary(mildew.step)
+plot(mildew.step)
+
+
+# 5.2 Working with dModel objects
+m <- dmod(~ .^2, marginal=c('smo', 'prot', 'sys', 'fam'), data=reinis)
+as(m, 'graphNEL')
+plot(m)
+as(m, 'matrix')
