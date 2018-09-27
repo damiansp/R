@@ -157,21 +157,21 @@ lines(stepfun(te, c(1, exp(-H2 + se2))), do.points=F, col=4)
 lines(stepfun(te, c(1, exp(-H2 - se2))), do.points=F, col=4)
 
 
-	# 2.3.3 Log-linear models for categorical data
-	a1 <- data.frame(y = c(435, 147, 375, 134), 
-					 gender = as.factor(c('F', 'F', 'M', 'M')),
-					 faith = as.factor(c(1, 0, 1, 0)))
-	a1
-	mod.0 <- glm(y ~ gender + faith, data = a1, family = poisson)
-	model.matrix(mod.0)
-	summary(mod.0)
-	1 - pchisq(0.162, 1)
+# 3.4 Log-linear models for categorical data
+a1 <- data.frame(y=c(435, 147, 375, 134), 
+                 gender=as.factor(c('F', 'F', 'M', 'M')), 
+                 faith=as.factor(c(1, 0, 1, 0)))
+a1
+mod.0 <- glm(y ~ gender + faith, data=a1, family=poisson)
+model.matrix(mod.0)
+summary(mod.0)
+1 - pchisq(0.162, 1)
 	
-	mod.1 <- update(mod.0, .~. + gender:faith)
-	model.matrix(mod.1)
-	summary(mod.1)
+mod.1 <- update(mod.0, .~. + gender:faith)
+model.matrix(mod.1)
+summary(mod.1)
 	
-	anova(mod.0, mod.1, test = 'Chisq') # prefer simpler mod.0
+anova(mod.0, mod.1, test='Chisq') # prefer simpler mod.0
 	
 	
 	# 2.3.4 Sole eggs in the Bristol channel
