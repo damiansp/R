@@ -13,8 +13,10 @@
 #===================================#
 rm(list = ls())
 setwd('~/Learning/R/RLearning/GAM')
+
 library(gamair)
 data(bone)
+data(sole)
 data(stomata)
 
 
@@ -174,40 +176,33 @@ summary(mod.1)
 anova(mod.0, mod.1, test='Chisq') # prefer simpler mod.0
 	
 	
-	# 2.3.4 Sole eggs in the Bristol channel
-	data(sole)
-	head(sole)
+# 3.5 Sole eggs in the Bristol channel
+head(sole)
 	
-	sole$off <- log(sole$a.1 - sole$a.0)
-	sole$a <- (sole$a.1 + sole$a.0) / 2
-	solr <- sole
-	solr$t <- solr$t - mean(sole$t)
-	solr$t <- solr$t / var(sole$t)^0.5
-	solr$la <- solr$la - mean(sole$la)
-	solr$lo <- solr$lo - mean(sole$lo)
+sole$off <- log(sole$a.1 - sole$a.0) # model offset
+sole$a <- (sole$a.1 + sole$a.0) / 2  # mean stage age
+solr <- sole
+solr$t <- solr$t - mean(sole$t)
+solr$t <- solr$t / var(sole$t)^0.5
+solr$la <- solr$la - mean(sole$la)
+solr$lo <- solr$lo - mean(sole$lo)
+b <- glm(eggs ~ offset(off) + lo + la + t + I(lo * la) + I(lo^2) + I(la^2) +
+		   I(t^2) + I(lo * t) + I(la * t) + I(lo^3) + I(la^3) + I(t^3) + 
+		   I(lo * la * t) + I(lo^2 * la) + I(lo * la^2) + I(lo^2 * t) + 
+		   I(la^2 * t) + I(la * t^2) + I(lo * t^2) + a + I (a * t) + I(t^2 * a),
+         family=quasi(link=log, variance='mu'), 
+         data=solr)
+summary(b)
+b1 <- update(b, .~. -I(lo * t))
+summary(b1)
+b2 <- update(b1, .~. -I(lo * la * t))
+summary(b2)
+b3 <- update(b2, .~. -I(lo * t^2))
+summary(b3)
+b4 <- update(b3, .~. -I(lo^2 * t))
+summary(b4)
+anova(b, b4, test='F') # use simpler mod, b4
 	
-	b <- glm(eggs ~ offset(off) + lo + la + t + I(lo * la) + I(lo^2) + I(la^2) +
-			 I(t^2) + I(lo * t) + I(la * t) + I(lo^3) + I(la^3) + I(t^3) + 
-			 I(lo * la * t) + I(lo^2 * la) + I(lo * la^2) + I(lo^2 * t) + 
-			 I(la^2 * t) + I(la * t^2) + I(lo * t^2) + a + I (a * t) + I(t^2 * a),
-			 family = quasi(link = log, variance = 'mu'), data = solr)
-	summary(b)
-	
-	b1 <- update(b, .~. -I(lo * t))
-	summary(b1)
-	b2 <- update(b1, .~. -I(lo * la * t))
-	summary(b2)
-	b3 <- update(b2, .~. -I(lo * t^2))
-	summary(b3)
-	b4 <- update(b3, .~. -I(lo^2 * t))
-	summary(b4)
-	
-	anova(b, b4, test = 'F') # use simpler mod, b4
-	
-	par(mfrow = c(1, 2))
-	plot(sqrt(fitted(b4)), sqrt(solr$eggs)) # fitted vs. actual
-	plot(sqrt(fitted(b4)), resid(b4)) # resid vs root fitted
-	
-
-
-save.image('~/Desktop/R/GAM/GAM.RData')
+par(mfrow=c(1, 2))
+plot(sqrt(fitted(b4)), sqrt(solr$eggs)) # fitted vs. actual
+plot(sqrt(fitted(b4)), resid(b4)) # resid vs root fitted
