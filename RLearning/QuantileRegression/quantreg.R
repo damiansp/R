@@ -12,7 +12,46 @@ data(barro)
 data(Bosco)
 data(CobarOre)
 data(engel)
+data(stackloss)
 data(UKDriverDeaths)
+
+
+# Vignette
+#example(rq)
+stack.loss # y
+stack.x    # X = Air.Flow, Water.Temp, Acid.Conc
+rq(stack.loss ~ stack.x, tau=0.5)  # median regression
+rq(stack.loss ~ stack.x, tau=0.25) # 1st quartile
+# Note that 8 of 21 points lie exactly on this plane in 4-space
+rq(stack.loss ~ stack.x, tau=-1)   # full rq process
+rq(rnorm(500) ~ 1, ci=False) # ordinary sample median 
+rq(rnorm(500) ~ 1, weights=runif(500), ci=F) # weighted sample median
+
+# plot of engel data and some rq lines
+plot(engel$income, 
+     engel$foodexp, 
+     xlab='Household income', 
+     ylab='Food expenditure', 
+     type='n', 
+     cex=0.5)
+points(engel$income, engel$foodexp, cex=0.5, col=4)
+taus <- c(0.05, 0.1, 0.25, 0.75, 0.9, 0.95)
+xx <- seq(min(engel$income), max(engel$income), 100)
+f <- coef(rq((engel$foodexp) ~ (engel$income), tau=taus))
+f <- coef(rq(engel$foodexp ~ engel$income, tau=taus))
+yy <- cbind(1, xx) %*% f
+
+for (i in 1:length(taus)) lines(xx, yy[, i], col='grey')
+abline(lm(foodexp ~ income, data=engel), col=2, lty=2)
+abline(rq(foodexp ~ income, data=engel), col=4)
+legend('topleft',
+       c("mean (LSE) fit", "median (LAE) fit"),
+ 	   col=c(2, 4),
+ 	   lty = c(2,1))
+
+# CONTINUE HERE W NEXT EXAMPLE FROM example(rq)
+
+
 
 
 
