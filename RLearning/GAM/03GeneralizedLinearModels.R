@@ -206,3 +206,7 @@ anova(b, b4, test='F') # use simpler mod, b4
 par(mfrow=c(1, 2))
 plot(sqrt(fitted(b4)), sqrt(solr$eggs)) # fitted vs. actual
 plot(sqrt(fitted(b4)), resid(b4)) # resid vs root fitted
+
+
+
+# 4. Generalized Linear Mixed Models
