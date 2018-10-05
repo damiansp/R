@@ -16,7 +16,8 @@ data(stackloss)
 data(UKDriverDeaths)
 
 
-# Vignette
+# Appendix A: Vignette
+# A.3 Getting Started
 #example(rq)
 stack.loss # y
 stack.x    # X = Air.Flow, Water.Temp, Acid.Conc
@@ -49,9 +50,30 @@ legend('topleft',
  	   col=c(2, 4),
  	   lty = c(2,1))
 
-# CONTINUE HERE W NEXT EXAMPLE FROM example(rq)
+# Plotting coes and their confidence bands
+plot(summary(rq(engel$foodexp ~ engel$income, tau=1:49/50)))
+
+# Illustrate inequality constrained fitting
+n <- 100
+p <- 5
+X <- matrix(rnorm(n * p), n, p)
+y <- 0.95 * apply(X, 1, sum) + rnorm(n)
+
+# Constrain slope coefs to lie on [0, 1]
+R <- cbind(0, rbind(diag(p), -diag(p)))
+r <- c(rep(0, p), rep(-1, p))
+rq(y ~ X, R=R, r=r, method='fnc')
+
+fit1 <- rq(foodexp ~ income, tau=0.5, data=engel)
+fit1
+summary(fit1)
+r1 <- resid(fit1)
+plot(r1)
+c1 <- coef(fit1)
 
 
+
+# A.4 Object Orientation
 
 
 
