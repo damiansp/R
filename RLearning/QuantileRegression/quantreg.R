@@ -70,10 +70,10 @@ summary(fit1)
 r1 <- resid(fit1)
 plot(r1)
 c1 <- coef(fit1)
+summary(fit1, se='nid') # alt: se='ker' (Powell kernel); se='boot'
 
 
-
-# A.4 Object Orientation
+# A.5 Formal Inference
 
 
 
