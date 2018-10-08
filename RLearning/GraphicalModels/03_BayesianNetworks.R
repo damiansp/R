@@ -60,3 +60,15 @@ mg <- moralize(g)
 tmg <- triangulate(mg)
 rip(tmg)
 plot(grn1c, type='jt')
+
+# 2.2.2 Propagation - from clique potentials to clique marginals
+grn1c <- propagate(grn1c)
+summary(grn1c)
+
+
+# 2.3 Absorbing evidence and answering queries
+grn1c.ev <- setFinding(grn1c, nodes=c('asia', 'dysp'), states=c('yes', 'yes'))
+querygrain(grn1c.ev, nodes=c('lung', 'bronc'), type='marginal')
+querygrain(grn1c, nodes=c('lung', 'bronc'), type='marginal')
+getFinding(grn1c.ev)
+pFinding(grn1c.ev)
