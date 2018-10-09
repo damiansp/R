@@ -15,6 +15,8 @@ rm(list = ls())
 setwd('~/Learning/R/RLearning/GAM')
 
 library(gamair)
+library(MASS)
+library(nlme)
 data(bone)
 data(sole)
 data(stomata)
@@ -210,3 +212,45 @@ plot(sqrt(fitted(b4)), resid(b4)) # resid vs root fitted
 
 
 # 4. Generalized Linear Mixed Models
+
+
+
+# 5. GLMMs with R
+
+
+# 5.1 glmmPQL (MASS library)
+# 'station effect' in sole model?
+rf <- residuals(b4, type='d') # deviance resids
+solr$station <- factor(with(solr, paste(-la, -lo, -t, sep='')))
+solr$rf <- rf
+# evidence of station effect in resids?
+rm <- lme(rf ~ 1, solr, random=~1|station)
+rm0 <- lm(rf ~ 1, solr)
+anova(rm, rm0)
+
+form <- (
+  eggs ~ offset(off) + lo + la + t + I(lo*la) + I(lo^2) + I(la^2) + I(t^2)
+    + I(lo*t) + I(la*t) + I(lo^3) + I(la^3) + I(t^3) + I(lo*la*t) + I(lo^2*la)
+    + I(lo*la^2) + I(lo^2*t) + I(la^2*t) + I(la*t^2) + I(lo*t^2) 
+    + a + I(a*t) + I(t^2*a))
+b <- glmmPQL(form, 
+             random=list(station=~1), 
+             family=quasi(link=log, variance='mu'), 
+             data=solr)
+summary(b)
+
+b4 <- update(b, .~. - I(lo*la*t) - I(lo*t) - I(lo^2*t) - I(la*t^2))
+fv <- exp(fitted(b4) + solr$off)
+resid <- solr$egg - fv
+par(mfrow=c(1, 1))
+plot(sqrt(fv), sqrt(solr$eggs))
+abline(0, 1, col=4)
+plot(sqrt(fv), resid / sqrt(fv)) # sqrt(fitted), scaled resids
+plot(sqrt(fv), resid)
+f1 <- sort(sqrt(fv))
+lines(f1, f1, col=4)
+lines(f1, - f1, col=4)
+lines(f1, 2*f1, col=2)
+lines(f1, -2*f1, col=2)
+
+intervals(b4, which='var-cov')
