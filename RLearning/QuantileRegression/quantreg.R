@@ -74,8 +74,86 @@ summary(fit1, se='nid') # alt: se='ker' (Powell kernel); se='boot'
 
 
 # A.5 Formal Inference
+head(engel)
+plot(engel$foodexp ~ engel$income, 
+     col=4, 
+     xlab='Household Income', 
+     ylab='Food expenditure')
+abline(rq(foodexp ~ income, tau=0.5, data=engel))
+abline(lm(foodexp ~ income, engel), col=2)
+taus <- c(0.05, 0.1, 0.25, 0.75, 0.9, 0.95)
+for (tau in taus) {
+  abline(rq(foodexp ~ income, tau=tau, data=engel), col='grey')	
+}
+
+fit <- summary(rq(foodexp ~ income, tau=taus, data=engel))
+summary(fit)
+
+f1 <- rq(foodexp ~ income, tau=0.25, data=engel)
+f2 <- rq(foodexp ~ income, tau=0.50, data=engel)
+f3 <- rq(foodexp ~ income, tau=0.75, data=engel)
+
+# Compare slopes
+anova(f1, f2, f3)
 
 
+# Save fit as table
+pdf('engelcoef.ps', horizontal=F, width=6.5, height=3.5)
+plot(fit, mfrow=c(1, 2))
+dev.off()
+
+#latex(fit, caption='Engel\'s Law', transpose=T)
+
+# All distinct quantiles
+z <- rq(foodexp ~ income, tau=-1, data=engel)
+
+# Shorthand
+engel$x <- engel$income
+engel$y <- engel$foodexp
+x.poor <- quantile(engel$x, 0.1)
+x.rich <- quantile(engel$x, 0.9)
+
+ps <- z$sol[1, ] # values of tau (quantiles)
+qs.poor <- c(c(1, x.poor) %*% z$sol[4:5, ]) # 4, 5 are coefs (Intercept, income)
+qs.rich <- c(c(1, x.rich) %*% z$sol[4:5, ])
+
+par(mfrow=c(1, 2))
+plot(c(ps, ps), 
+     c(qs.poor, qs.rich), 
+     type='n', 
+     xlab=expression(tau), 
+     ylab='quantile')
+plot(stepfun(ps, c(qs.poor[1], qs.poor)), 
+     do.points=F, 
+     add=T, 
+     col.hor=2, 
+     col.vert=2)
+plot(stepfun(ps, c(qs.poor[1], qs.rich)), 
+     do.points=F, 
+     add=T, 
+     col.hor=4, 
+     col.vert=4)
+
+ps.wts <- (c(0, diff(ps)) + c(diff(ps), 0)) / 2
+ap <- akj(qs.poor, z=qs.poor, p=ps.wts)
+ar <- akj(qs.rich, z=qs.rich, p=ps.wts)
+plot(c(qs.poor, qs.rich), 
+     c(ap$dens, ar$dens), 
+     type='n', 
+     xlab='Food Expenditure', 
+     ylab='Density')
+lines(qs.rich, ar$dens, col=4)
+lines(qs.poor, ap$dens, col=2)
+legend('topright', c('Poorest 10%', 'Richest 10%'), lty=1, col=c(2, 4))
+
+
+
+
+#========================#
+#                        #
+# qreg library functions #
+#                        #
+#========================#
 
 # akj (pg. 3) Density Estimation using Adaptive Kernel Method
 x <- c(rnorm(600), 2 + 2*rnorm(400))
