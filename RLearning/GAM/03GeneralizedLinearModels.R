@@ -15,7 +15,9 @@ rm(list = ls())
 setwd('~/Learning/R/RLearning/GAM')
 
 library(gamair)
+library(lme4)
 library(MASS)
+library(mgcv)
 library(nlme)
 data(bone)
 data(sole)
@@ -254,3 +256,17 @@ lines(f1, 2*f1, col=2)
 lines(f1, -2*f1, col=2)
 
 intervals(b4, which='var-cov')
+
+
+# 5.2 gam
+b <- gam(form, family=quasi(link=log, variance='mu'), data=solr, method='REML')
+
+
+# 5.3 glmer
+solr$egg1 <- round(solr$egg * 5)
+form2 <- (
+  egg1 ~ offset(off) + lo + la + t + I(lo*la) + I(lo^2) + I(la^2) + I(t^2)
+    + I(lo*t) + I(la*t) + I(lo^3) + I(la^3) + I(t^3) + I(lo*la*t) + I(lo^2*la)
+    + I(lo*la^2) + I(lo^2*t) + I(la^2*t) + I(la*t^2) + I(lo*t^2) 
+    + a + I(a*t) + I(t^2*a) + 1|station)
+glmer(form2, family=poisson, data=solr)
