@@ -5,13 +5,15 @@ setwd('~/Learning/R/RLearning/GraphicalModels')
 
 #library(ggm)
 library(gRain)
-#library(gRbase)
-#library(gRim)
+library(gRbase)
+library(gRim)
 #library(igraph)
 #library(lcd) # not installable
 #library(RBGL)
 #library(Rgraphviz)
 #library(sna)
+data(chestSim500)
+data(reinis)
 
 #library(RHugin) # No 3.5 implementation
 # Availble here: http://rhugin.r-forge.r-project.org/
@@ -72,3 +74,62 @@ querygrain(grn1c.ev, nodes=c('lung', 'bronc'), type='marginal')
 querygrain(grn1c, nodes=c('lung', 'bronc'), type='marginal')
 getFinding(grn1c.ev)
 pFinding(grn1c.ev)
+
+querygrain(grn1c.ev, nodes=c('lung', 'bronc'), type='joint')
+querygrain(grn1c.ev, nodes=c('lung', 'bronc'), type='conditional') # lung | bronc
+
+grn1c2 <- compile(grn1, root=c('lung', 'bronc', 'tub'), propagate=T)
+grn1c2.ev <- setFinding(grn1c2, nodes=c('asia', 'dysp'), states=c('yes', 'yes'))
+system.time(
+  for (i in 1:50) {
+    querygrain(grn1c.ev, nodes=c('lung', 'bronc', 'tub'), type='joint')
+  }) # 0.24  0.010  0.257
+
+system.time(
+  for (i in 1:50) {
+    querygrain(grn1c2.ev, nodes=c('lung', 'bronc', 'tub'), type='joint')
+  }) # 0.098  0.006  0.111
+  
+# Stepwise
+grn1c.ev <- setFinding(grn1c, nodes='asia', states='yes', propagate=F)
+grn1c.ev <- setFinding(grn1c, nodes='dysp', states='yes', propagate=F)
+grn1c.ev <- propagate(grn1c.ev)
+
+# Back pedal
+grnc1.ev <- retractFinding(grn1c.ev, nodes='asia')
+getFinding(grnc1.ev)
+
+
+
+# 3. Further Topics
+# 3.1 Building a network from data
+sim.dag.chest <- grain(chest.dag, data=chestSim500)
+sim.dag.chest <- compile(sim.dag.chest, propagate=T, smooth=0.1)
+querygrain(sim.dag.chest, nodes=c('lung', 'bronc'), type='marginal')
+
+# from undirected, triangulated graph
+g <- list(~asia|tub, ~either|lung|tub, ~either|lung|smoke, ~bronc|either|smoke,
+          ~bronc|dysp|either, ~either|xray)
+my.ug <- ugList(g)
+sim.ug.chest <- grain(my.ug, data=chestSim500)
+sim.ug.chest <- compile(sim.ug.chest, propagate=T)
+plot(sim.ug.chest)
+
+head(reinis)
+m0 <- dmod(~ .^., data=reinis)
+plot(m0)
+m1 <- stepwise(m0)
+plot(m1)
+reinis.grain <- grain(as(m1, 'graphNEL'), data=reinis)
+plot(reinis.grain)
+renis.grain <- compile(reinis.grain, propagate=T)
+querygrain(reinis.grain, nodes=c('phys', 'protein'), type='marginal')
+reinis.ev <- setFinding(
+  reinis.grain, nodes=c('systol', 'smoke', 'mental'), states=c('y', 'y', 'y'))
+querygrain(reinis.ev, nodes=c('phys', 'protein'), type='marginal')
+
+
+# 3.2 Bayesian networks with RHugin (omitted)
+
+
+# 3.3 Simulation
