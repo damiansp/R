@@ -133,3 +133,35 @@ querygrain(reinis.ev, nodes=c('phys', 'protein'), type='marginal')
 
 
 # 3.3 Simulation
+simulate(grn1c.ev, nsim=5)
+xtabs(~lung + bronc, data=simulate(grn1c.ev, nsim=1000)) / 1000
+#simulate(RHchestClinic, nsim=5)
+
+
+# 3.4 Prediction
+(my.data <- simulate(grn1c.ev, nsim=5))
+predict(grn1c, 
+        response=c('lung', 'bronc'), 
+        newdata=my.data, 
+        predictors=c('smoke', 'asia', 'tub', 'dysp', 'xray'), 
+        type='class')
+predict(grn1c, 
+        response=c('lung', 'bronc'), 
+        newdata=my.data, 
+        predictors=c('smoke', 'asia', 'tub', 'dysp', 'xray'), 
+        type='dist')
+# initialize(RHchestClinic)
+# propagate(RHchestClinic)
+# pev <- get.normalization.constant(RHchestClinic)
+# propagate(RHchestClinic)
+# get.belief(RHchestClinic, 'lung')
+# get.belief(RHchestClinic, 'bronc')
+# pmax <- get.normalization.constant(RHchestClinic)
+# pmax
+
+
+# 3.5 Working with HUGIN Files (Omitted)
+
+
+
+# 4. Learning Bayesian Networks
