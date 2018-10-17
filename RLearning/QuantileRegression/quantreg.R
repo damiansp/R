@@ -1,4 +1,6 @@
 #=========#=========#=========#=========#=========#=========#=========#=========
+# Online vignette: 
+# https://cran.r-project.org/web/packages/quantreg/vignettes/rq.pdf
 rm(list=ls())
 setwd('~/Learning/R/RLearning/QuantileRegression')
 
@@ -145,6 +147,25 @@ plot(c(qs.poor, qs.rich),
 lines(qs.rich, ar$dens, col=4)
 lines(qs.poor, ap$dens, col=2)
 legend('topright', c('Poorest 10%', 'Richest 10%'), lty=1, col=c(2, 4))
+
+
+
+# A.7 Inference on the Quantile Regression Process
+penn <- read.table('penn46.txt', header=T, row.names=1)
+head(penn)
+
+taus <- seq(0.2, 0.8, 0.002)
+formula <- (log(duration) ~ treatment + female + black + hispanic + ndependents
+            + factor(quarter) + recall + young + old + durable + lusd)
+#K <- rqProcess(formula, taus=taus, data=penn)
+#save(K, file='k.rda')
+load('k.rda')
+Ktest <- KhmaladzeTest(K)
+
+# Repeat with online example
+
+
+
 
 
 
