@@ -151,21 +151,24 @@ legend('topright', c('Poorest 10%', 'Richest 10%'), lty=1, col=c(2, 4))
 
 
 # A.7 Inference on the Quantile Regression Process
-penn <- read.table('penn46.txt', header=T, row.names=1)
-head(penn)
-
-taus <- seq(0.2, 0.8, 0.002)
-formula <- (log(duration) ~ treatment + female + black + hispanic + ndependents
-            + factor(quarter) + recall + young + old + durable + lusd)
-#K <- rqProcess(formula, taus=taus, data=penn)
-#save(K, file='k.rda')
-load('k.rda')
-Ktest <- KhmaladzeTest(K)
-
 # Repeat with online example
+source('gasprice.R')
+head(gasprice)
+plot(gasprice)
+x <- gasprice
+n <- length(x)
+p <- 5 # lag length
+X <- cbind(x[(p - 1):(n - 1)], 
+           x[(p - 2):(n - 2)], 
+           x[(p - 3):(n - 3)], 
+           x[(p - 4):(n - 4)])
+y <- x[p:n]
+T1 <- KhmaladzeTest(y ~ X, taus=-1, nullH='location')
+T2 <- KhmaladzeTest(y ~ X, taus=10:290 / 300, nullH='location', se='ker')
 
 
 
+# A.8 Nonlinear Quantile Regression 
 
 
 
