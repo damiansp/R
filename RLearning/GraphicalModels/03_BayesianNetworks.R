@@ -3,7 +3,8 @@ rm(list=ls())
 setwd('~/Learning/R/RLearning/GraphicalModels')
 #source('https://bioconductor.org/biocLite.R')
 
-#library(ggm)
+library(bnlearn)
+library(ggm)
 library(gRain)
 library(gRbase)
 library(gRim)
@@ -12,6 +13,8 @@ library(gRim)
 #library(RBGL)
 #library(Rgraphviz)
 #library(sna)
+
+data(cad1)
 data(chestSim500)
 data(reinis)
 
@@ -165,3 +168,11 @@ predict(grn1c,
 
 
 # 4. Learning Bayesian Networks
+# BROKEN!
+head(cad1)
+cad.bn <- hc(cad1)
+cad.bn
+cad.gn <- as(amat(cad.bn), 'graphNEL')
+plot(cad.gn)
+
+plot(as(essentialGraph(amat(cad.bn)), 'graphNEL'))
