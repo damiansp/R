@@ -5,17 +5,81 @@
 #									#
 #	Simon N. Wood. 2006				#
 #									#
-#===================================#
-
-#===========================#
+#                           #=======#
 #							#
 #	3. Intoducing GAMS		#
 #							#
 #===========================#
+
 rm(list = ls())
-#install.packages('gamair', repos = 'http://cran.us.r-project.org')
+setwd('~/Learning/R/RLearning/GAM')
+
 library(gamair)
-load('~/Desktop/R/GAM/GAM.RData')
+
+data(engine)
+
+
+
+# 2 Univariate Smoothing
+# Using a piecewise linear basis
+head(engine)
+plot(engine$size, engine$wear, xlab='Engine capacity', ylab='Wear index')
+
+# Generate jth tent function from set of knots xj
+tent.basis <- function(x, xj, j) {
+  dj <- numeric(length(xj))
+  dj[j] <- 1
+  approx(xj, dj, x)$y
+}
+
+# Basis matrix for data x and knot-sequence xj
+tent.X <- function(x, xj) {
+  n <- length(x)
+  n.knots <- length(xj)
+  X <- matrix(NA, n, n.knots)
+  for (j in 1:n.knots) X[, j] <- tent.basis(x, xj, j)
+  X
+}
+
+# Create 6 knots evenly srpread over x-range
+knots <- seq(min(engine$size), max(engine$size), length=6)
+X <- tent.X(engine$size, knots)
+b <- lm(wear ~ X - 1, data=engine)
+size.sim <- seq(min(engine$size), max(engine$size), length=200)
+X.pred <- tent.X(size.sim, knots)
+lines(size.sim, X.pred %*% coef(b), col=2)
+
+
+# 2.2 Controlling smoothness by penalizing wigliness
+# lambda = penalty parameter
+penalized.regression.spline <- function(y, x, xj, lambda) {
+  X <- tent.X(x, xj)
+  D <- diff(diag(length(xj)), differences=2) # sqrt penalty
+  X <- rbind(X, sqrt(lambda) * D)
+  y <- c(y, rep(0, nrow(D)))
+  lm(y ~ X - 1) # penalized least-squares fit
+}
+
+knots <- seq(min(engine$size), max(engine$size), length=20)
+b <- penalized.regression.spline(engine$wear, engine$size, knots, lambda=2)
+plot(engine$size, engine$wear)
+X.pred <- tent.X(size.sim, knots)
+lines(size.sim, X.pred %*% coef(b), col=2)
+
+plot(engine$size, engine$wear)
+lambdas <- c(0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128)
+for (i in 1:length(lambdas)) {
+  knots <- seq(min(engine$size), max(engine$size), length=20)
+  b <- penalized.regression.spline(
+    engine$wear, engine$size, knots, lambda=lambdas[i])
+  X.pred <- tent.X(size.sim, knots)
+  lines(size.sim, X.pred %*% coef(b), col=i)
+}
+
+
+
+
+
 
 # 3.2 Univariate Smooth Functions
 
