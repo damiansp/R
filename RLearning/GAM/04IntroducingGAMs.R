@@ -77,6 +77,33 @@ for (i in 1:length(lambdas)) {
 }
 
 
+# 2.3 Choosing the smoothing parameter, lambda, by cross-validation
+lambdas <- seq(-9, 11, length=90)
+n <- length(engine$wear)
+V <- rep(NA, 90)
+for (i in 1:90) {
+  b <- penalized.regression.spline(
+    engine$wear, engine$size, knots, exp(lambdas[i]))
+  trF <- sum(influence(b)$hat[1:n])
+  rss <- sum((engine$wear - fitted(b)[1:n])^2)
+  V[i] <- n*rss / (n - trF)^2
+}
+
+plot(lambdas, V, type='l', xlab=expression(log(lambda)), main='GCV Score')
+min(V) # 0.45
+which(V == min(V)) # idx 54
+lambdas[which(V == min(V))] # 2.9 -> exp(29)
+best.lambda <- exp(lambdas[which(V == min(V))]) # 18.36
+b <- penalized.regression.spline(engine$wear, engine$size, knots, best.lambda)
+plot(engine$size, engine$wear, main='Optimal GCV Fit')
+lines(size.sim, X.pred %*% coef(b), col=2)
+
+
+# 2.4 The Bayesian/mixed-model alternative
+
+
+
+
 
 
 
