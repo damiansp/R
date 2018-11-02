@@ -25,3 +25,15 @@ fviz_nbclust(df, kmeans, method='wss') + geom_vline(xintercept=4, lty=2)
 set.seed(456)
 km.res <- kmeans(df, 4, nstart=25)
 km.res
+aggregate(USArrests, by=list(cluster=km.res$cluster), mean)
+(dd <- cbind(USArrests, cluster=km.res$cluster))
+
+
+# 3.5 Accessing the results of kmeans()
+# attributes: clusters, centers, totss, withinss, tot.withinss, betweenss, size
+km.res$cluster
+km.res$size
+km.res$centers
+
+
+# 3.6 Visualizing k-means clusters
