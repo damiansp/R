@@ -5,8 +5,10 @@ rm(list=ls())
 setwd('~/Learning/R/RLearning/QuantileRegression')
 
 library(datasets)
+library(MASS)
 library(nor1mix)
 library(quantreg)
+library(splines)
 library(survival)
 library(zoo)
 data(AirPassengers)
@@ -14,6 +16,7 @@ data(barro)
 data(Bosco)
 data(CobarOre)
 data(engel)
+data(mcycle)
 data(stackloss)
 data(UKDriverDeaths)
 
@@ -169,8 +172,88 @@ T2 <- KhmaladzeTest(y ~ X, taus=10:290 / 300, nullH='location', se='ker')
 
 
 # A.8 Nonlinear Quantile Regression 
+n <- 200
+df <- 8
+delta <- 8
+x <- sort(rt(n, df))
+u <- runif(n)
+v <- (-log(1 - (1 - exp(-delta)) / (1 + exp(-delta*pt(x, df))*((1/u) - 1))) 
+      / delta)
+y <- qt(v, df)
 
 
+
+# A.9 Nonparametric Quantile Regression
+lpqr <- function(x, y, h, m=50, tau=0.5) {
+  xx <- seq(min(x), max(x), length=m)
+  fv <- xx
+  dv <- xx
+  for (i in 1:length(xx)) {
+    z <- x - xx[i]
+    wx <- dnorm(z / h)
+    r <- rq(y ~ z, weights=wx, tau=tau, ci=F)
+    fv[i] <- r$coef[1]
+    dv[i] <- r$coef[2]
+  }
+  list(xx=xx, fv=fv, dv=dv)
+}
+
+plot(x, y, col=4, cex=0.25)
+us <- c(0.25, 0.5, 0.75)
+for (i in 1:length(us)) {
+  u <- us[i]
+  v <- (-log(1 - (1 - exp(-delta)) / (1 + exp(-delta*pt(x, df))*((1/u) - 1))) 
+        / delta)
+  lines(x, qt(v, df), col='grey')
+}
+
+dat <- NULL
+dat$x <- x
+dat$y <- y
+deltas <- matrix(0, 3, length(us))
+
+frank.mod <- function(x, delta, mu, sigma, df, tau) {
+  z <- qt((-log(1 - (1 - exp(-delta)) 
+           / (1 + exp(-delta*pt(x, df))*((1/tau) - 1))) / delta), 
+          df)
+  mu + sigma*z
+}
+
+for (i in 1:length(us)) {
+  tau <- us[i]
+  fit <- nlrq(y ~ frank.mod(x, delta, mu, sigma, df=8, tau=tau),
+              data=dat,
+              tau=tau,
+              start=list(delta=5, mu=0, sigma=1), 
+              trace=T)
+  lines(x, predict(fit, newdata=x), col='#444444', lwd=2)
+  deltas[i, ] <- coef(fit)
+}
+
+
+head(mcycle)
+plot(mcycle$times, mcycle$accel, xlab='ms', ylab='acceleration')
+hs <- 1:4
+i <- 1
+for (h in hs) {
+  fit <- lprq(mcycle$times, mcycle$accel, h=h, tau=0.5)
+  lines(fit$xx, fit$fv, col=i)
+  i <- i + 1
+}
+legend('bottomright', legend=c('h=1', 'h=2', 'h=3', 'h=4'), lty=1, col=1:4)
+
+plot(mcycle$times, mcycle$accel, xlab='ms', ylab='acceleration')
+X <- model.matrix(mcycle$accel ~ bs(mcycle$times, df=15))
+i <- 1
+for(tau in 1:3 / 4) {
+  fit <- rq(mcycle$accel ~ bs(mcycle$times, df=15), tau=tau)
+  accel.fit <- X %*% fit$coef
+  lines(mcycle$times, accel.fit, col=i)
+  i <- i + 1
+}
+
+
+# Cont at p 16 "the fitted conditional quantile"
 
 
 #========================#
