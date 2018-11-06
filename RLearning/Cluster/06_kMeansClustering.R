@@ -37,3 +37,12 @@ km.res$centers
 
 
 # 3.6 Visualizing k-means clusters
+fviz_cluster(km.res,
+             data=df,
+             palette=c('#2e9fdf', '#00afbb', '#e7b800', '#fc4307'),
+             ellipse.type='euclid',
+             star.plot=T,
+             repel=T, # avoids label overplotting (slower)
+             ggthem=theme_minimal())
+             
+
