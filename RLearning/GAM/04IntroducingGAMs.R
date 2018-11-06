@@ -15,6 +15,8 @@ rm(list = ls())
 setwd('~/Learning/R/RLearning/GAM')
 
 library(gamair)
+#library(lme4)
+library(nlme)
 
 data(engine)
 
@@ -100,7 +102,12 @@ lines(size.sim, X.pred %*% coef(b), col=2)
 
 
 # 2.4 The Bayesian/mixed-model alternative
+# ---missing code---
+#X0 <- tf.X(size, sj)
 
+
+
+# 3. Additive Models
 
 
 
