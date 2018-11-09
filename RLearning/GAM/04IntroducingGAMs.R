@@ -102,13 +102,51 @@ lines(size.sim, X.pred %*% coef(b), col=2)
 
 
 # 2.4 The Bayesian/mixed-model alternative
-# ---missing code---
-#X0 <- tf.X(size, sj)
+X0 <- tent.X(size.sim, knots)                   # X in orig parameterization
+D <- rbind(0, 0, diff(diag(20), difference=2)) 
+diag(D) <- 1                                    # augmented D
+X <- t(backsolve(t(D), t(X0)))                  # re-parameterize
+Z <- X[, -c(1, 2)]                              # mixed model matrices
+X <- X[, 1:2]                                   # """"""
 
+# Est smoothing variance params
+#For llm, see Ch. 2.4.2
+llm <- function(theta , X, Z, y) {
+  # Untransform params
+  sigma.b <- exp(theta[1])
+  sigma <- exp(theta[2])
+  
+  # Extract dims
+  n <- length(y)
+  pr <- ncol(Z)
+  pf <- ncol(X)
+  
+  # Obtain beta.hat, b.hat
+  X1 <- cbind(X, Z)
+  ipsi <- c(rep(0, pf), rep(1 / sigma.b^2, pr))
+  b1 <- solve(crossprod(X1)/sigma^2 + diag(ipsi), t(X1) %*% y/sigma^2)
+  
+  # Compute log|Z'Z/sigma^2 + I/sigma.b^2|
+  ldet <- sum(log(diag(chol(crossprod(Z)/sigma^2 + diag(ipsi[-(1:pf)])))))
+  
+  # Compute log profile likelihood
+  l <- ((-sum((y - X1 %*% b1)^2)/sigma^2 
+         - sum(b1^2*ipsi) 
+         - n*log(sigma^2) 
+         - pr*log(sigma.b^2) 
+         - 2*ldet 
+         - n*log(2*pi)) 
+        / 2)
+  attr(l, 'b') <- as.numeric(b1) # return beta.hat, b.hat
+  -l
+}
+
+# ...something broken...
+#m <- optim(c(0, 0), llm, method='BFGS', X=X, Z=Z, y=engine$wear)
 
 
 # 3. Additive Models
-
+tf.XD <- f
 
 
 
