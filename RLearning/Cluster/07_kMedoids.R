@@ -25,4 +25,12 @@ head(dd)
 
 
 # 3.5 Accessing the Results of the pam() Function
+pam.res$medoids
+head(pam.res$clustering)
 
+
+# 3.6 Visualiing PAM Clusters
+fviz_cluster(pam.res,
+             palette=c('#9eaa00', '#3d06eb'),
+             ellipse.type='t',
+             repel=T)
