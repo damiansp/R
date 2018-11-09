@@ -4,6 +4,8 @@ setwd('~/Learning/R/RLearning/GraphicalModels')
 
 library(gRbase)
 library(gRim)
+library(pcalg)
+library(RBGL)
 library(Rgraphviz)
 
 data(BodyFat)
@@ -59,3 +61,63 @@ plot(as(bic.body, 'graphNEL'))
 
 # 3. Undirected Gaussian Graphical Models
 # 3.1 Preliminaries and Notation
+# model with edges missing if partial cor < 0.12:
+gen.carc <- cmod(~Fat11*Fat12*Meat12*Meat13 
+                   + Fat11*Fat12*Fat13*LeanMeat
+                   + Meat11*Meat12*Meat13
+                   + Meat11*Fat13*LeanMeat,
+                 data=carcass)
+gen.carc
+plot(gen.carc, 'neato')
+
+edge.carc <- cmod(edgeList(as(gen.carc, 'graphNEL')), data=carcass)
+edge.carc
+plot(edge.carc) # same as prev
+
+
+# 3.2 Estimation, Likelihood, and Model Fitting
+carc.fit1 <- ggmfit(S.carc, n=nrow(carcass), edgeList(as(gen.carc, 'graphNEL')))
+carc.fit1 # see esp, dev, df, iter
+
+# More efficient to specify cliques of graph:
+cgens <- maxClique(as(gen.carc, 'graphNEL'))$maxCliques
+carc.fit2 <- ggmfit(S.carc, n=nrow(carcass), glist=cgens)
+carc.fit2 # same but only 61 iters vs 774
+
+
+# 3.3 Hypothesis Testing
+compare.models <- function(m1, m2) {
+  lrt <- m2$fitinfo$dev - m1$fitinfo$dev
+  df.diff <- m2$fitinfo$dimension[4] - m1$fitinfo$dimension[4]
+  names(df.diff) <- NULL
+  list(likelihood.ratio.test=lrt, df=df.diff)
+}
+
+compare.models(aic.carc, bic.carc) # Large LRT suggest null hypothesis is false
+# lrt = 8.4 indicating null hypothesis is false; prefer the more complicated
+# model
+
+# Test if a single edge could be deleted from model, e.g test:
+# LeanMeat ind of Meat13 given rest
+ciTest_mvn(list(cov=S.carc, n.obs=nrow(carcass)), 
+           set=~LeanMeat+Meat13+Meat11+Meat12+Fat11+Fat12+Fat13)
+ciTest_mvn(list(cov=S.carc, n.obs=nrow(carcass)), 
+           set=~LeanMeat+Meat11+Meat12+Meat13+Fat11+Fat12+Fat13,
+           statistic='F')
+C.carc <- cov2cor(S.carc)
+gaussCItest(7, 2, c(1, 3, 4, 5, 6), list(C=C.carc, n=nrow(carcass)))
+# nearly same as previous
+
+
+# 3.4 Concentration and Regression
+# Regression coef for predicting LeanMeat:
+-K.carc[7, -7] / K.carc[7, 7]
+# and resid var of lean meat percentage is
+1 / K.carc[7, 7]
+
+r.LeanMeat <- residuals(lm(LeanMeat ~ Meat11 + Meat13 + Fat11 + Fat12 + Fat13,
+                           data=carcass))
+r.Meat12 <- residuals(lm(Meat12 ~ Meat11 + Meat13 + Fat11 + Fat12 + Fat13, 
+                         data=carcass))
+plot(r.LeanMeat ~ r.Meat12)
+abline(h=0, col='grey')
