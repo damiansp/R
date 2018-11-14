@@ -15,7 +15,7 @@ rm(list = ls())
 setwd('~/Learning/R/RLearning/GAM')
 
 library(gamair)
-#library(lme4)
+library(lme4)
 library(nlme)
 
 data(engine)
@@ -109,8 +109,7 @@ X <- t(backsolve(t(D), t(X0)))                  # re-parameterize
 Z <- X[, -c(1, 2)]                              # mixed model matrices
 X <- X[, 1:2]                                   # """"""
 
-# Est smoothing variance params
-#For llm, see Ch. 2.4.2
+# For llm, see Ch. 2.4.2
 llm <- function(theta , X, Z, y) {
   # Untransform params
   sigma.b <- exp(theta[1])
@@ -146,7 +145,24 @@ llm <- function(theta , X, Z, y) {
 
 
 # 3. Additive Models
-tf.XD <- f
+# params: x = covariate vals; xk = knots
+tent.XD <- function(x, xk, cmx=NULL, m=2) {
+  # Get X and D subj to constraint
+  nk <- length(xk)
+  X <- tent.X(x, xk)[, -nk]                 # basis matrix
+  D <- diff(diag(nk), differences=m)[, -nk] # root penalty
+  if (is.null(cmx)) cmx <- colMeans(X)
+  X <- sweep(X, 2, cmx)                     # subtract cmx from cols
+  list(X=X, D=D, cmx=cmx)
+}
+
+
+
+
+
+
+
+
 
 
 
