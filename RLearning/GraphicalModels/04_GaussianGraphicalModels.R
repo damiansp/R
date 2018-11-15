@@ -121,3 +121,25 @@ r.Meat12 <- residuals(lm(Meat12 ~ Meat11 + Meat13 + Fat11 + Fat12 + Fat13,
                          data=carcass))
 plot(r.LeanMeat ~ r.Meat12)
 abline(h=0, col='grey')
+
+
+# 3.5 Decomposition of UGGMs
+K.hat <- S.carc
+K.hat[] <- 0 # sets all values to 0!
+AC <- c('Fat11', 'Fat12', 'Fat13', 'Meat11', 'LeanMeat')
+BC <- c('Meat11', 'Meat12', 'Meat13', 'Fat11', 'Fat12')
+C <- c('Fat11', 'Fat12', 'Meat11')
+K.hat[AC, AC] <- K.hat[AC, AC] + solve(S.carc[AC, AC])
+K.hat[BC, BC] <- K.hat[BC, BC] + solve(S.carc[BC, BC])
+K.hat[C, C] <- K.hat[C, C] - solve(S.carc[C, C])
+round(100 * K.hat)
+
+Sigma.hat <- solve(K.hat)
+round(Sigma.hat, 2)
+round(S.carc, 2)
+
+
+
+# 4 Model Selection
+test.carc <- stepwise(sat.carc, details=1, 'test')
+plot(test.carc, 'neato')
