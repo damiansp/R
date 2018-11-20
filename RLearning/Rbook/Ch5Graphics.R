@@ -1,8 +1,24 @@
-load("Ch5Graphics.RData")
-library(mgcv)
-library(MASS)
-library(lattice)
-library("effects")
+#=========#=========#=========#=========#=========#=========#=========#=========
+rm(list=ls())
+setwd('~/Learning/R/RLearning/Rbook')
+#library(effects)
+#library(lattice)
+#library(MASS)
+#library(mgcv)
+
+
+# 4 Drawing Mathematical Functions
+curve(x^3 - 3*x, -2, 2)
+
+xv <- 0:100
+yA <- 482 * xv * exp(-0.045*xv)
+yB <- 518 * xv * exp(-0.055*xv)
+
+plot(c(xv, xv), c(yA, yB), type='n')
+lines(xv, yA, col=2)
+lines(xv, yB, col=4)
+
+
 
 #from p. 151
 
