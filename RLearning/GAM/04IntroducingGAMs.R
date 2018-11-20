@@ -157,13 +157,77 @@ tent.XD <- function(x, xk, cmx=NULL, m=2) {
 }
 
 
+# 3.2 Fitting Additive Models by Penalized Least Squares
+am.fit <- function(y, x, v, sp, knots=10) {
+  # sp = smoothing paramater (lambda)	
+  # set up bases and penalty
+  xk <- seq(min(x), max(x), length=knots)
+  vk <- seq(min(v), max(v), length=knots)
+  xdx <- tent.XD(x, xk)
+  xdv <- tent.XD(v, vk)
+  
+  # Augmented model matrix and response
+  nD <- nrow(xdx$D) * 2
+  sp <- sqrt(sp)
+  X <- cbind(c(rep(1, nrow(xdx$X)), rep(0, nD)),
+             rbind(xdx$X, sp[1] * xdx$D, xdv$D * 0), 
+             rbind(xdv$X, xdx$D * 0, sp[2] * xdv$D))
+  y1 <- c(y, rep(0, nD))
+  
+  # Fit mod
+  b <- lm(y1 ~ X - 1)
+  n <- length(y)
+  trA <- sum(influence(b)$hat[1:n]) # EDF
+  rsd <- y - fitted(b)[1:n]         # resids
+  rss <- sum(rsd^2)
+  sig.hat <- rss / (n - trA)        # resid var
+  gcv <- sig.hat*n / (n - trA)
+  Vb <- vcov(b)*sig.hat / summary(b)$sigma^2 # coef cov matrix
+  
+  # Fitted mod
+  list(b=coef(b), Vb=Vb, edf=trA, gcv=gcv, fitted=fitted(b)[1:n], rsd=rsd, 
+       xk=list(xk, vk), cmx=list(xdx$cmx, xdv$cmx))
+}
 
 
+am.gcv <- function(least.squares.penalty, y, x, v, n.knots) {
+  am.fit(y, x, v, exp(least.squares.penalty), n.knots)$gcv
+}
 
 
+# Find GCV optimal smoothing params
+fit <- optim(
+  c(0, 0), am.gcv, y=trees$Volume, x=trees$Girth, v=trees$Height, n.knots=10)
+sp <- exp(fit$par)
 
+# Get fit at opt smoothing param
+fit <- am.fit(trees$Volume, trees$Girth, trees$Height, sp, knots=10)
 
+# plot
+am.plot <- function(fit, xlab, ylab) {
+  start <- 2
+  for (i in 1:2) {
+    x <- seq(min(fit$xk[[i]]), max(fit$xk[[i]]), length=200)
+    Xp <- tent.XD(x, fit$xk[[i]], fit$cmx[[i]])$X # pred matrix
+    stop <- start + ncol(Xp) - 1
+    ind <- start:stop
+    b <- fit$b[ind]         # coefs
+    Vb <- fit$Vb[ind, ind]  # cov matrix
+    fv <- Xp %*% b          # smooths at x
+    se <- rowSums((Xp %*% Vb) * Xp)^0.5 # se for smooths at x
+    ul <- fv + 1.96*se
+    ll <- fv - 1.96*se
+    
+    plot(x, fv, type='l', ylim=range(c(ul, ll)), xlab=xlab[i], ylab=ylab[i])
+    lines(x, ul, col=2)
+    lines(x, ll, col=2)
+    start <- stop + 1
+  }
+}
 
+par(mfrow=c(1, 3))
+plot(fit$fitted, trees$Vol, xlab='fitted volume ', ylab='observed volume')
+am.plot(fit, xlab=c('Girth', 'Height'), ylab=c('s(Girth)', 's(Height)'))
 
 
 
