@@ -5,15 +5,20 @@ rm(list=ls())
 setwd('~/Learning/R/RLearning/QuantileRegression')
 
 library(datasets)
+library(MASS)
 library(nor1mix)
 library(quantreg)
+library(splines)
 library(survival)
+library(tripack)
 library(zoo)
 data(AirPassengers)
 data(barro)
 data(Bosco)
 data(CobarOre)
 data(engel)
+data(Mammals)
+data(mcycle)
 data(stackloss)
 data(UKDriverDeaths)
 
@@ -169,239 +174,105 @@ T2 <- KhmaladzeTest(y ~ X, taus=10:290 / 300, nullH='location', se='ker')
 
 
 # A.8 Nonlinear Quantile Regression 
-
-
-
-
-#========================#
-#                        #
-# qreg library functions #
-#                        #
-#========================#
-
-# akj (pg. 3) Density Estimation using Adaptive Kernel Method
-x <- c(rnorm(600), 2 + 2*rnorm(400))
-xx <- seq(-5, 8, length=200)
-z <- akj(x, xx)
-plot(xx, z$dens, ylim=range(0, z$dens), type='l', col=2)
-lines(density(x), col=4)
-rug(x)
-
-plot(xx, z$psi, type='l', main=expression('score ' * hat(psi) * "'" * (x)))
-
-m3 <- norMix(mu=c(-4, 0, 3), sigma=c(1/3, 1, 2), w=c(0.1, 0.5, 0.4))
-plot(m3, p.norm=F, ylim=c(0, 0.25))
-
-x <- rnorMix(1000, m3)
-z2 <- akj(x, xx)
-lines(xx, z2$dens, col=2)
-z3 <- akj(x, xx, kappa=0.5, alpha=0.88)
-lines(xx, z3$dens, col=4)
-rug(x)
-
-
-
-# anova.rq (pg. 5) ANOVA Function for Quantile Regression Fits
-head(barro)
-fit0 <- rq(y.net ~ lgdp2 + fse2 + gedy2, data=barro)
-fit1 <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, data=barro)
-fit2 <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, data=barro, tau=0.75)
-fit3 <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, data=barro, tau=0.25)
-anova(fit1, fit0)
-anova(fit1, fit2, fit3)
-anova(fit1, fit2, fit3, joint=F)
-fit <- rq(y.net ~ lgdp2 + fse2 + gedy2 + Iy2 + gcony2, 
-          method='fn', 
-          tau=1:4 / 5, 
-          data=barro)
-          
-          
-
-# bandwidth.rq (pg. 8)  Bandwidth Selection for rq Functions
-# bandwidth.rq(p, n, hs=T, alpha=0.05)
-# p: quantile(s) of interest     # n: sample size
-# hs: hall-sheather method flag  # alpha: alpha for CI
-
-
-
-# barro (pg. 9) Barro Data Set
-# data(barro)
-
-
-
-# boot.crq (pg. 9) Bootstrapping Censored Quantile Regression
-# boot.crq(
-#   x, y, c, taus, method, ctype='right', R=100, mboot, bmethod='jack', ...)
-# x: model matrix
-# y: response vec
-# c: censor indicator
-# taus: quantiles of interest
-# method: 'P' (Portnoy), 'PH' (Peng & Huang)
-# ctype: 'right', 'left'
-# R: n bootstrap replicates
-# mboot (optional): for bmethod='jack': number of drops; for 'xy-pair': size of 
-#   samples
-# bmethod: 'jack' (jackknife); 'xy-pair'; 'Bose'
-
-
-
-# boot.rq (pg. 11) Bootstrapping Quantile Regression
-y <- rnorm(50)
-x <- matrix(rnorm(100), 50)
-fit <- rq(y ~ x, tau=0.4)
-summary(fit, se='boot', bsmethod='xy')
-summary(fit, se='boot', bsmethod='pwy')
-summary(fit, se='boot', bsmethod='mcmb')
-
-
-
-# Bosco (pg. 13) Boscovich Data
-head(Bosco)
-plot(0:10 / 10, 0:10 * 100,
-     xlab='sin^2(latitude)',
-     ylab='arc-length of 1° latitude',
-     type='n')
-points(Bosco)
-text(Bosco, pos=3, rownames(Bosco))
-z <- rq(y ~ x, tau=-1, data=Bosco)
-title('Boscovitch Ellipticity of the Earth')
-xb <- c(0.85, 0.9, 0.6, 0.6)
-yb <- c(400, 600, 450, 600)
-for (i in 1:4) {
-  abline(c(z$sol[4:5, i]))
-  interval <- paste('t=(', format(round(z$sol[1, i], 2)), 
-                    ', ', 
-                    format(round(z$sol[1, i + 1], 2)), 
-                    ')', 
-                    sep='')
-  text(xb[i], yb[i], interval)
-}
-
-
-
-# CobarOre (pg. 14) Cobar Ore Data
-head(CobarOre)
-plot(CobarOre)
-
-
-
-# combos (pg. 15) Ordered Combinations
-H <- combos(20, 3)
-
-
-
-# critval (pg. 16) Hotelling Critical Values
-# Critical values for uniform confidence bands for rqss fitting
-# critval(kappa, alphp=0.05, rdf=0)
-# kappa: length of tube
-# alpha: alpha-level (CI = 1 - alpha)
-# rdf: "residual" degrees of freedom of fitted object; Gaussian if 0, else t
-
-
-
-# crq (pg. 17) Functions to fit censored quantile regression models
-x <- sqrt(rnorm(100)^2) # abs(rnorm(100))
-y <- -0.5 + x + (0.25 + 0.25*x) * rnorm(100)
-s <- y > 0
-
-plot(x, y, type='n')
-points(x[s], y[s], pch=16, cex=0.9)
-points(x[!s], y[!s], pch=1, cex=0.9)
-y.latent <- y
-y <- pmax(0, y)
-yc <- rep(0, 100)
-for (tau in (1:4) / 5) {
-  f <- crq(Curv(y, yc) ~ x, tau=tau, method='Powell')
-  xs <- sort(x)
-  lines(xs, pmax(0, cbind(1, xs) %*% f$coef), col=2)
-  abline(rq(y ~ x, tau=tau), col=4)
-  abline(rq(y.latent ~ x), tau=tau, col=3)
-}
-legend('bottomright',
-       legend=c('Naive QR', 'Censored QR', 'Omniscient QR'), 
-       lty=1, 
-       col=c(4, 2, 3))
-       
-# Example with left censoring
 n <- 200
-x <- rnorm(n)
-y <- 5 + x + rnorm(n)
-
-plot(x, y, cex = 0.5)
-c <- 4 + x + rnorm(n)
-d <- y > c
-points(x[!d], y[!d], cex=0.5, col=2)
-
-f <- crq(Surv(pmax(y, c), d, type='left') ~ x, method='Portnoy')
-(g <- summary(f))
-for (i in 1:4) {
-  abline(coef(g[[i]])[, 1])
-}
+df <- 8
+delta <- 8
+x <- sort(rt(n, df))
+u <- runif(n)
+v <- (-log(1 - (1 - exp(-delta)) / (1 + exp(-delta*pt(x, df))*((1/u) - 1))) 
+      / delta)
+y <- qt(v, df)
 
 
 
-# dither (pg. 21) Randomly perturb a vector
-x <- rlnorm(40)
-y <- rpois(40, exp(0.5 + log(x)))
-f <- rq(dither(y, type='right', value=1) ~ x)
-summary(f)
-plot(y, dither(y, type='symmetric', value=1))
-
-
-
-# dynrq (pg. 22) Dynamic Linear Quantile Regression
-# multiplicative median SARIMA(1, 0, 0)(1, 0, 0)_12 model fitted to UK seatbelt
-# data
-uk <- log10(UKDriverDeaths)
-dfm <- dynrq(uk ~ L(uk, 1) + L(uk, 12))
-dfm
-dfm3 <- dynrq(uk ~ L(uk, 1) + L(uk, 12), tau=1:3 / 4)
-summary(dfm3)
-
-# Explicitly set start/end date
-dfm1 <- dynrq(uk ~ L(uk, 1) + L(uk, 12), start=c(1975, 1), end=c(1982, 12))
-
-# Remove lag12
-dfm0 <- update(dfm1, . ~ . - L(uk, 12))
-tuk1 <- anova(dfm0, dfm1)
-tuk1
-
-# Add seasonal term
-dfm1 <- dynrq(uk ~ 1, start=c(1975, 1), end=c(1982, 12))
-dfm2 <- dynrq(uk ~ season(uk), start=c(1975, 1), end=c(1982, 12))
-(tuk2 <- anova(dfm1, dfm2))
-summary(dfm2)
-
-# Regression on multiple lags in a single L() call
-dfm3 <- dynrq(uk ~ L(uk, c(1, 11, 12)), start=c(1975, 1), end=c(1982, 12))
-anova(dfm1, dfm3)
-summary(dfm3)
-
-
-# Time Series Decomposition
-ap <- log(AirPassengers)
-fm <- dynrq(ap ~ trend(ap) + season(ap), tau=1:4 / 5)
-(sfm <- summary(fm))
-plot(sfm)
-
-
-# Edgeworth 1886 Problem; DGP
-fye <- function(n, m=20) {
-  a <- rep(0, n)
-  s <- sample(0:9, m, replace=T)
-  a[1] <- sum(s)
-  for (i in 2:n) {
-    s[sample(20, 1)] <- sample(0:9, 1)
-    a[i] <- sum(s)
+# A.9 Nonparametric Quantile Regression
+lpqr <- function(x, y, h, m=50, tau=0.5) {
+  xx <- seq(min(x), max(x), length=m)
+  fv <- xx
+  dv <- xx
+  for (i in 1:length(xx)) {
+    z <- x - xx[i]
+    wx <- dnorm(z / h)
+    r <- rq(y ~ z, weights=wx, tau=tau, ci=F)
+    fv[i] <- r$coef[1]
+    dv[i] <- r$coef[2]
   }
-  zoo(a)
+  list(xx=xx, fv=fv, dv=dv)
 }
 
-x <- fye(1000)
-f <- dynrq(x ~ L(x, 1))
-plot(x, col=2)
-lines(fitted(f), col=4)
+plot(x, y, col=4, cex=0.25)
+us <- c(0.25, 0.5, 0.75)
+for (i in 1:length(us)) {
+  u <- us[i]
+  v <- (-log(1 - (1 - exp(-delta)) / (1 + exp(-delta*pt(x, df))*((1/u) - 1))) 
+        / delta)
+  lines(x, qt(v, df), col='grey')
+}
+
+dat <- NULL
+dat$x <- x
+dat$y <- y
+deltas <- matrix(0, 3, length(us))
+
+frank.mod <- function(x, delta, mu, sigma, df, tau) {
+  z <- qt((-log(1 - (1 - exp(-delta)) 
+           / (1 + exp(-delta*pt(x, df))*((1/tau) - 1))) / delta), 
+          df)
+  mu + sigma*z
+}
+
+for (i in 1:length(us)) {
+  tau <- us[i]
+  fit <- nlrq(y ~ frank.mod(x, delta, mu, sigma, df=8, tau=tau),
+              data=dat,
+              tau=tau,
+              start=list(delta=5, mu=0, sigma=1), 
+              trace=T)
+  lines(x, predict(fit, newdata=x), col='#444444', lwd=2)
+  deltas[i, ] <- coef(fit)
+}
 
 
+head(mcycle)
+plot(mcycle$times, mcycle$accel, xlab='ms', ylab='acceleration')
+hs <- 1:4
+i <- 1
+for (h in hs) {
+  fit <- lprq(mcycle$times, mcycle$accel, h=h, tau=0.5)
+  lines(fit$xx, fit$fv, col=i)
+  i <- i + 1
+}
+legend('bottomright', legend=c('h=1', 'h=2', 'h=3', 'h=4'), lty=1, col=1:4)
 
-# engel (pg. 25) Engel Data
+plot(mcycle$times, mcycle$accel, xlab='ms', ylab='acceleration')
+X <- model.matrix(mcycle$accel ~ bs(mcycle$times, df=15))
+i <- 1
+for(tau in 1:3 / 4) {
+  fit <- rq(mcycle$accel ~ bs(mcycle$times, df=15), tau=tau)
+  accel.fit <- X %*% fit$coef
+  lines(mcycle$times, accel.fit, col=i)
+  i <- i + 1
+}
+
+
+# Sample syntax with covariate added
+fit <- rq(y ~ bs(x, df=5) + z, tau=0.33)
+
+head(Mammals)
+x <- log(Mammals$weight)
+y <- log(Mammals$speed)
+plot(x, y, xlab='Weight (log(kg))', ylab='Speed (log(km/h))', type='n')
+points(x[Mammals$hoppers], y[Mammals$hoppers], pch='H', col=2)
+points(x[Mammals$specials], y[Mammals$specials], pch='S', col=4)
+others <- (!Mammals$hoppers & !Mammals$specials)
+points(x[others], y[others], pch='O')
+
+fit.upper <- rqss(y ~ qss(x, lambda=2), tau=0.9)
+fit.lower <- rqss(y ~ qss(x, lambda=2), tau=0.1)
+plot(fit.upper, add=T)
+plot(fit.lower, add=T)
+
+
+head(CobarOre)
+fit <- rqss(z ~ qss(cbind(x, y), lambda=0.1, ndum=100), data=CobarOre)
+plot(fit, axes=F, xlab='', ylab='')

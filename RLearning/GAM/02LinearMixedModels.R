@@ -79,7 +79,7 @@ summary(m00)$sigma^2 - (summary(m0)$sigma^2) / 3
 
 
 # 4. Maximum Likelihood Estimation for the Linear Mixed Model
-# 4.2 Maximizing the profile likelihood
+# 4.4 Maximizing the Profile Likelihood
 llm <- function(theta , X, Z, y) {
   # Untransform params
   sigma.b <- exp(theta[1])
