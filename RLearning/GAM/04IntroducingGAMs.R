@@ -12,14 +12,19 @@
 #===========================#
 
 rm(list = ls())
+lapply(paste('package:', names(sessionInfo()$otherPkgs), sep=''),
+       detach,
+       character.only=T,
+       unload=T)
 setwd('~/Learning/R/RLearning/GAM')
 
 library(gamair)
 library(lme4)
+library(mgcv)
 library(nlme)
 
 data(engine)
-
+data(trees)
 
 
 # 2 Univariate Smoothing
@@ -261,3 +266,11 @@ plot(fit$fitted, trees$Volume, xlab='fitted volume', ylab='observed volume')
 
 
 # 6. Introducing Package mgcv
+ct1 <- gam(
+  Volume ~ s(Height) + s(Height) + s(Girth), family=Gamma(link=log), data=trees)
+ct1
+par(mfrow=c(1, 2))
+plot(ct1, residuals=T)
+
+
+# 6. Finer Control of gam
