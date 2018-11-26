@@ -74,7 +74,3 @@ res.diana <- diana(x=USArrests,
                    metric='euclidean')
 fviz_dend(res.agnes, cex=0.5, k=5)
 fviz_dend(res.diana, cex=0.5, k=5)
-
-
-
-# 6. Application of Hierarchical Clustering to Gene Expression Data Analysis
