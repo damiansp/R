@@ -273,4 +273,24 @@ par(mfrow=c(1, 2))
 plot(ct1, residuals=T)
 
 
-# 6. Finer Control of gam
+# 6.1 Finer Control of gam
+# cr: cubic regression spline
+ct2 <- gam(Volume ~ s(Height, bs='cr') + s(Girth, bs='cr'), 
+           family=Gamma(link=log), 
+           data=trees)
+summary(ct2)
+par(mfrow=c(1, 2))
+plot(ct2, resid=T)
+
+ct3 <- gam(Volume ~ s(Height) + s(Girth, bs='cr', k=20),
+           family=Gamma(link=log),
+           data=trees)
+summary(ct3)
+plot(ct3)
+
+# minimize overfitting from GCV
+ct4 <- gam(
+  Volume ~ s(Height) + s(Girth), family=Gamma(link=log), data=trees, gamma=1.5)
+summary(ct4)
+plot(ct4)
+
