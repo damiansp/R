@@ -294,3 +294,23 @@ ct4 <- gam(
 summary(ct4)
 plot(ct4)
 
+
+# 6.2 Smooths of Several Variables
+ct5 <- gam(Volume ~ s(Height, Girth, k=25), family=Gamma(link=log), data=trees)
+summary(ct5)
+plot(ct5, too.far=0.15)
+
+ct6 <- gam(Volume ~ te(Height, Girth, k=5), family=Gamma(link=log), data=trees)
+summary(ct6)
+plot(ct6, too.far=0.15)
+
+
+# 6.3 Parametric Model Terms
+trees$Hclass <- factor(floor(trees$Height / 10) - 5, 
+                       labels=c('small', 'medium', 'large'))
+ct7 <- gam(Volume ~ Hclass + s(Girth), family=Gamma(link=log), data=trees)
+summary(ct7)
+par(mfrow=c(1, 2))
+plot(ct7, all.terms=T)
+anova(ct7)
+AIC(ct7)
