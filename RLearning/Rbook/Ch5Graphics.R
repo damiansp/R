@@ -20,7 +20,7 @@ lines(xv, yB, col=4)
 
 
 
-#from p. 151
+# from p. 151
 
 data <- read.table("/Users/damiansp/Desktop/R Files/Rbook/jaws.txt", header=T)
 attach(data)
@@ -49,7 +49,7 @@ yv <- predict(model, list(age=xv))
 lines(xv, yv)
 
 
-#Joining the dots
+# Joining the dots
 smooth <- read.table("/Users/damiansp/Desktop/R Files/Rbook/smoothing.txt", header=T)
 attach(smooth)
 sequence <- order(x)
@@ -59,7 +59,7 @@ lines(x[sequence], y[sequence])
 lines(x,y, col="red")
 
 
-#Plotting with a categorical explanatory variable
+# Plotting with a categorical explanatory variable
 weather <- read.table("/Users/damiansp/Desktop/R Files/Rbook/SilwoodWeather.txt", header=T)
 attach(weather)
 month <- factor(month)
@@ -87,8 +87,8 @@ summary(model)
 TukeyHSD(model)
 plot(TukeyHSD(model))
 
-#Plots for single samples
-#Histograms
+# Plots for single samples
+# Histograms
 hist(rpois(1000, 3.7))
 hist(rpois(1000, 3.7), breaks=seq(-0.5, 11.5, 1))
 y <- rnbinom(158, mu=1.5, size=1)
