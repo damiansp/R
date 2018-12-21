@@ -57,3 +57,25 @@ fviz_dend(hc,
           type='phylogenic',
           repel=T,
           phylo_layout='layout.gem')
+
+
+
+# 2 Case of Dendogram with Large Data Sets
+
+
+# 2.1 Zooming in to the Dendrogram
+fviz_dend(hc, xlim=c(1, 29), ylim=c(-1, 3.1))
+
+
+# 2.2 Plotting a Subtree of Dendrograms
+dend.plot <- fviz_dend(hc, k=4, cex=0.5, k_colors='jco')
+dend.data <- attr(dend.plot, 'dendrogram')
+dend.cuts <- cut(dend.data, h=2.5)
+fviz_dend((dend.cuts$upper))
+dend.plot
+#print(dend.plot) # same
+
+fviz_dend(dend.cuts$lower[[1]], main='Subtree 1')
+fviz_dend(dend.cuts$lower[[3]], main='Subtree 3')
+fviz_dend(dend.cuts$lower[[4]], main='Subtree 4')
+fviz_dend(dend.cuts$lower[[4]], type='circular')
