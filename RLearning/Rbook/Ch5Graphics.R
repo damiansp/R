@@ -3,8 +3,8 @@ rm(list=ls())
 setwd('~/Learning/R/RLearning/Rbook')
 #library(effects)
 #library(lattice)
-#library(MASS)
-#library(mgcv)
+library(MASS)
+library(mgcv)
 
 
 # 4 Drawing Mathematical Functions
@@ -20,69 +20,67 @@ lines(xv, yB, col=4)
 
 
 
-# from p. 151
-
-data <- read.table("/Users/damiansp/Desktop/R Files/Rbook/jaws.txt", header=T)
-attach(data)
+jaws <- read.table('data/jaws.txt', header=T)
+head(jaws)
 par(mfrow=c(2,2))
-plot(age, bone)
-text(45, 20, "lowess", pos=2)
-lines(lowess(age, bone))
+plot(jaws$age, jaws$bone, main='lowess')
+lines(lowess(jaws$age, jaws$bone), col=4)
 
-plot(age, bone)
-text(45,20, "loess", pos=2)
-model <- loess(bone~age)
+plot(jaws$age, jaws$bone, main='loess')
+model <- loess(bone~age, data=jaws)
 xv <- 0:50
 yv <- predict(model, data.frame(age=xv))
-lines(xv, yv)
+lines(xv, yv, col=4)
 
-plot(age, bone)
-text(45,20,"gam", pos=2)
-model <- gam(bone~s(age))
+plot(jaws$age, jaws$bone, main='gam')
+model <- gam(bone ~ s(age), data=jaws)
 yv <- predict(model, list(age=xv))
-lines(xv, yv)
+lines(xv, yv, col=4)
 
-plot(age, bone)
-text(45,20, "polynomial", pos=2)
-model <- lm(bone~age+I(age^2)+I(age^3))
+plot(jaws$age, jaws$bone, main='polynomial (lm)')
+model <- lm(bone ~ age + I(age^2) + I(age^3), data=jaws)
 yv <- predict(model, list(age=xv))
-lines(xv, yv)
+lines(xv, yv, col=4)
 
 
 # Joining the dots
-smooth <- read.table("/Users/damiansp/Desktop/R Files/Rbook/smoothing.txt", header=T)
-attach(smooth)
-sequence <- order(x)
+smooth <- read.table('data/smoothing.txt', header=T)
+head(smooth)
+sequence <- order(smooth$x)
 par(mfrow=c(1,1))
-plot(x, y)
-lines(x[sequence], y[sequence])
-lines(x,y, col="red")
+plot(smooth$x, smooth$y)
+lines(smooth$x[sequence], smooth$y[sequence], col=4)
+lines(smooth$x, smooth$y, col=2)
 
 
 # Plotting with a categorical explanatory variable
-weather <- read.table("/Users/damiansp/Desktop/R Files/Rbook/SilwoodWeather.txt", header=T)
-attach(weather)
-month <- factor(month)
-plot(month, upper)
+weather <- read.table('data/SilwoodWeather.txt', header=T)
+head(weather)
+weather$month <- factor(weather$month)
+plot(weather$month, weather$upper)
 
-trial <- read.table("/Users/damiansp/Desktop/R Files/Rbook/compexpt.txt", header=T)
-attach(trial)
-plot(clipping, biomass, xlab="treatment", ylab="yield")
-par(mfrow=c(1,2))
-boxplot(biomass~clipping)
-boxplot(biomass~clipping, notch=T)
+trial <- read.table('data/compexpt.txt', header=T)
+head(trial)
+plot(trial$clipping, trial$biomass, xlab="treatment", ylab="yield")
+par(mfrow=c(1, 2))
+boxplot(trial$biomass ~ trial$clipping)
+boxplot(trial$biomass ~ trial$clipping, notch=T)
 
-means <- tapply(biomass, clipping, mean)
-par(mfrow=c(1,1))
+means <- tapply(trial$biomass, trial$clipping, mean)
+par(mfrow=c(1, 1))
 barplot(means, xlab="treatment", ylab="yield")
 
-data <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/box.txt", header=T)
-attach(data); names(data)
-plot(response~factor(fact))
-index <- order(tapply(response, fact, mean))
-ordered <- factor(rep(index, rep(20,8)))
-boxplot(response~ordered, notch=T, names=as.character(index), xlab="ranked treatments", ylab="response")
-model <- aov(response~factor(fact))
+data <- read.table('data/box.txt', header=T)
+head(data)
+plot(data$response ~ factor(data$fact))
+index <- order(tapply(data$response, data$fact, mean))
+ordered <- factor(rep(index, rep(20, 8)))
+boxplot(data$response ~ ordered, 
+        notch=T, 
+        names=as.character(index), 
+        xlab="ranked treatments", 
+        ylab="response")
+model <- aov(data$response ~ factor(data$fact))
 summary(model)
 TukeyHSD(model)
 plot(TukeyHSD(model))
@@ -101,52 +99,49 @@ xs <- 0:13
 ys <- dnbinom(xs, size=1.0094, mu=1.5949)
 lines(xs, ys*158)
 
-attach(faithful)
-(max(eruptions) - min(eruptions)) / (2*(1 + log(length(eruptions), base=2)))	#rule of thumb for bandwidth = 0.1926
-par(mfrow=c(1,2))
-hist(eruptions, 15, probability=T)
-lines(density(eruptions, width=0.1926))
-lines(density(eruptions, width=0.6), col=2)
-rug(eruptions)
-truehist(eruptions, 15)
-lines(density(eruptions))
-rug(eruptions)
+head(faithful)
+# rule of thumb for bandwidth
+(bw <- (max(faithful$eruptions) - min(faithful$eruptions))
+        / (2 * (1 + log(length(faithful$eruptions), base=2))))	
+par(mfrow=c(1, 2))
+hist(faithful$eruptions, 15, probability=T)
+lines(density(faithful$eruptions, width=bw), col=2)
+lines(density(faithful$eruptions, width=0.6), col=4)
+rug(faithful$eruptions)
+truehist(faithful$eruptions, 15)
+lines(density(faithful$eruptions))
+rug(faithful$eruptions)
 
 #Time series plots
 data(UKLungDeaths)
-par(mfrow=c(1,1))
+par(mfrow=c(1, 1))
 ts.plot(ldeaths, mdeaths, fdeaths, xlab="year", ylab='deaths', col=c(1:3))
 data(sunspots)
 plot(sunspots)
 class(sunspots)
 time(sunspots)
 
-#Pie charts
-data <- read.csv("/Users/damiansp/Desktop/R Files/Rbook/Files/piedata.csv")
-data
-pie(data$amounts, labels=data$names)
-
 #The stripchart function
 data(OrchardSprays)
-with(OrchardSprays, stripchart(decrease ~ treatment, ylab='decrease', vertical=T, log='y'))
+with(OrchardSprays, 
+     stripchart(decrease ~ treatment, ylab='decrease', vertical=T, log='y'))
 
-#Plots with multiple variables
-#The pairs function
-ozonedata <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/ozone.data.txt", header=T)
-attach(ozonedata)
-names(ozonedata)
-pairs(ozonedata, panel=panel.smooth)
+# Plots with multiple variables
+# The pairs function
+ozone <- read.table("data/ozone.data.txt", header=T)
+names(ozone)
+pairs(ozone, panel=panel.smooth)
 
 #The coplot function
-coplot(ozone ~ wind | temp, panel=panel.smooth)
+coplot(ozone ~ wind | temp, panel=panel.smooth, data=ozone)
 
 #Interaction plots
-yields <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/splityield.txt", header=T)
-attach(yields); names(yields)
-interaction.plot(fertilizer, irrigation, yield)
+yields <- read.table("data/splityield.txt", header=T)
+head(yields)
+interaction.plot(yields$fertilizer, yields$irrigation, yields$yield)
 
-#Special plots
-#Trellis graphics
+# Special plots
+# Trellis graphics
 data <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/panels.txt", header=T)
 attach(data); names(data)
 xyplot(weight ~ age | gender)
