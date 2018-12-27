@@ -6,6 +6,7 @@ lapply(paste('package:', names(sessionInfo()$otherPkgs), sep=''),
        unload=T)
 setwd('~/Learning/R/RLearning/Cluster')
 
+# library(dextend) # no 3.5 version
 library(factoextra)
 library(igraph)
 data(USArrests)
@@ -79,3 +80,38 @@ fviz_dend(dend.cuts$lower[[1]], main='Subtree 1')
 fviz_dend(dend.cuts$lower[[3]], main='Subtree 3')
 fviz_dend(dend.cuts$lower[[4]], main='Subtree 4')
 fviz_dend(dend.cuts$lower[[4]], type='circular')
+
+
+# 2.3 Saving Dendrogram Images
+pdf('dendrogram.pdf', width=30, height=15)
+p <- fviz_dend(hc, k=4, cex=1, k_colors='jco')
+print(p)
+dev.off()
+
+
+
+# 3. Manipulating Dendrograms with Dendextend
+dat <- scale(USArrests)
+dist.res <- dist(dat)
+hc <- hclust(dist.res, method='ward.D2')
+dend <- as.dendrogram(hc)
+plot(dend)
+
+dend <- USArrests[1:5, ] %>% 
+  scale %>% 
+  dist %>% 
+  hclust(method='ward.D2') %>% 
+  as.dendrogram
+plot(dend)
+
+# dextend:
+mycols <- c('#2e9fdf', '#00afbb', '#e7b800', '#fc4e07')
+dend <- as.dendrogram(hc) %>%
+  set('branches_lwd', 1) %>%
+  set('branches_k_color', mcols, k=4) %>%
+  set('labels_colors', mycols, k=4) %>%
+  set('labels_cex', 0.5)
+fviz_dend(dend)
+
+
+
