@@ -140,76 +140,28 @@ yields <- read.table("data/splityield.txt", header=T)
 head(yields)
 interaction.plot(yields$fertilizer, yields$irrigation, yields$yield)
 
-# Special plots
-# Trellis graphics
-data <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/panels.txt", header=T)
-attach(data); names(data)
-xyplot(weight ~ age | gender)
+# Bubble plots
+bubble <- function(x, y, r, bubble.size, x.scale, y.scale) {
+  theta <- seq(0, 2*pi, pi / 200)
+  yv <- r*sin(theta)*bubble.size*y.scale
+  xv <- r*cos(theta)*bubble.size*x.scale
+  lines(x + xv, y + yv)
+}
 
-#Trellis functions:
-#barchart = barplot
-#bwplot = boxplot
-#densityplot = density?
-#dotplot
-#histogram = hist
-#qqmath
-#stripplot
-#qq = qqplot?
-#xyplot = plot(x, y)
-#levelplot
-#contourplot
-#cloud (3D scatterplot)
-#wireframe (3D surfaces)
-#splom (scatterplot matrix)
-#parallel (parallel coordinate plots)
-#rfs (residual and fitted value plot)
-#tmd (Tukey mean-difference)
-help(package = lattice)
+bubble.plot <- function(xv, yv, rv, bs=0.1, ...) {
+  r <- rv / max(rv)
+  y.scale <- max(yv) - min(yv)
+  x.scale <- max(xv) - min(xv)
+  plot(xv, yv, type='n', ...)
+  for (i in 1:length(xv)) bubble(xv[i], yv[i], r[i], bs, x.scale, y.scale)
+}
 
-data <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/daphnia.txt", header=T)
-attach(data); names(data)
-trellis.par.set(col.whitebg())
-bwplot(Growth.rate ~ Water + Daphnia | Detergent)
+x <- runif(30)
+y <- runif(30)
+r <- rpois(30, 5)
+bubble.plot(x, y, r)
 
-#Design plots
-plot.design(Growth.rate~Water*Detergent*Daphnia)
-plot.design(Growth.rate~Water*Detergent*Daphnia, fun="sd")plot.design(Growth.rate~Water*Detergent*Daphnia, fun="median")
-
-#Effect sizes
-model <- lm(Growth.rate~Water*Detergent*Daphnia)
-summary(model)
-plot(model)
-daph.effects <- all.effects(model)
-daph.effects2 <- allEffects(model)
-plot(daph.effects, "Water:Detergent:Daphnia")
-plot(daph.effects2, "Water:Detergent:Daphnia")
-
-#Bubble plots
-ddd <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/pgr.txt", header=T)
-detach(data); attach(ddd); names(ddd)
-bubble.plot(hay, pH, FR)	#not available
-
-bubble.plot <- function(xv, yv, rv, bs=0.1) {
-	r <- rv / max(rv)
-	yscale <- max(yv) - min(yv)
-	xscale <- max(xv) - min(xv)
-	plot(xv, yv, type='n', xlab=deparse(substitute(xv)), ylab=deparse(substitute(yv)))
-	
-	for(i in 1:length(xv)) bubble(xv[i], yv[i], r[i], bs, xscale, yscale)
-	}
-	
-bubble <- function(x, y, r, bubble.size, xscale, yscale) {
-	theta <- seq(0, 2*pi, pi/200)
-	yv <- r*sin(theta)*bubble.size*yscale
-	xv <- r*cos(theta)*bubble.size*xscale
-	lines(x + xv, y + yv)
-	}
-
-numbers <- read.table("/Users/damiansp/Desktop/R Files/Rbook/Files/longdata.txt", header=T)
-detach(ddd); attach(numbers); names(numbers)
-plot(xlong, ylong)
-plot(jitter(xlong), jitter(ylong), pch=".")
-sunflowerplot(xlong, ylong)
-
-save.image("Ch5Graphics.RData")
-quit()
+# Sunflower plot
+x <- rpois(100, 2)
+y <- rpois(100, 3)
+sunflowerplot(x, y)
