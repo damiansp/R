@@ -1,21 +1,25 @@
-#################
-#               #
-#  Ch 6 Tables  #
-#               #
-#################
+#=========#=========#=========#=========#=========#=========#=========#=========
+rm(list=ls())
+setwd('~/Learning/R/RLearning/Rbook')
 
-load("RBook.RData")
+
 
 #Summary tables
-data <- read.table('~/Desktop/Hackery/R Files/Rbook/Files/daphnia.txt', header=T)
-attach(data)
+data <- read.table('data/daphnia.txt', header=T)
 names(data)
-tapply(Growth.rate, Detergent, mean)
-tapply(Growth.rate, Water, mean)
-tapply(Growth.rate, Daphnia, mean)
-tapply(Growth.rate, list(Daphnia, Detergent), mean)
-tapply(Growth.rate, list(Daphnia, Detergent), function(x) sqrt(var(x)/length(x)))	#function = SE
-tapply(Growth.rate, list(Daphnia, Detergent, Water), mean)
+tapply(data$Growth.rate, data$Detergent, mean)
+tapply(data$Growth.rate, data$Water, mean)
+tapply(data$Growth.rate, data$Daphnia, mean)
+tapply(data$Growth.rate, list(data$Daphnia, data$Detergent), mean)
+tapply(data$Growth.rate, 
+       list(data$Daphnia, data$Detergent), 
+       function(x) sqrt(var(x)/length(x)))	#function = SE
+tapply(data$Growth.rate, list(data$Daphnia, data$Detergent, data$Water), mean)
+
+
+
+
+
 ftable(tapply(Growth.rate, list(Daphnia, Detergent, Water), mean))	#flat table
 tapply(Growth.rate, Detergent, mean, trim=0.1)
 dets <- as.vector(tapply(as.numeric(Detergent), list(Detergent, Daphnia), mean))
