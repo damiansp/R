@@ -6,6 +6,7 @@ lapply(paste('package:', names(sessionInfo()$otherPkgs), sep=''),
        unload=T)
 setwd('~/Learning/R/RLearning/GAM')
 
+library(mgcv)
 
 
 # 3 Some One-Dimensional Smoothers
@@ -27,3 +28,29 @@ bspline <- function(x, k, i, m=2) {
 k <- 6
 (P <- diff(diag(k), differences=1))
 (S <- t(P) %*% P)
+
+
+# 3.6 SCOP-Splines (Shape Constrained P-Splines)
+y <- seq(1, 10, length=100)
+x <- -3*y + y^2 - 5*sin(0.05*y^3) + rnorm(length(y))
+plot(x ~ y, type='l')
+ssp <- s(x, bs='ps', k=k)
+ssp$mono <- 1
+sm <- smoothCon(ssp, data.frame(x))[[1]]
+X <- sm$X
+XX <- crossprod(X)
+sp <- 0.5
+gamma <- rep(0, k)
+S <- sm$S[[1]]
+for (i in 1:20) {
+  gt <- c(gamma[1], exp(gamma[2:k]))
+  dg <- c(1, gt[2:k])
+  g <- -dg * (t(X) %*% (y - X %*% gt)) + sp * S %*% gamma
+  H <- dg * t(dg * XX)
+  gamma <- gamma - solve(H + sp*S, g)
+}
+gamma
+
+
+
+# 4 So
