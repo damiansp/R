@@ -5,11 +5,16 @@ lapply(paste('package:', names(sessionInfo()$otherPkgs), sep=''),
        character.only=T,
        unload=T)
 setwd('~/Learning/R/RLearning/Cluster')
-
+#source('https://bioconductor.org/biocLite.R')
+#biocLite('ComplexHeatmap')
+library(circlize)
+library(ComplexHeatmap)
 library(d3heatmap)
+library(dendextend)
 library(gplots)
 library(pheatmap)
 library(RColorBrewer)
+
 
 # 2. Data Prep
 df <- scale(mtcars)
@@ -44,3 +49,51 @@ pheatmap(df, cutree_rows=4, cutree_cols=3)
 
 # 6. Interactive Heat Maps: d3heatmap()
 d3heatmap(scale(mtcars), colors='RdYlBu', k_row=4, k_col=3)
+
+
+
+# 7. Enhancing Heat Maps Using dendextend
+rowv <- mtcars %>% 
+  scale %>% 
+  dist %>% 
+  hclust %>% 
+  as.dendrogram %>% 
+  set('branches_k_color', k=4) %>% 
+  set('branches_lwd', 1.2) %>% 
+  ladderize
+colv <- mtcars %>%
+  scale %>%
+  t %>%
+  dist %>%
+  hclust %>%
+  as.dendrogram %>%
+  set('branches_k_color', k=3, , value=c('orange', 'blue')) %>%
+  set('branches_lwd', 1.2) %>%
+  ladderize
+heatmap(scale(mtcars), Rowv=rowv, Colv=colv, scale='none')
+heatmap.2(scale(mtcars), 
+          scale='none', 
+          col=bluered(100), 
+          Rowv=rowv, 
+          Colv=colv, 
+          trace='none', 
+          density.info='none')
+d3heatmap(scale(mtcars), colors='RdBu', Rowv=rowv, Colv=colv)
+
+
+
+# 8 Complex Heat Map
+
+# 8.1 Simple heatmap
+Heatmap(df,
+        name='mtcars',
+        column_title='Variables',
+        row_title='Samples',
+        row_names_gp=gpar(fontsize=7))
+mycols <- colorRamp2(breaks=c(-2, 0, 2), colors=c('green', 'white', 'red'))
+Heatmap(df, name='mtcars', col=mycols)
+Heatmap(
+  df, name='mtcars', col=colorRamp2(c(-2, 0, 2), brewer.pal(n=3, name='RdBu')))
+
+# Splitting Heat Map by Rows
+Heatmap(df, name='mtcars', split=mtcars$cyl, row_names_gp=gpar(fontsize=7))
