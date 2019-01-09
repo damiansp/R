@@ -15,17 +15,23 @@ tapply(data$Growth.rate,
        list(data$Daphnia, data$Detergent), 
        function(x) sqrt(var(x)/length(x)))	#function = SE
 tapply(data$Growth.rate, list(data$Daphnia, data$Detergent, data$Water), mean)
+ftable(tapply(
+  data$Growth.rate, list(data$Daphnia, data$Detergent, data$Water), mean))
+water <- factor(data$Water, levels=c('Wear', 'Tyne'))
+ftable(tapply(data$Growth.rate, list(data$Daphnia, data$Detergent, water), mean))
+tapply(data$Growth.rate, data$Detergent, mean, trim=0.1)
+dets <- as.vector(tapply(
+  as.numeric(data$Detergent), list(data$Detergent, data$Daphnia), mean))
+levels(data$Detergent)[dets]
+clones <- as.vector(tapply(
+  as.numeric(data$Daphnia), list(data$Detergent, data$Daphnia), mean))
+levels(data$Daphnia)[clones]
 
 
 
 
 
-ftable(tapply(Growth.rate, list(Daphnia, Detergent, Water), mean))	#flat table
-tapply(Growth.rate, Detergent, mean, trim=0.1)
-dets <- as.vector(tapply(as.numeric(Detergent), list(Detergent, Daphnia), mean))
-levels(Detergent)[dets]
-clones <- as.vector(tapply(as.numeric(Daphnia), list(Detergent, Daphnia), mean))
-levels(Daphnia)[clones]
+
 tapply(Growth.rate, list(Detergent, Daphnia), mean)	#convert to single 'means' vector:
 means <- as.vector(tapply(Growth.rate, list(Detergent, Daphnia), mean))
 detergent <- levels(Detergent)[dets]
