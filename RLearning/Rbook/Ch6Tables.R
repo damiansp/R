@@ -26,30 +26,33 @@ levels(data$Detergent)[dets]
 clones <- as.vector(tapply(
   as.numeric(data$Daphnia), list(data$Detergent, data$Daphnia), mean))
 levels(data$Daphnia)[clones]
-
-
-
-
-
-
-tapply(Growth.rate, list(Detergent, Daphnia), mean)	#convert to single 'means' vector:
-means <- as.vector(tapply(Growth.rate, list(Detergent, Daphnia), mean))
-detergent <- levels(Detergent)[dets]
-daphnia <- levels(Daphnia)[clones]
+# convert to single 'means' vector:
+tapply(data$Growth.rate, list(data$Detergent, data$Daphnia), mean)	
+means <- as.vector(
+  tapply(data$Growth.rate, list(data$Detergent, data$Daphnia), mean))
+detergent <- levels(data$Detergent)[dets]
+daphnia <- levels(data$Daphnia)[clones]
 data.frame(means, detergent, daphnia)
-#Also achievable by:
-new <- as.data.frame.table(tapply(Growth.rate, list(Detergent, Daphnia), mean))
+
+# Also achievable by:
+new <- as.data.frame.table(
+  tapply(data$Growth.rate, list(data$Detergent, data$Daphnia), mean))
 names(new) <- c('detergents', 'daphnia', 'means')
 
-#Tables of counts
-cells <- rnbinom(10000, size=0.63, prob=0.63/1.83) #size = aggregation param, k; prob = k/(mean + k); mean = 0.63
+# Tables of counts
+# size = aggregation param, k; prob = k/(mean + k); mean = 0.63
+cells <- rnbinom(10000, size=0.63, prob=0.63/1.83) 
 hist(cells)
 table(cells)
 gender <- rep(c('male', 'female'), c(5000, 5000))
 table(cells, gender)
 tapply(cells, gender, mean)
 
-#Expanding a table into a dataframe
+
+
+
+
+# Expanding a table into a dataframe
 count.table <- read.table('~/Desktop/Hackery/R Files/Rbook/Files/tabledata.txt', header=T)
 attach(count.table)
 names(count.table)
