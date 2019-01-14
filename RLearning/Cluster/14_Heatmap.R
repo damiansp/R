@@ -8,6 +8,7 @@ setwd('~/Learning/R/RLearning/Cluster')
 #source('https://bioconductor.org/biocLite.R')
 #biocLite('ComplexHeatmap')
 library(circlize)
+library(cluster)
 library(ComplexHeatmap)
 library(d3heatmap)
 library(dendextend)
@@ -84,6 +85,7 @@ d3heatmap(scale(mtcars), colors='RdBu', Rowv=rowv, Colv=colv)
 
 # 8 Complex Heat Map
 
+
 # 8.1 Simple heatmap
 Heatmap(df,
         name='mtcars',
@@ -97,3 +99,22 @@ Heatmap(
 
 # Splitting Heat Map by Rows
 Heatmap(df, name='mtcars', split=mtcars$cyl, row_names_gp=gpar(fontsize=7))
+Heatmap(df,
+        name='mtcars',
+        split=data.frame(cyl=mtcars$cyl, am=mtcars$am),
+        row_names_gp=gpar(fontsize=7))
+        
+pa <- pam(df, k=3)
+Heatmap(df, name='mtcars', col=mycols, km=2, split=paste0('pam', pa$clustering))
+
+
+# 8.3 Heatmap Annotation
+df <- t(df)
+
+# 8.3.1 Simple Annotation
+annot.df <- data.frame(cyl=mtcars$cyl, am=mtcars$am, mpg=mtcars$mpg)
+col <- list(cyl=c('4'='green', '6'='grey', '8'='darkred'),
+            am=c('0'='yellow', '1'='orange'),
+            mpg=circlize::colorRamp2(c(17, 25), c('lightblue', 'purple')))
+ha <- HeatmapAnnotation(annot.df, col=col)
+Heatmap(df, name='mtcars', top_annotation=ha)
