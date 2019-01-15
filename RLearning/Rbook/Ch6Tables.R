@@ -48,19 +48,18 @@ gender <- rep(c('male', 'female'), c(5000, 5000))
 table(cells, gender)
 tapply(cells, gender, mean)
 
-
-
-
-
 # Expanding a table into a dataframe
-count.table <- read.table('~/Desktop/Hackery/R Files/Rbook/Files/tabledata.txt', header=T)
-attach(count.table)
+count.table <- read.table('data/tabledata.txt', header=T)
 names(count.table)
 count.table
-dbtable <- as.data.frame(lapply(count.table, function(x) rep(x, count.table$count)))
+lapply(count.table, function(x) rep(x, count.table$count))
+dbtable <- as.data.frame(lapply(count.table, 
+                                function(x) rep(x, count.table$count)))
 dbtable <- dbtable[,-1]
 
-#Converting from a dataframe to a table
+
+
+# 4. Converting from a dataframe to a table
 table(dbtable)
 as.data.frame(table(dbtable))
 
