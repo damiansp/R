@@ -118,3 +118,33 @@ col <- list(cyl=c('4'='green', '6'='grey', '8'='darkred'),
             mpg=circlize::colorRamp2(c(17, 25), c('lightblue', 'purple')))
 ha <- HeatmapAnnotation(annot.df, col=col)
 Heatmap(df, name='mtcars', top_annotation=ha)
+
+
+
+# 9 Application: Gene Expression Matrix
+expr <- readRDS(paste0(system.file(package='ComplexHeatmap'), 
+                       '/extdata/gene_expression.rds'))
+mat <- as.matrix(expr[, grep('cell', colnames(expr))])
+type <- gsub('s\\d+_', '', colnames(mat))
+ha <- HeatmapAnnotation(df=data.frame(type=type))
+Heatmap(mat, 
+        name='gene expression', 
+        km=5, 
+        top_annotation=ha, 
+        top_annotation_height=unit(4, 'mm'), 
+        show_row_names=F, show_column_names=F) +
+Heatmap(expr$length, 
+        name='length', 
+        width=unit(5, 'mm'), 
+        col=circlize::colorRamp2(c(0, 100000), 
+        c('white', 'orange'))) +
+Heatmap(expr$type, name='type', width=unit(5, 'mm')) +
+Heatmap(expr$chr, 
+        name='chr', 
+        width=unit(5, 'mm'), 
+        col=circlize::rand_color(length(unique(expr$chr))))
+    
+    
+        
+# 10. Visualizing the Distribution of Columns in Matrix
+densityHeatmap(scale(mtcars))
