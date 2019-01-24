@@ -79,4 +79,22 @@ apply(counts, 2, sd) # sd in ea col
 
 
 # 7. expand.grid
+expand.grid(
+  height=seq(60, 80, 5), weight=seq(100, 300, 50), sex=c('male', 'female'))
 
+
+
+# 9. Comparing table and tabulate
+x <- c(2, 2, 2, 7, 7, 11)
+table(x)
+tabulate(x)
+# negative numbers will be ignored
+x <- c(-1, -2, x, -5)
+tabulate(x)
+
+table(rnbinom(100, 1, 0.2))
+tabulate(rnbinom(100, 1, 0.2) + 1, 30)
+
+totals <- numeric(1000)
+for (i in 1:1000) totals[i] <- sum(tabulate(rnbinom(100, 1, 0.2) + 1, 30))
+table(totals)
