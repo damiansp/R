@@ -61,7 +61,22 @@ dbtable <- dbtable[,-1]
 
 # 4. Converting from a dataframe to a table
 table(dbtable)
-as.data.frame(table(dbtable))
+frame <- as.data.frame(table(dbtable))
+names(frame)[4] <- 'count'
+
+counts <- matrix(c(2, 2, 3, 4, 1, 4, 2, 0, 1, 5, 3, 3), nrow=4)
+counts
+prop.table(counts, 1) # rowwise
+prop.table(counts, 2) # colwise
+prop.table(counts)    # tablewise
 
 
-save.image("RBook.RData")
+
+# 6. Scale
+scale(counts)
+apply(counts, 2, sd) # sd in ea col
+
+
+
+# 7. expand.grid
+
