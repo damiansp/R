@@ -54,3 +54,19 @@ fviz_cluster(list(data=random.df, cluster=km.res1$cluster),
              ggtheme=theme_classic())
 fviz_dend(hclust(dist(random.df)), k=3, k_colors='jco', as.ggplot=T, show_labels=F)
 fviz_dend(hclust(dist(df)), k=3, k_colors='jco', as.ggplot=T, show_labels=F)
+
+
+
+# 5. Methods for Assessing Clustering Tendency
+
+
+# 5.1 Statistical Methods
+res <- get_clust_tendency(df, n=nrow(df) - 1, graph=F)
+res$hopkins_stat # signif at 90CI if > 0.75
+res.rand <- get_clust_tendency(random.df, n=nrow(random.df) - 1, graph=F)
+res.rand$hopkins_stat
+
+
+# 5.2 Visual Methods
+fviz_dist(dist(df), show_labels=F) + labs(title='Iris Data')
+fviz_dist(dist(random.df), show_labels=F) + labs(title='Random Data')
