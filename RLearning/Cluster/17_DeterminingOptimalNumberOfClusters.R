@@ -32,3 +32,8 @@ fviz_nbclust(df, kmeans, method='silhouette') + labs(subtitle='Silhouette')
 # Gap
 (fviz_nbclust(df, kmeans, nstart=25, method='gap_stat', nboot=500) 
  + labs(subtitle='Gap'))
+ 
+ 
+# 4.4 NbClust() function: 30 indices for choosing the best number of clusters
+nb <- NbClust(df, distance='euclidean', min.nc=2, max.nc=10, method='kmeans')
+fviz_nbclust(nb)
