@@ -50,3 +50,52 @@ plot(t, gamma(t), type='l')
 
 
 # 1.8 Sigmoid Functions
+par(mfrow=c(2, 2))
+x <- seq(0, 10, 0.1)
+y <- 100 / (1 + 90*exp(-x))
+plot(x, y, type='l')
+
+y <- 20 + 100/(1 + exp(0.8*(3 - x)))
+plot(x, y, type='l')
+
+# Gompertz growth model
+x <- -200:100
+y <- 100 * exp(-exp(0.02 * x))
+plot(x, y, type='l')
+
+x <- 0:100
+y <- 50 * exp(-5 * exp(-0.08 * x))
+plot(x, y, type='l')
+
+
+# 1.9 Biexponential Model
+biexp <- function(a, b, c, d, x) {
+  a*exp(b*x) + c*exp(d*x)
+}
+a <- 10
+b <- -0.8
+c <- 10
+d <- -0.05
+y <- biexp(a, b, c, d, x)
+plot(x, y, type='l')
+
+d <- d * -1
+y <- biexp(a, b, c, d, x)
+plot(x, y, type='l')
+
+a <- 200
+b <- 0.2
+c <- -1
+d <- 0.7
+y <- biexp(a, b, c, d, x)
+plot(x, y, type='l')
+
+b <- 0.05
+c <- 300
+d <- -0.05
+y <- biexp(a, b, c, d, x)
+plot(x, y, type='l')
+
+
+
+# 2 Probability Functions
