@@ -98,4 +98,18 @@ plot(x, y, type='l')
 
 
 
-# 2 Probability Functions
+# 3 Continuous Probability Distributions
+curve(pnorm(x), -3, 3)
+arrows(-1, 0, -1, pnorm(-1), col=2)
+arrows(-1, pnorm(-1), -3, pnorm(-1), col=4)
+pnorm(-1)
+curve(dnorm(x), -3, 3)
+
+
+# 3.1 Normal Distribution
+x <- seq(-3, 3, 0.01)
+par(mfrow=c(2, 2))
+plot(x, exp(-abs(x)), type='l')
+plot(x, exp(-abs(x)^2), type='l')
+plot(x, exp(-abs(x)^3), type='l')
+plot(x, exp(-abs(x)^8), type='l')
