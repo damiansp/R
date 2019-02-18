@@ -55,3 +55,17 @@ km.stats$dunn
 
 
 # 3.5 External Clustering Validation
+table(iris$Species, km.res$cluster)
+species <- as.numeric(iris$Species)
+clust.stats <- cluster.stats(d=dist(df), species, km.res$cluster)
+clust.stats$corrected.rand # 0.620
+clust.stats$vi             # 0.748
+
+# Same analysis for PAM and hierarchical clustering:
+pam.res <- eclust(df, 'pam', k=3, graph=F)
+table(iris$Species, pam.res$cluster)
+cluster.stats(d=dist(df), species, pam.res$cluster) # crand 0.642, vi 0.713
+
+res.hc <- eclust(df, 'hclust', k=3, graph=F)
+table(iris$Species, res.hc$cluster)
+cluster.stats(d=dist(df), species, res.hc$cluster) $ # 0.615, 0.694
