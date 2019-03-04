@@ -11,6 +11,7 @@ setwd('~/Learning/R/RLearning/Cluster')
 #library(factoextra)
 #library(fpc)
 #library(NbClust)
+library(parallel)
 library(pvclust)
 
 
@@ -27,4 +28,10 @@ samp <- sample(1:(dim(lung)[2]), 30)
 # 4 Compute P-Value for Hierarchical Clustering
 
 
-# 4.1 Description of pvclust() function
+# 4.2 Usage of pvclust() function
+res.pv <- pvclust(lung, method='cor', method.hclust='average', nboot=10)
+plot(res.pv, hang=-1, cex=0.5)
+pvrect(res.pv)
+clusters <- pvpick(res.pv)
+cl <- makeCluster(2, type='PSOCK')
+#res.pv <- parPvclust(cl, lung, nboot=1000)
