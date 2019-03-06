@@ -113,3 +113,21 @@ plot(x, exp(-abs(x)), type='l')
 plot(x, exp(-abs(x)^2), type='l')
 plot(x, exp(-abs(x)^3), type='l')
 plot(x, exp(-abs(x)^8), type='l')
+
+x <- seq(-3, 3, 0.01)
+z <- seq(-3, -1.25, 0.01)
+p <- dnorm(z)
+z <- c(z, -1.25, -3)
+p <- c(p, min(p), min(p))
+plot(x, dnorm(x), type='l')
+polygon(z, p, col=6)
+
+
+# 3.2 Central Limit Theorem
+hist(10 * runif(10000))
+means <- numeric(10000)
+for (i in 1:10000) means[i] <- mean(10 * runif(5))
+hist(means)
+xv <- seq(0, 10, 0.1)
+yv <- 5000 * dnorm(xv, mean=mean(means), sd=sd(means))
+lines(xv, yv, col=2)
