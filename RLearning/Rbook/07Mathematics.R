@@ -131,3 +131,12 @@ hist(means)
 xv <- seq(0, 10, 0.1)
 yv <- 5000 * dnorm(xv, mean=mean(means), sd=sd(means))
 lines(xv, yv, col=2)
+
+
+die1 <- sample(6, replace=T, 10000)
+die2 <- sample(6, replace=T, 10000)
+tosses <- die1 + die2
+hist(tosses)
+
+
+# 3.5 Comparing Data with a Normal Distribution
