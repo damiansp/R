@@ -140,3 +140,11 @@ hist(tosses)
 
 
 # 3.5 Comparing Data with a Normal Distribution
+fishes <- read.table('data/fishes.txt', header=T)
+head(fishes)
+hist(fishes$mass, breaks=-0.5:16.5, col='darkgreen', main='')
+lines(seq(-0.5, 16, 0.1), 
+      length(fishes$mass)
+      * dnorm(seq(-0.5, 16, 0.1), mean(fishes$mass), sd(fishes$mass)),
+      col='limegreen',
+      lwd=2)
