@@ -7,4 +7,3 @@ lapply(paste('package:', names(sessionInfo()$otherPkgs), sep=''),
 setwd('~/Learning/R/RLearning/GAM')
 
 library(mgcv)
-
