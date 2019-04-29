@@ -74,3 +74,49 @@ AIC(m2, m3) # m2 also has a better AIC
 # pattern also unrealistic:
 vis.gam(m3, plot.type='contour', n.grid=60, too.far=0.03) 
 
+
+# 2.3 Isotropic or tensor product smooths?
+tm <- gam(medFPQ ~ te(Y, X, k=10), data=brain, family=Gamma(link=log))
+tm1 <- gam(medFPQ ~ s(Y, k=10, bs='cr') + s(X, k=10, bs='cr') + ti(X, Y, k=10),
+           data=brain,
+           family=Gamma(link=log))
+AIC(m2, tm, tm1)
+anova(tm1)
+
+
+# 2.4 Detecting symmetry (with 'by' variables)
+head(brain)
+mu <- mean(brain$X)
+brain$Xc <- abs(brain$X - mu)
+brain$right <- as.numeric(brain$X < mu)
+m.sym <- gam(medFPQ ~ s(Y, Xc, k=100), data=brain, family=Gamma(link=log))
+m.asym <- gam(medFPQ ~ s(Y, Xc, k=100) + s(Y, Xc, k=100, by=right), 
+              data=brain, 
+              family=Gamma(link=log))
+m.sym
+m.asym
+anova(m.asym) # the :right  term would not be signif if symmetric
+
+vis.gam(m.sym,
+        plot.type='contour', 
+        view=c('Xc', 'Y'), 
+        too.far=0.03, 
+        n.grid=60,
+        zlim=c(-1, 2),
+        main='both sides')
+vis.gam(m.asym,
+        plot.type='contour', 
+        view=c('Xc', 'Y'), 
+        cond=list(right=0),
+        too.far=0.03, 
+        n.grid=60,
+        zlim=c(-1, 2),
+        main='left')
+vis.gam(m.asym,
+        plot.type='contour', 
+        view=c('Xc', 'Y'), 
+        cond=list(right=1),
+        too.far=0.03, 
+        n.grid=60,
+        zlim=c(-1, 2),
+        main='right')
