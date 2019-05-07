@@ -120,3 +120,34 @@ vis.gam(m.asym,
         n.grid=60,
         zlim=c(-1, 2),
         main='right')
+        
+
+# 2.5 Comparing two surfaces
+# Simulate a perturbed brain image from the model
+brain1 <- brain
+mu <- fitted(m2)
+n <- length(mu)
+ind <- brain1$X < 60 & brain1$Y < 20
+mu[ind] <- mu[ind] / 3
+#set.seed(1)
+brain1$medFPQ <- rgamma(rep(1, n), mu / m1$sig2, scale=m2$sig2)
+brain2 <- rbind(brain, brain1)
+brain2$sample1 <- c(rep(1, n), rep(0, n))
+brain2$sample0 <- 1 - brain2$sample1
+
+m.same <- gam(medFPQ ~ s(Y, X, k=100), data=brain2, family=Gamma(link=log))
+m.diff <- gam(medFPQ ~ s(Y, X, k=100) + s(Y, X, by=sample1, k=100), 
+              data=brain2, 
+              family=Gamma(link=log))
+AIC(m.same, m.diff) # fitting different surfaces to each performs better
+anova(m.diff)       # same
+
+
+# 2.6 Predicition with predict.gam
+predict(m2)[1:5]
+pv <- predict(m2, se=T)
+pv$fit[1:5]
+pv$se[1:5] # on model scale
+pv <- predict(m2, type='response', se=T)[1:5]
+pv$fit[1:5]
+pv$se[1:5] # on response scale
