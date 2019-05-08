@@ -143,7 +143,7 @@ AIC(m.same, m.diff) # fitting different surfaces to each performs better
 anova(m.diff)       # same
 
 
-# 2.6 Predicition with predict.gam
+# 2.6 Prediction with predict.gam
 predict(m2)[1:5]
 pv <- predict(m2, se=T)
 pv$fit[1:5]
@@ -151,3 +151,24 @@ pv$se[1:5] # on model scale
 pv <- predict(m2, type='response', se=T)[1:5]
 pv$fit[1:5]
 pv$se[1:5] # on response scale
+
+pd <- data.frame(X=c(80.1, 68.3), Y=c(41.8, 41.8))
+predict(m2, newdata=pd)
+predict(m2, newdata=pd, type='response', se=T)
+predict(m3, newdata=pd, type='terms', se=T)
+
+Xp <- predict(m2, newdata=pd, type='lpmatrix')
+Xp
+fv <- Xp %*% coef(m2)
+fv
+
+# Determine the difference of the linear predictor values at two points
+d <- t(c(1, -1))
+d %*% fv                                 # the diffrence
+d %*% Xp %*% vcov(m2) %*% t(Xp) %*% t(d) # variance in the difference
+(d %*% Xp) %*% vcov(m2) %*% (t(Xp) %*% t(d)) # same - avoids overly large matrices
+
+
+# 2.7 Variance of non-linear functions of the fitted model
+
+
