@@ -11,6 +11,7 @@ library(MASS)
 library(mgcv)
 
 data(brain)
+data(wesdr)
 
 
 # 1. Specifying Smooths
@@ -170,5 +171,30 @@ d %*% Xp %*% vcov(m2) %*% t(Xp) %*% t(d) # variance in the difference
 
 
 # 2.7 Variance of non-linear functions of the fitted model
+ind <- brain$region == 1 & !is.na(brain$region)
+Xp <- predict(m2, newdata=brain[ind, ], type='lpmatrix')
+# set.seed(11)
+br <- rmvn(n=1000, coef(m2), vcov(m2)) # simulate from posterior
+mean.FPQ <- rep(0,  1000)
+for (i in 1:1000) {
+  lp <- Xp %*% br[i, ] # replicate linear predictor
+  mean.FPQ <- mean(exp(lp)) # replicate region 1 mean FPQ
+}eti
+
+# Same (more efficient, less readable)
+mean.FPQ <- colMeans(exp(Xp %*% t(br)))
+hist(mean.FPQ)
 
 
+
+# 3 A Smooth ANOVA Model for Diabetic Retinopathy
+head(wesdr)
+dim(wesdr)
+k <- 10
+b <- gam(ret ~ s(dur, k=k) + s(gly, k=k) + s(bmi, k=k) + ti(dur, gly, k=k) 
+           + ti(dur, bmi, k=k) + ti(gly, bmi, k=k), 
+         select=T,
+         data=wesdr,
+         family=binomial(),
+         method='ML')
+summary(b)         
