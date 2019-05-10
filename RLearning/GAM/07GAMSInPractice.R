@@ -11,6 +11,7 @@ library(MASS)
 library(mgcv)
 
 data(brain)
+data(chicago)
 data(wesdr)
 
 
@@ -187,7 +188,7 @@ hist(mean.FPQ)
 
 
 
-# 3 A Smooth ANOVA Model for Diabetic Retinopathy
+# 3. A Smooth ANOVA Model for Diabetic Retinopathy
 head(wesdr)
 dim(wesdr)
 k <- 10
@@ -197,4 +198,24 @@ b <- gam(ret ~ s(dur, k=k) + s(gly, k=k) + s(bmi, k=k) + ti(dur, gly, k=k)
          data=wesdr,
          family=binomial(),
          method='ML')
-summary(b)         
+summary(b)
+
+
+
+# 4. Air Pollution in Chicago
+head(chicago)
+ap0 <- gam(death ~ s(time, bs='cr', k=200) + pm10median + so2median + o3median 
+             + tmpd,
+           data=chicago,
+           family=poisson)
+gam.check(ap0) # a few significant outliers
+par(mfrow=c(2, 1))
+plot(ap0, n=1000) # n increased to smooth
+plot(ap0, residuals=T, n=1000)
+chicago$death[3111:3125]
+
+ap1 <- gam(death ~ s(time, bs='cr', k=200) + s(pm10median, bs='cr') 
+             + s(so2median, bs='cr') + s(o3median, bs='cr') + s(tmpd, bs='cr'), 
+           data=chicago, 
+           family=poisson)
+gam.check(ap1) # no apparent difference
