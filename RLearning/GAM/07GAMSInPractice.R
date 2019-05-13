@@ -219,3 +219,48 @@ ap1 <- gam(death ~ s(time, bs='cr', k=200) + s(pm10median, bs='cr')
            data=chicago, 
            family=poisson)
 gam.check(ap1) # no apparent difference
+
+
+# 4.1 A single index model for pollution related deaths
+laggard <- function(x, n.lag=6) {
+  n <- length(x)
+  X <- matrix(NA, n, n.lag)
+  for (i in 1:n.lag) { X[i:n, i] <- x[i:n - i + 1] }
+  X
+}
+dat <- list(lag=matrix(0:5, nrow(chicago), 6, byrow=T))
+dat$pm10 <- laggard(chicago$pm10median)
+
+si <- function(theta, dat, opt=T) {
+  # Return ML if opt==T else fitted GAM
+  alpha <- c(1, theta) # unconstrained theta
+  kk <- sqrt(sum(alpha^2))
+  alpha <- alpha / kk  # constraint: ||alpha|| = 1
+  o3 <- dat$o3 %*% alpha 
+  tmp <- data$tmp %*% alpha
+  pm10 <- dat$pm10 %*% alpha # reweight lagged covs
+  b <- bam(dat$death ~ s(dat$time, k=200, bs='cr') + s(pm10, bs='cr') 
+             + te(o3, tmp, k=8), 
+           family=poisson)
+  cat('.')
+  if (opt) { return(b$gcv.ubre) }
+  else {
+    b$alpha <- alpha # add alpha to model object
+    b$J <- outer(alpha, -theta / kk^2) # d alph_i / d thetaj
+    for (j in 1:length(theta)) { b$J[j + 1, j] <- b$J[j + 1, j] + 1 / kk}
+    b
+  }
+}
+
+f1 <- optim(rep(1, 5), si, method='BFGS', hessian=T, dat=dat)  # BROKEN
+
+
+# 4.2 A distributed lag model for pollution-related deaths
+ap1 <- bam(death ~ s(time, bs='cr', k=200) + te(pm10, lag, k=c(10, 5)) 
+             + te(o3, tmp, k=c(8, 8, 5)), 
+           family=poisson, 
+           data=dat)
+           
+    
+           
+# 5. Mackerel Egg Survey Example
