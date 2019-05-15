@@ -12,6 +12,7 @@ library(mgcv)
 
 data(brain)
 data(chicago)
+data(mack)
 data(wesdr)
 
 
@@ -264,3 +265,36 @@ ap1 <- bam(death ~ s(time, bs='cr', k=200) + te(pm10, lag, k=c(10, 5))
     
            
 # 5. Mackerel Egg Survey Example
+
+
+# 5.1 Model development
+head(mack)
+mack$log.net.area <- log(mack$net.area)
+gmtw <- gam(egg.count ~ s(lon, lat, k=100) + s(I(b.depth^0.5)) + s(c.dist) 
+              + s(salinity) + s(temp.surf) + s(temp.20m) + offset(log.net.area), 
+            data=mack, 
+            family=tw, 
+            method='REML',
+            select=T)
+gam.check(gmtw)
+par(mfrow=c(2, 3))
+plot(gmtw)
+
+gm2 <- gam(egg.count ~ s(lon, lat, k=100) + s(I(b.depth^0.5)) + s(c.dist) 
+             + s(temp.20m) + offset(log.net.area), 
+           data=mack, 
+           family=tw, 
+           method='REML')
+gam.check(gm2)
+par(mfrow=c(2, 2))
+plot(gm2)
+summary(gm2)
+
+plot(mack$temp.20m, resid(gm2))
+lines(lowess(mack$temp.20m, resid(gm2)), col=2)
+plot(mack$lat * mack$lon, resid(gm2))
+lines(lowess(mack$lat * mack$lon, resid(gm2)), col=2)
+plot(mack$temp.surf, resid(gm2))
+lines(lowess(mack$temp.surf, resid(gm2)), col=2)
+plot(mack$c.dist, resid(gm2))
+lines(lowess(mack$c.dist, resid(gm2)), col=2)
