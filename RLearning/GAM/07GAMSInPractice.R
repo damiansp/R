@@ -12,7 +12,9 @@ library(mgcv)
 
 data(brain)
 data(chicago)
+data(coast)
 data(mack)
+data(mackp)
 data(wesdr)
 
 
@@ -298,3 +300,36 @@ plot(mack$temp.surf, resid(gm2))
 lines(lowess(mack$temp.surf, resid(gm2)), col=2)
 plot(mack$c.dist, resid(gm2))
 lines(lowess(mack$c.dist, resid(gm2)), col=2)
+
+
+# 5.2 Model predictions
+mackp$log.net.area <- 0
+lon <- seq(-15, -1, 0.25)
+lat <- seq(44, 58, 0.25)
+zz <- array(NA, 57 * 57)
+zz[mackp$area.index] <- predict(gm2, mackp)
+image(lon, lat, matrix(zz, 57, 57), cex.lab=1.5, cex.axis=1.4)
+contour(lon, lat, matrix(zz, 57, 57), add=T)
+lines(coast$lon, coast$lat, col='lightgrey')
+
+# set.seed(11)
+br1 <- rmvn(n=1000, coef(gm2), vcov(gm2))
+Xp <- predict(gm2, newdata=mackp, type='lpmatrix')
+mean.eggs1 <- colMeans(exp(Xp %*% t(br1)))
+hist(mean.eggs1)
+
+br <- rmvn(n=1000, coef(gm2), vcov(gm2, unconditional=T))
+Xp <- predict(gm2, newdata=mackp, type='lpmatrix')
+mean.eggs <- colMeans(exp(Xp %*% t(br)))
+hist(mean.eggs)
+
+
+# 5.3 Alternative spatial smooths and geographical regression
+gmgr <- gam(egg.count ~ s(lon, lat, k=100) + s(lon, lat, by=temp.20m) 
+              + s(lon, lat, by=I(b.depth^0.5)) + offset(log.net.area), 
+            data=mack, 
+            family=tw, 
+            method='REML')
+gam.check(gmgr)
+par(mfrow=c(1, 3))
+plot(gmgr)
