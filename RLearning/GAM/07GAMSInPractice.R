@@ -7,9 +7,11 @@ lapply(paste('package:', names(sessionInfo()$otherPkgs), sep=''),
 setwd('~/Learning/R/RLearning/GAM')
 
 library(gamair)
+#library(geoR)
 library(MASS)
 library(mgcv)
 
+data(bird)
 data(brain)
 data(chicago)
 data(coast)
@@ -333,3 +335,81 @@ gmgr <- gam(egg.count ~ s(lon, lat, k=100) + s(lon, lat, by=temp.20m)
 gam.check(gmgr)
 par(mfrow=c(1, 3))
 plot(gmgr)
+
+
+
+# 6. Spatial Smoothing of Portuguese Larks Data
+head(bird)
+
+bird$n <- bird$y / 1000
+bird$e <- bird$x / 1000
+m1 <- gam(crestlark ~ s(e, n, k=100), data=bird, family=binomial, method='REML')
+summary(m1)
+
+par(mfrow=c(1, 3))
+plot(bird$x, bird$y, col=rgb(0, 0, 0, 0.2), pch=16)
+points(bird$x, bird$y, col=bird$crestlark + 1, pch=16)
+unique(bird$crestlark)
+legend('topleft', pch=16, col=1:2, legend=c('absent', 'present'), bty='n')
+plot(m1, scheme=2, contour.col=1, rug=F, too.far=0.03)
+vis.gam(m1, plot.type='contour', too.far=0.03)
+
+# Use Duchon spline (more flexible to boundary effects)
+m2 <- gam(crestlark ~ s(e, n, bs='ds', m=c(1, 0.5), k=100), 
+          data=bird, 
+          family=binomial, 
+          method='REML')
+summary(m2)
+plot(bird$x, bird$y, col=rgb(0, 0, 0, 0.2), pch=16)
+points(bird$x, bird$y, col=bird$crestlark + 1, pch=16)
+unique(bird$crestlark)
+legend('topleft', pch=16, col=1:2, legend=c('absent', 'present'), bty='n')
+plot(m2, scheme=2, contour.col=1, rug=F, too.far=0.03)
+vis.gam(m2, plot.type='contour', too.far=0.03)
+
+# Search for optimal Gaussian process smoother
+REML <- r <- 1:10 * 10
+for (i in 1:length(r)) {
+  mt <- gam(crestlark ~ s(e, n, bs='gp', m=c(3, r[i]), k=100), 
+            data=bird, 
+            family=binomial, 
+            method='REML')
+  REML[i] <- mt$gcv.ubre
+}
+par(mfrow=c(1, 1))
+plot(r, REML, type='l') # opt at rho (r) = 30
+m3 <- gam(crestlark ~ s(e, n, bs='gp', m=c(3, 30), k=100), 
+          data=bird, 
+          family=binomial, 
+          method='REML')
+AIC(m1, m2, m3)
+
+par(mfrow=c(1, 3))
+plot(m1, scheme=2, contour.col=1, rug=F, too.far=0.03)
+plot(m2, scheme=2, contour.col=1, rug=F, too.far=0.03)
+plot(m3, scheme=2, contour.col=1, rug=F, too.far=0.03)
+
+# Aggregate cells
+bird$tet.n <- bird$N <- rep(1, nrow(bird))
+bird$N[is.na(as.vector(bird$crestlark))] <- NA
+ba <- aggregate(data.matrix(bird), by=list(bird$QUADRICULA), FUN=sum, na.rm=T)
+ba$e <- ba$e / ba$tet.n
+ba$n <- ba$n / ba$tet.n
+m10 <- gam(cbind(crestlark, n - crestlark) ~ s(e, n, k=100), 
+           data=ba, 
+           family=binomial, 
+           method='REML')
+coords <- matrix(0, nrow(ba), 2)
+coords[, 1] <- ba$e
+coords[, 2] <- ba$n
+gb <- list(data=resid(m10, type='d'), coords=coords)
+par(mfrow=c(1, 1))
+#plot(variog(gb, max.dist=100))
+plot(fitted(m10), residuals(m10))
+
+
+
+# 7. Generalized Additive Mixed Models in R
+
+
+# 7.1 A space-time GAMM for sole eggs
