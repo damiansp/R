@@ -17,6 +17,7 @@ data(chicago)
 data(coast)
 data(mack)
 data(mackp)
+data(sole)
 data(wesdr)
 
 
@@ -413,3 +414,18 @@ plot(fitted(m10), residuals(m10))
 
 
 # 7.1 A space-time GAMM for sole eggs
+solr <- sole
+head(solr)
+solr$station <- factor(with(solr, paste(-la, -lo, -t, sep='')))
+som <- gamm(eggs ~ te(lo, la, t, bs=c('tp', 'tp'), k=c(25, 5), d=c(2, 1))
+              + s(t, k=5, by=a.0),
+            family=quasipoisson,
+            data=solr,
+            random=list(station=~1))
+som$gam
+som1 <- bam(eggs ~ te(lo, la, t, bs=c('tp', 'tp'), k=c(25, 5), d=c(2, 1))
+              + s(t, k=5, by=a.0) + s(station, bs='re'),
+            family=quasipoisson,
+            data=solr)
+gam.vcomp(som1)
+som$lme
