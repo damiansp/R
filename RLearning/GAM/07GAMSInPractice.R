@@ -13,6 +13,7 @@ library(mgcv)
 
 data(bird)
 data(brain)
+data(cairo)
 data(chicago)
 data(coast)
 data(mack)
@@ -429,3 +430,34 @@ som1 <- bam(eggs ~ te(lo, la, t, bs=c('tp', 'tp'), k=c(25, 5), d=c(2, 1))
             data=solr)
 gam.vcomp(som1)
 som$lme
+
+sole$station <- solr$station
+# sw = 'soap wiggly'; bnd=???
+som2 <- bam(
+  eggs ~ te(lo, 
+            la, 
+            t, 
+            bs=c('sw', 'cr'), 
+            k=c(40, 5), 
+            d=c(2, 1), 
+            xt=list(list(bnd=bnd), NULL)) 
+    + s(t, k=5, by=a.0) 
+    + s(station, bs='re'), 
+  knots=knots,
+  family=quasipoisson,
+  date=sole) 
+  
+
+# 7.2 The Temperature in Cairo
+head(cairo)
+plot(cairo$time, cairo$temp, type='l')
+abline(lm(temp ~ time, data=cairo), col=2)
+ctamm <- gamm(temp ~ s(day.of.year, bs='cc', k=20) + s(time, bs='cr'),
+              data=cairo, 
+              correlation=corAR1(form=~1|year))
+summary(ctamm$gam)
+intervals(ctamm$lme, which='var-cov')
+ctamm$gam$sig2 / ctamm$gam$sp
+par(mfrow=c(1, 2))
+plot(ctamm$gam, scale=0)
+par(mfrow=c(1, 1))
