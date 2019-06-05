@@ -10,6 +10,8 @@ library(gamair)
 #library(geoR)
 library(MASS)
 library(mgcv)
+#library(rjags)
+library(SemiPar)
 
 data(bird)
 data(brain)
@@ -18,6 +20,7 @@ data(chicago)
 data(coast)
 data(mack)
 data(mackp)
+data(sitka)
 data(sole)
 data(wesdr)
 
@@ -461,3 +464,48 @@ ctamm$gam$sig2 / ctamm$gam$sp
 par(mfrow=c(1, 2))
 plot(ctamm$gam, scale=0)
 par(mfrow=c(1, 1))
+
+REML <- rho <- 0.6 + 0:20 / 100 # = seq(0.6, 0.8, 0.01)
+for (i in 1:length(rho)) {
+  ctbam <- bam(temp ~ s(day.of.year, bs='cc', k=20) + s(time, bs='cr'), 
+               data=cairo, 
+               rho=rho[i])
+  REML[i] <- ctbam$gcv.ubre
+}
+cbind(REML, rho) # min(REMP) at rho = 0.69
+(rho.opt <- rho[which(REML == min(REML))])
+
+ctbam <- bam(temp ~ s(day.of.year, bs='cc', k=20) + s(time, bs='cr'), 
+             data=cairo, 
+             rho=rho.opt)
+summary(ctbam)
+par(mfrow=c(1, 2))
+plot
+par(mfrow=c(1, 1))
+
+
+# 7.3 Full Bayesian Stochastic Simulations: jagam
+jd <- jagam(log.size ~ s(days) + ozone, 
+            data=sitka, 
+            file='sitka0.jags', 
+            diagonalize=T)
+# Now edit the 'sitka0.jags' file to add more complicated random effects...
+jd$jags.data$id <- sitka$id.num
+jd$jags.data$nd <- length(unique(sitka$id.num))
+# Following code depends on rjags 
+#load.module('glm')
+#jm <- jags.model('sitka.jags', data=jd$jags.data, inits=jd$jags.ini, n.chains=1)
+#sam <- jags.samples(jm, c('b', 'rho', 'scale', 'mu'), n.iter=10000, thin=10)
+#jam <- sim2jam(sam, jd$pregam)
+#plot(jam)
+#hist(sam$b[2, , 1]) # hist of ozone effect param
+#pd <- data.frame(days=152:674, ozone=days * 0)
+#Xp <- predict(jam, newdata=pd, type='lpmatrix')
+#ii <- 1:25*20 + 500 # draws to select
+#for (i in ii) {     # draw growth curves
+#  fv <- Xp %*% sam$b[, i, 1] # growth curve from posterior
+#  if (i == ii[1]) { plot(pd$days, fv, type='l') } else { lines(pd$days, fv) }
+#}
+
+
+# 7.4 Random Wiggly Curves
