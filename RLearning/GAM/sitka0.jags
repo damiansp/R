@@ -1,11 +1,8 @@
 model {
-  mu <- X %*% b                             ## expected response
-  for (i in 1:n) { mu[i] <- mu0[i] + d[id[i]] } ## ADDED r.e.
+  mu <- X %*% b ## expected response
   for (i in 1:n) { y[i] ~ dnorm(mu[i],tau) } ## response 
-  scale <- 1/tau                            ## convert tau to standard GLM scale
-  tau ~ dgamma(.05,.005)                    ## precision parameter prior
-  for (i in 1:nd) { d[i] ~ dnorm(0,taud) }  ## ADDED r.e. dist
-  taud ~ dgamma(0.05,0.005)                 ## ADDED r.e precision prior
+  scale <- 1/tau ## convert tau to standard GLM scale
+  tau ~ dgamma(.05,.005) ## precision parameter prior 
   ## Parametric effect priors CHECK tau=1/58^2 is appropriate!
   for (i in 1:2) { b[i] ~ dnorm(0,3e-04) }
   ## prior for s(days)... 

@@ -12,6 +12,7 @@ library(MASS)
 library(mgcv)
 #library(rjags)
 library(SemiPar)
+library(survival)
 
 data(bird)
 data(brain)
@@ -20,6 +21,7 @@ data(chicago)
 data(coast)
 data(mack)
 data(mackp)
+data(pbc)
 data(sitka)
 data(sole)
 data(wesdr)
@@ -509,3 +511,25 @@ jd$jags.data$nd <- length(unique(sitka$id.num))
 
 
 # 7.4 Random Wiggly Curves
+sitka$id.num <- as.factor(sitka$id.num)
+b <- gamm(
+  log.size ~ s(days) + ozone + ozone:days + s(days, id.num, bs='fs', k=5), 
+  data=sitka)
+plot(b$gam, pages=1)
+
+
+
+# 8. Primary Biliary Cirrhosis Survival Analysis
+head(pbc)
+pbc$status1 <- as.numeric(pbc$status == 2)
+pbc$stage <- factor(pbc$stage)
+b0 <- gam(
+  time ~ trt + sex + stage + s(sqrt(protime)) + s(platelet) + s(age) + s(bili) 
+    + s(albumin) + s(sqrt(ast)) + s(alk.phos), 
+  weights=status1, 
+  family=cox.ph, 
+  data=pbc)
+anova(b0)
+par(mfrow=c(2, 4))
+plot(b0)
+plot(b0$linear.predictors, residuals(b0))
