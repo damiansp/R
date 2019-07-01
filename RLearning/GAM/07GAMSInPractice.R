@@ -533,3 +533,69 @@ anova(b0)
 par(mfrow=c(2, 4))
 plot(b0)
 plot(b0$linear.predictors, residuals(b0))
+
+np <- 300
+newd <- data.frame(matrix(0, np, 0))
+for (n in names(pbc)) { newd[[n]] <- rep(pbc[[n]][25], np) }
+newd$time <- seq(0, 4500, length=np)
+
+# predict and plot survival function
+fv <- predict(b0, newdata=newd, type='response', se=T)
+par(mfrow=c(1, 1))
+plot(newd$time, fv$fit, type='l', ylim=c(0, 1), xlab='time', ylab='surv', lwd=2)
+# crude 2se intervals
+lines(newd$time, fv$fit + 2*fv$se.fit, col=4)
+lines(newd$time, fv$fit - 2*fv$se.fit, col=4)
+# cum hazard based intervals
+se <- fv$se.fit / fv$fit
+lines(newd$time, exp(log(fv$fit) + 2*se), col=2)
+lines(newd$time, exp(log(fv$fit) - 2*se), col=2)
+
+
+# 8.1 Time Dependent Covariates
+pbcseq$status1 <- as.numeric(pbcseq$status == 2) # deaths
+# Taken from: ?cox.pht
+app <- function(x, t, to) {
+  ## wrapper to approx for calling from apply...
+  y <- if (sum(!is.na(x))<1) rep(NA, length(to)) 
+       else approx(t, x, to, method="constant", rule=2)$y
+  if (is.factor(x)) factor(levels(x)[y], levels=levels(x)) else y
+} ## app
+
+tdpois <- function(
+    dat, event="z", et="futime", t="day", status="status1", id="id") {
+  ## dat is data frame. id is patient id; et is event time; t is
+  ## observation time; status is 1 for death 0 otherwise;
+  ## event is name for Poisson response.
+  if (event %in% names(dat)) warning("event name in use")
+  require(utils) ## for progress bar
+  te <- sort(unique(dat[[et]][dat[[status]]==1])) ## event times
+  sid <- unique(dat[[id]])
+  prg <- txtProgressBar(min=0, 
+                        max=length(sid),
+                        initial=0, 
+                        char="=", 
+                        width=NA, 
+                        title="Progress", 
+                        style=3)
+  ## create dataframe for poisson model data
+  dat[[event]] <- 0
+  start <- 1
+  dap <- dat[rep(1:length(sid), length(te)), ]
+  for (i in 1:length(sid)) { ## work through patients
+    di <- dat[dat[[id]]==sid[i], ] ## ith patient's data
+    tr <- te[te <= di[[et]][1]] ## times required for this patient
+    ## Now do the interpolation of covariates to event times...
+    um <- data.frame(lapply(X=di, FUN=app, t=di[[t]], to=tr))
+    ## Mark the actual event...
+    if (um[[et]][1] == max(tr) && um[[status]] == 1) um[[event]][nrow(um)] <- 1 
+    um[[et]] <- tr ## reset time to relevant event times
+    dap[start:(start-1+nrow(um)), ] <- um ## copy to dap
+    start <- start + nrow(um)
+    setTxtProgressBar(prg, i)
+  }
+  close(prg)
+  dap[1:(start - 1),]
+} ## tdpois
+
+pb <- tdpois(pbcseq)
