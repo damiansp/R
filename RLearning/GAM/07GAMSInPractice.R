@@ -553,13 +553,13 @@ lines(newd$time, exp(log(fv$fit) - 2*se), col=2)
 
 
 # 8.1 Time Dependent Covariates
-pbcseq$status1 <- as.numeric(pbcseq$status == 2) # deaths
 # Taken from: ?cox.pht
 app <- function(x, t, to) {
   ## wrapper to approx for calling from apply...
   y <- if (sum(!is.na(x))<1) rep(NA, length(to)) 
        else approx(t, x, to, method="constant", rule=2)$y
-  if (is.factor(x)) factor(levels(x)[y], levels=levels(x)) else y
+  if (is.factor(x)) factor(levels(x)[y], levels=levels(x)) 
+  else y
 } ## app
 
 tdpois <- function(
@@ -598,4 +598,45 @@ tdpois <- function(
   dap[1:(start - 1),]
 } ## tdpois
 
-pb <- tdpois(pbcseq)
+# Convert pbcseq to equivalent Poisson form...
+pbcseq$status1 <- as.numeric(pbcseq$status == 2) ## death indicator
+pb <- tdpois(pbcseq) ## conversion
+pb$tf <- factor(pb$futime) ## add factor for event time
+
+# unlike lm, 'tf - 1' syntax ensures one coef estimated for each even time, not
+# removal of intercept param
+# Fit Poisson model...
+b <- bam(z ~ tf - 1 + sex + trt + s(sqrt(protime)) + s(platelet)+ s(age)+
+s(bili)+s(albumin), family=poisson,data=pb,discrete=TRUE,nthreads=2)
+
+summary(b)
+
+par(mfrow=c(2,3))
+plot(b,scale=0, scheme=1)
+
+# compute residuals...
+chaz <- tapply(fitted(b),pb$id,sum) ## cum haz by subject
+d <- tapply(pb$z,pb$id,sum) ## censoring indicator
+mrsd <- d - chaz ## Martingale
+drsd <- sign(mrsd)*sqrt(-2*(mrsd + d*log(chaz))) ## deviance
+
+# plot survivor function and s.e. band for subject 25
+te <- sort(unique(pb$futime)) ## event times
+di <- pbcseq[pbcseq$id==25,] ## data for subject 25
+pd <- data.frame(lapply(X=di,FUN=app,t=di$day,to=te)) ## interpolate to te
+pd$tf <- factor(te)
+X <- predict(b, newdata=pd, type='lpmatrix')
+eta <- drop(X %*% coef(b))
+H <- cumsum(exp(eta))
+J <- apply(exp(eta) * X, 2, cumsum)
+se <- diag(J %*% vcov(b) %*% t(J))^0.5
+plot(stepfun(te, c(1, exp(-H))), 
+     do.points=F, 
+     ylim=c(0.7, 1), 
+     ylab='S(t)', 
+     xlab='t(days)', 
+     main='', 
+     lwd=2)
+lines(stepfun(te, c(1, exp(-H + se))), do.points=F, col=2)
+lines(stepfun(te, c(1, exp(-H - se))), do.points=F, col=2)
+rug(pbcseq$day[pbcseq$id == 25])
