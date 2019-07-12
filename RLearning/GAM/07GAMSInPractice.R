@@ -24,6 +24,7 @@ data(mackp)
 data(pbc)
 data(sitka)
 data(sole)
+data(swer)
 data(wesdr)
 
 
@@ -640,3 +641,41 @@ plot(stepfun(te, c(1, exp(-H))),
 lines(stepfun(te, c(1, exp(-H + se))), do.points=F, col=2)
 lines(stepfun(te, c(1, exp(-H - se))), do.points=F, col=2)
 rug(pbcseq$day[pbcseq$id == 25])
+
+
+
+# 9 Location-Scale Modeling
+# Modeling assumptions: 
+# acc[i] ~N(mu[i], var[i]); mu[i] = f1(time[i]); log(sd - b) - f2(time[i])
+b <- gam(list(accel ~ s(times, bs='ad'), ~s(times, bs='ad')), 
+         family=gaulss, 
+         data=mcycle)
+summary(b)
+par(mfrow=c(1, 2))
+plot(b) # acceleration, and log(shifted(sd))
+# not clear, but I think params: mu and log(shifted(sd)) are givens in the 
+# gaulss model-- check
+
+
+# 9.1 Extreme Rainfall in Switzerland
+b0 <- gam(
+  list(
+    exra ~ s(nao) + s(elevation) + climate.region 
+      + te(N, E, year, d=c(2, 1), k=c(20, 5)), 
+    ~ s(year) + s(nao) + s(elevation) + climate.region + s(N, E), 
+    ~ s(elevation) + climate.region), 
+  family=gevlss, 
+  data=swer) 
+  
+# reducing...
+b <- gam(list(exra ~ s(nao) + s(elevation) + climate.region + s(N, E), 
+              ~ s(year) + s(elevation) + climate.region + s(N, E), 
+              ~ climate.region), 
+         family=gevlss, 
+         data=swer) 
+mu <- fitted(b)[, 1]
+rho <- fitted(b)[, 2]
+xi <- fitted(b)[, 3]
+fv <- mu + exp(rho) * (gamma(1 - xi) - 1)/xi
+par(mfrow=c(2, 3))
+plot(b)
