@@ -679,3 +679,27 @@ xi <- fitted(b)[, 3]
 fv <- mu + exp(rho) * (gamma(1 - xi) - 1)/xi
 par(mfrow=c(2, 3))
 plot(b)
+
+# GEV inverse CDF
+Fi.gev <- function(z, mu, sigma, xi) {
+  xi[abs(xi) < 1e-8] <- 1e-8 # appx 0 values by small xi values
+  x <- mu + ((-log(z))^-xi - 1) * sigma/xi
+}
+
+mb <- coef(b) # posterior mean and...
+Vb <- vcov(b) # cov
+b1 <- b       # copy to modify
+n.rep <- 1000
+br <- rmvn(n.rep, mb, Vb) # posterior sim
+n <- length(fitted(b))
+sim.dat <- cbind(data.frame(rep(0, n * n.rep)), swer$code)
+for (i in 1:n.rep) {
+  b1$coefficients <- br[i, ] # copy sim coefs to gam obj
+  X <- predict(b1, type='response')
+  ii <- 1:n + (i - 1)*n
+  sim.dat[ii, 1] <- Fi.gev(runif(n), X[, 1], exp(X[, 2]), X[, 3])
+}
+
+# now simulate mean and 98th percentile of annual max for ea station
+stm <- tapply(sim.dat[, 1], sim.dat[, 2], mean)
+st98 <- tapply(sim.dat[, 1], sim.dat[, 2], quantile, probs=0.98)
