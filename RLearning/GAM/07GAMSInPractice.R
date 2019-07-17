@@ -21,6 +21,7 @@ data(chicago)
 data(coast)
 data(mack)
 data(mackp)
+data(mpg)
 data(pbc)
 data(sitka)
 data(sole)
@@ -703,3 +704,26 @@ for (i in 1:n.rep) {
 # now simulate mean and 98th percentile of annual max for ea station
 stm <- tapply(sim.dat[, 1], sim.dat[, 2], mean)
 st98 <- tapply(sim.dat[, 1], sim.dat[, 2], quantile, probs=0.98)
+
+
+
+# 10. Fuel Efficiency of Cars: Multivariate Additive Models
+b <- gam(
+  list(city.mpg ~ fuel + style + drive + s(weight) + s(hp) + s(make, bs='re'),
+       hw.mpg ~ fuel + style + drive + s(weight) + s(hp) + s(make, bs='re')),
+  family=mvn(d=2),
+  data=mpg)
+par(mfrow=c(2, 3))
+plot(b)
+summary(b) 
+
+# note make not signif for hw.mpg, and shape of both weight and hp similar in
+# both mods.  Force identical smooths:
+b1 <- gam(
+  list(city.mpg ~ fuel + style + drive + s(hp) + s(weight) + s(make, bs='re'),
+       hw.mpg ~ fuel + style + drive + s(make, bs='re'),
+       1+2 ~ s(weight) + s(hp) - 1),
+  family=mvn(d=2),
+  data=mpg)
+summary(b1)
+plot(b1)
