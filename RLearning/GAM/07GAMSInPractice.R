@@ -19,10 +19,12 @@ data(brain)
 data(cairo)
 data(chicago)
 data(coast)
+data(gas)
 data(mack)
 data(mackp)
 data(mpg)
 data(pbc)
+data(prostate)
 data(sitka)
 data(sole)
 data(swer)
@@ -727,3 +729,25 @@ b1 <- gam(
   data=mpg)
 summary(b1)
 plot(b1)
+
+
+
+# 11. Functional Data Analysis
+
+
+# 11.1 Scalar on function regression
+# mod: octane[i] = integral(f(v)k[i](v)dv) + e[i]
+# k[i](v) is the spectrum as a function of frequency, v
+b <- gam(octane ~ s(nm, by=NIR, k=50), data=gas)
+plot(b, scheme=1, col=4)
+plot(fitted(b), gas$octane)
+abline(lm(fitted(b) ~ gas$octane))
+
+b <- gam(type ~ s(MZ, by=intensity, k=100), 
+         family=ocat(R=3), 
+         data=prostate, 
+         method='ML')
+plot(b, scheme=1, xlab='Daltons', ylab='f(D)', cex.lab=1.6, cex.axis=1.4)
+pb <- predict(b, type='response') # matrix of class probs
+plot(factor(prostate$type), pb[, 3])
+qq.gam(b, rep=100, lev=0.95)
