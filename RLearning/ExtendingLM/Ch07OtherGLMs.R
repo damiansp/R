@@ -173,9 +173,3 @@ halfnorm(cooks.distance(modl), labs = ll) # Asian elephant has high influence
 plot(predict(modl), resid(modl, type = 'pearson'), 
 	 xlab = 'Linear Predictor', ylab = 'Pearson Residuals')
 # Variance is basically constant, so variance function ([quasi-]binom) seems appropriate
-
-
-
-
-
-save.image('~/Desktop/R/Extending the Linear Model/ELM.RData')

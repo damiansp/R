@@ -197,10 +197,3 @@ summary(modpla, dispersion=dp)
 # same as modeling with quasipoisson dispersion parameter
 modpla2 <- glm(Species ~ log(Area) + log(Adjacent), family=quasipoisson, gala)
 summary(modpla2)
-
-
-
-
-
-
-save.image('~/Desktop/R/Extending the Linear Model/ELM.RData')
