@@ -2,7 +2,57 @@
 library(faraway)
 
 
-# 1.2 Initial Data Analysi
-data(pima)
-head(pima)
-summary(pima)  # note min of 0 for many where not possible
+add.nas <- function(pima) {
+	cols <- c('diastolic', 'glucose', 'triceps', 'insulin', 'bmi')
+	for (col in cols) { 
+		pima[pima[col] == 0, col] <- NA
+	}
+	pima
+}
+
+
+factorize.test <- function(test) {
+	test <- factor(test)
+	levels(test) <- c('negative', 'positive')
+	test
+}
+
+
+plot.diastolic <- function(d) {
+	par(mfrow=c(1, 3))
+	hist(d)
+	plot(density(d, na.rm=T))
+	plot(sort(d), pch='.')
+	par(mfrow=c(1, 1))
+}
+
+
+plot.diabetes <- function(pima) {
+	quartz()
+	par(mfrow=c(1, 2))
+	plot(diabetes ~ diastolic, pima)
+	plot(diabetes ~ test, pima)
+	par(mfrow=c(1, 1))
+	quartz()
+	pairs(pima)
+}
+
+
+# 1.2 Initial Data Analysis
+initial.analysis <- function() {
+	data(pima)
+	print(summary(pima))  # note min of 0 for many where not possible
+	pima <- add.nas(pima)
+	pima$test <- factorize.test(pima$test)
+	print(summary(pima))
+	plot.diastolic(pima$diastolic)
+	plot.diabetes(pima)
+}
+
+
+main <- function() {
+	initial.analysis
+}
+
+
+main()
