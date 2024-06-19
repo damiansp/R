@@ -50,8 +50,19 @@ initial.analysis <- function() {
 }
 
 
+# 1.4 History
+history <- function() {
+	data(stat500)
+	stat500 <- data.frame(scale(stat500))
+	quartz()
+	plot(final ~ midterm, stat500)
+	abline(0, 1)
+}
+
+
 main <- function() {
-	initial.analysis
+	initial.analysis()
+	history()
 }
 
 
