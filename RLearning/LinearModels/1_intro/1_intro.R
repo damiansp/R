@@ -57,7 +57,12 @@ history <- function() {
 	quartz()
 	plot(final ~ midterm, stat500)
 	abline(0, 1)
+	g <- lm(final ~ midterm, stat500)
+	abline(coef(g), col=2)
+	cor(stat500)
 }
+
+
 
 
 main <- function() {
