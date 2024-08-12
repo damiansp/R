@@ -19,4 +19,24 @@ beta.hat
 
 # Better but not perfect:
 solve(crossprod(x, x),  crossprod(x, y))  # crossprod(A, B) =  ATB
+names(m1)
+m.summary <- summary(m1)
+names(m.summary)
 
+# est sd
+sqrt(deviance(m1) / df.residual(m1))
+m.summary$sigma
+
+# (XTX)^-1
+xtxi <- m.summary$cov.unscaled
+sqrt(diag(xtxi)) * m.summary$sigma  # SEs for coefs
+m.summary$coef
+
+1 - deviance(m1) / sum((y - mean(y))^2)  # Rsq
+m.summary$r.squared
+
+
+# 9. Identifiability
+gala$Adiff <- gala$Area - gala$Adjacent  # linearly dependent variable
+g <- lm(Species ~ Area + Elevation + Nearest + Scruz + Adjacent + Adiff, gala)
+summary(g)  # NAs estimated
